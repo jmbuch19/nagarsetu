@@ -89,6 +89,7 @@ and log each completed unit in `AUDIT.md`. Decisions needed → see `MEMORY.md`.
 - [ ] Security pass per `AUDIT.md` checklist (RLS, validation, rate limits, secrets, payment verification)
 - [ ] Gujarati glyph QA across app + rendered PDF
 - [ ] Privacy controls + connector disclaimers verified
+- [ ] Governance: assign first **Nagarsetu Admins** (editor + admin roles in `members.role`); finalise the powers matrix per actual operational needs; lock the Gujarati equivalent of the user-facing label
 
 ### 9. Launch polish (data-gated — turn on once there's ample data)
 - [ ] Public "Community Pulse" counters on the landing page (state counts: members, doctors, professionals, articles published, listings…)

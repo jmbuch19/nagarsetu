@@ -10,6 +10,8 @@ Source of truth for *what* to build. Constraints live in `CLAUDE.md`. Roadmap in
 - **Editor** — manages the magazine (curate submissions, render, publish). E.g. the Setusarjan team.
 - **Admin** — verification, moderation, reports/disputes, listing oversight, issue config.
 
+> **User-facing label:** for now, every UI surface, disclaimer, magazine credit, and notification refers to both Editor and Admin uniformly as **"Nagarsetu Admins"**. The schema keeps the technical `role` split (because magazine + moderation flows need it), but the public-facing distinction is collapsed until after launch. The Gujarati equivalent of "Nagarsetu Admins" for bilingual surfaces is TBD at i18n time. Specific powers per role will be locked in `MEMORY.md` once real operational needs surface.
+
 ---
 
 ## 1.5 Geography & diaspora
