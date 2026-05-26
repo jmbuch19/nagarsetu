@@ -23,7 +23,7 @@ Full functional detail is in `SPEC.md`. Background narrative is in `CONCEPT.md`.
 2. **No commission, ever.** The app never takes a cut of any member-to-member transaction.
 3. **The only money the app handles is the listing fee.** A small fee charged when a member publishes a *commercial* listing. That's it.
 4. **Belonging is free; selling carries a fee.** Directory profile + Community Intelligence are free for all members (the data must be complete to be useful). The listing fee applies only at the moment of publishing a commercial offer.
-5. **Open membership; trust is earned, not gated at entry.** Anyone can sign up (Meta WhatsApp OTP) and build a profile. Nagar identity is self-declared — surname, city, geolocation, gender, age are *indicators and profile data*, never a hard gate. The high-risk actions (hosting a stay, renting out a vehicle) require identity verification + reputation via the trust ladder; that is where safety is enforced.
+5. **Open membership; trust is earned, not gated at entry.** Anyone can sign up (Meta WhatsApp OTP) and build a profile. Nagar identity is self-declared — surname, city, PIN, gender, age are *indicators and profile data*, never a hard gate. Personal profile asks city + PIN only, never a home address. The high-risk actions (hosting a stay, renting out a vehicle) require identity verification + reputation via the trust ladder; that is where safety is enforced.
 6. **Availability is a coordination aid, not a booking.** The app never hard-locks a slot or adjudicates a conflict. See `SPEC.md` §"Availability & Coordination".
 7. **The app is never a party to disputes.** See `DISPUTE.md`.
 8. **Gujarati is a first-class language.** Content, fonts, and the magazine render must handle Gujarati cleanly. Never ship a layout that breaks Gujarati glyphs.
@@ -75,4 +75,6 @@ Full functional detail is in `SPEC.md`. Background narrative is in `CONCEPT.md`.
 | `MEMORY.md` | Durable decisions + open decisions. Persists across sessions. |
 | `AUDIT.md` | Running build + security log. |
 | `DISPUTE.md` | Member-dispute handling (connector-safe). |
+| `LEGAL.md` | Required legal/policy pages, footer/consent CTAs, Meta + Razorpay link checklists. |
+| `EMAILS.md` | Email templates (transactional + digest) + WhatsApp template parity. |
 | `IDEAS.md` | Parking lot for deferred ideas. |

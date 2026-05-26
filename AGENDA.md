@@ -25,15 +25,14 @@ and log each completed unit in `AUDIT.md`. Decisions needed → see `MEMORY.md`.
 
 ### 2. Auth & identity
 - [ ] Meta WhatsApp OTP via Supabase Auth Hook (approved authentication template); sessions in Supabase
-- [ ] **Session policy** (`SPEC.md` §1.5): access token 1 h (default), refresh token **rolling 30-day inactivity timeout**; multi-device unlimited; SDK auto-refreshes silently — no OTP re-prompt unless device idle >30 days
-- [ ] Secure token storage: **httpOnly secure cookies** on Next.js (Supabase SSR pattern); **expo-secure-store** on Expo (iOS Keychain / Android Keystore); never localStorage / AsyncStorage
-- [ ] **Active sessions screen** in profile: list each device (last-seen, rough city from IP, browser/OS label) with per-device "Sign out" + "Sign out everywhere" (admin revocation RPC)
-- [ ] Account-takeover response: admin-triggered "revoke all sessions" path (UI + audit log entry)
-- [ ] Open sign-up + member profile create/edit (name, surname, city, sub-community, geolocation, gender, DOB, photo, bio)
+- [ ] Sign-up gate = mobile + OTP + consent only (Terms + WhatsApp opt-in); NO profile fields here
+- [ ] Profile create/edit — required: name, surname, city, PIN, gender, DOB; optional: email, photo, sub-community, bio (NO home address)
 - [ ] Onboarding nudge: "What can you offer the circle?" — invite at least one offer from every member
 - [ ] Profile surfaces both sides: what the member offers + what they're seeking
 - [ ] member_professions UI (controlled lists only) — cascading profession → specialty (auto-appears), with status (current/retired/studying)
 - [ ] Smart progressive profiling: consent-first opt-ins → `member_capabilities` (expert_guidance / mentor / other); editable anytime; "No" re-offered later
+- [ ] Encouragement screen BEFORE expertise opt-ins (સેવા framing; promise connection/possibility, never guaranteed outcomes)
+- [ ] Continuous flow (basics → encouragement → expertise); "I'll do this later" allowed but re-surfaced contextually
 - [ ] Contextual opt-in nudges (e.g. "students seek a mentor in your field")
 - [ ] "Recognised Nagar surname" soft badge from a reference surname list (signal only, never a gate)
 - [ ] ID verification flow (photo ID) — **only required to host a stay / rent out a vehicle (L2)**; admin reviews; sets trust level
@@ -43,11 +42,11 @@ and log each completed unit in `AUDIT.md`. Decisions needed → see `MEMORY.md`.
 - [ ] Onboarding CTA hub by intent (Connect / Find / Offer) with short descriptions
 - [ ] Directory search/filter (profession, specialty, city, sub-community)
 - [ ] Permissioned contact reveal
-- [ ] Community Intelligence dashboard ("347 doctors… 41 cardiologists… city-wise")
+- [ ] Community Intelligence: multi-dimensional drill-down (country → city/PIN → profession → specialty; + job, capability, status, sub-community, age, gender), composable filters, member-list reveal (contact permission-gated). Materialized views.
 
 ### 4. Listings + Availability + Inquiry
 - [ ] **Unified "Create a Listing" hub** → category picker (business/room/vehicle/pg/goods/tour/service); rentals NOT under business
-- [ ] Category-specific forms (rentals: Day/Week/Month + availability)
+- [ ] Category-specific forms (rentals: Day/Week/Month + availability; business/service: full address, hours, service area, contact; room/PG/vehicle: area+city+PIN, exact location shared on connect)
 - [ ] Verification routing per category: open / ID-verified (room·vehicle·pg) / admin-reviewed (business)
 - [ ] **Requests (seeker side):** PG Seeker + generalised "looking for room/ride/tutor" — free, demand-side
 - [ ] Create/edit/pause listing; time-binding per category
@@ -91,48 +90,21 @@ and log each completed unit in `AUDIT.md`. Decisions needed → see `MEMORY.md`.
 - [ ] Reactive moderation for broadcasts (flag + post-hoc removal) + per-member rate-limits
 
 ### 7b. Education pillar
-
-**Scholarships (member/trust offers ↔ family applies; both sides FREE):**
-- [ ] Data model: `scholarships`, `scholarship_applications` (state machine: submitted | under_review | shortlisted | awarded | rejected | withdrawn), `scholarship_alerts` (member_id, criteria_course nullable, criteria_city_id nullable, criteria_gender nullable) — full schemas in `SPEC.md` §2 Education
-- [ ] Extend `reports` with `scholarship_id (nullable)` for reactive moderation (same pipeline as listings / community_events)
-- [ ] **L2 ID-verification gate on publish** — server blocks unless `members.id_verification = 'verified'`; clear "verify your ID to offer a scholarship" prompt routes the member into the verification flow
-- [ ] Publish form: title, description, criteria (course, merit, income cap, city, gender, other), amount text, deadline, contact (member + WhatsApp)
-- [ ] Discovery surface: filter by course / city / gender / deadline; sort by deadline-nearest; open/closed status badge
-- [ ] Connector disclaimer on every scholarship card: *"Nagarsetu lists this scholarship offered by {{offered_by_name}}. The offering party decides shortlisting and awards. Verify details directly with the offerer."*
-- [ ] Application flow: family submits → offering member's Scholarship Inbox → offering member moves through states (submitted → under_review → shortlisted → awarded / rejected); applicant can withdraw anytime
-- [ ] **Offering member is the sole adjudicator** — schema enforces `scholarship_applications.decided_by_member_id == scholarships.offered_by_member_id`; admin can override only via a documented moderation action (audit-logged)
-- [ ] Each state transition fires in-app + email notification to applicant; Utility WhatsApp template if `opt_in_whatsapp = true`
-- [ ] Notification fan-out on publish: in-app + email to members in criteria-matched city with `status = studying`; WhatsApp Utility template (*"scholarship matching your criteria is open"*) **only** to opted-in members with a matching `scholarship_alerts` row
-- [ ] Member-facing `scholarship_alerts` opt-in UI: *"tell me about new scholarships for {{course}} in {{city}}"* — leave any axis null for match-all
-- [ ] Lifecycle cron: flip `status = open → closed` after `deadline + 24h grace`; reject new applications post-close; offering member can manually close earlier
-- [ ] Document uploads on applications: type/size-checked; stored in scoped Storage bucket; RLS so only the applicant + offering member + admins can read
-- [ ] Reactive moderation: standard `reports` flow with `scholarship_id`; admin actions per `DISPUTE.md`
-
-**Career guidance:** reuses `member_capabilities` (expert_guidance / mentor) + mentorship matching — no new tables; surface a "find career guidance" entry point in the Connect intent hub.
-
-**Education listings (tutors / coaching / courses):** uses the existing `education` listing category under the unified Create-a-Listing hub; carries the listing fee like other commercial offers (no special handling beyond category-specific form fields: subjects taught, level, mode online/in-person).
-
-**Student profiles:** surface members with `member_professions.status = studying` as natural recipients in scholarship + mentor notifications and in admin views ("X students seeking guidance in {{city}}"). No new schema.
+- [ ] Scholarships: offer (with criteria) ↔ application flow (free)
+- [ ] `education` listing category (tutors/coaching/courses)
+- [ ] Career guidance via existing member_capabilities + mentorship matching
+- [ ] Surface `status = studying` students as recipients/mentees
 
 ### 7c. Community Event Announcements
-- [ ] Data model: `community_events` (full schema in `SPEC.md` §2 → Community Event Announcements); `community_event_alerts` (member_id, event_type nullable, city_id nullable); add `community_event_id (nullable)` to existing `reports` table
-- [ ] Settings: `community_event_rate_limit_count` (default 1), `community_event_rate_limit_days` (default 7) — admin-tunable
-- [ ] Publish form: required `event_type` from controlled list (annual_gathering | ritual | medical_camp | religious | cultural | other); title; organising_body; city; start/end datetime; contact (member + WhatsApp); optional cover image
-- [ ] **Significance checkbox at publish** — required to enable Publish button; server stamps `significance_confirmed_at`
-- [ ] **Frictionless publish — NO admin approval gate**; goes live immediately on successful submit
-- [ ] **Server-side rate-limit enforcement** (count member's announcements in trailing `rate_limit_days`; reject with a clear "next slot opens {{date}}" message if >= cap)
-- [ ] Living Feed card variant: announcement badge, organising body prominent, date band, single primary CTA ("WhatsApp the organiser" → `wa.me` deep link)
-- [ ] Connector disclaimer on every card: *"Nagarsetu announces. The event is organised by {{organising_body}}. Verify details with the organiser."*
-- [ ] Notification fan-out to relevant members: city (`members.city_id == event.city_id`) + opted-in interest from `community_event_alerts` (event_type / city_id filters; nulls mean match-all on that axis)
-- [ ] In-app + email notifications (subject to per-member email opt-in) — always
-- [ ] WhatsApp blast via **pre-approved Marketing template** ("Community announcement") — only to members with `opt_in_whatsapp = true`; opt-out honoured; non-opted members get in-app + email only
-- [ ] Cancellation flow: creator (or admin) sets `status = cancelled` → fires cancellation notification to original audience via pre-approved Utility template ("Community announcement: cancelled")
-- [ ] Lifecycle cron: flip `status = active → past` once `now > end_datetime`
-- [ ] Reactive moderation: standard `reports` flow with `community_event_id`; admin can remove post-hoc per `DISPUTE.md`; repeat-abuse path tightens the creator's rate limit + trust-level impact
-- [ ] Member-facing alerts opt-in UI (manage `community_event_alerts` rows — filter by event_type and/or city, or leave both null for "tell me about everything")
-- [ ] WhatsApp template submission to Meta (Marketing + Utility variants) — track approval state; do not enable the broadcast channel until approved
+- [ ] `community_events` create → live (no pre-approval) → feed + notifications
+- [ ] Significance guard: event_type + significance confirmation + rate-limit
+- [ ] WhatsApp/email notify (opt-in + approved templates only)
 
 ### 8. Hardening (before any wider release)
+- [ ] Legal/policy pages per `LEGAL.md` (/terms /privacy /refunds /shipping /contact /about /pricing /guidelines /disclaimer /data) + footer & consent CTAs
+- [ ] Razorpay activation links verified; Meta privacy + data-deletion + opt-in links verified
+- [ ] Email templates per `EMAILS.md` (transactional always; digest gated on opt_in_email; unsubscribe in all)
+- [ ] WhatsApp templates registered + approved (Utility: interest/renewal; Marketing: digest; Auth: OTP)
 - [ ] Security pass per `AUDIT.md` checklist (RLS, validation, rate limits, secrets, payment verification)
 - [ ] Gujarati glyph QA across app + rendered PDF
 - [ ] Privacy controls + connector disclaimers verified

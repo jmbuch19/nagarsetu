@@ -12,34 +12,6 @@ Source of truth for *what* to build. Constraints live in `CLAUDE.md`. Roadmap in
 
 ---
 
-## 1.5 Session & device policy
-
-**Goal:** keep a member effectively logged in for **30 days per device** with **no OTP re-prompt** during that window, on **as many devices as they like** (multi-device by design). Driver: cut Meta WhatsApp OTP delivery cost (~₹0.30–₹0.50 per send) and remove re-auth friction — without weakening revocation.
-
-**Mechanism (Supabase Auth, no custom JWT layer):**
-- **Access token (JWT)** — short-lived (default **1 hour**). Deliberately NOT long-lived: a long-lived JWT cannot be revoked before its expiry, which would break our security posture for lost/compromised devices and account-takeover response.
-- **Refresh token** — rolling **30-day inactivity timeout**. The Supabase SDK on each client silently exchanges the refresh token for a fresh access token in the background; the member sees no interactive prompt unless 30 days pass without opening the app on that device.
-- **Rolling window:** the 30-day clock **resets on every successful refresh** — open the app, the clock restarts.
-- **Multi-device:** each device gets its own refresh-token pair; no upper limit. Sessions are independent — signing out of one device does not sign out of others.
-
-**Storage (security-critical):**
-- **Web (Next.js):** httpOnly secure cookies via Supabase's SSR cookie strategy. **Never** localStorage / sessionStorage.
-- **Mobile (Expo):** `expo-secure-store` → iOS Keychain / Android Keystore. **Never** AsyncStorage in plaintext.
-
-**Active sessions UI (mandatory before launch):**
-- Profile screen lists every device with: last-seen timestamp, rough city derived from IP, device label (browser / OS).
-- Per-device **"Sign out"** button → revokes that refresh token.
-- **"Sign out everywhere"** → admin-RPC call that revokes every refresh token for the member; each device's next access-token expiry (within 1 h) drops it out.
-
-**OTP re-entry triggers (besides 30 days of inactivity):**
-- Explicit member logout (per-device or everywhere).
-- Admin-triggered revocation (e.g. on a reported account-takeover).
-- Phone-number change (when that flow exists).
-
-**Cost rationale, made concrete:** at ~₹0.40 per Meta WhatsApp OTP, an active member who opens the app weekly triggers ~52 OTPs/year on a per-session model (~₹21/year/member). With the 30-day rolling window, the same member triggers ~12 OTPs/year (~₹5/year/member) — roughly a **4× saving** on auth-delivery cost at no revocation cost (short access tokens preserve it).
-
----
-
 ## 2. Data Model (Phase 1 first cut)
 
 > All tables get `id uuid pk`, `created_at`, `updated_at`. RLS on every table.
@@ -56,8 +28,10 @@ Source of truth for *what* to build. Constraints live in `CLAUDE.md`. Roadmap in
 - **genres** — `name` (magazine: લેખ, ચિંતન, લઘુવાર્તા, કવિતા, ગઝલ, ગીત, અછાંદસ, ગરબો, બાળગીત, હાસ્ય)
 
 ### Core
-- **members** — `full_name, surname, phone (unique), city_id, sub_community_id, geo_lat, geo_lng, gender, date_of_birth, photo_url, bio, role (member|editor|admin), trust_level (0–3), id_verification (none|pending|verified), recognised_surname bool`
-  - Membership is **open** (OTP only). `surname / city / geo / gender / date_of_birth` are self-declared indicators + profile data (power directory, intelligence, matrimony, nearby discovery).
+- **members** — `full_name, surname, phone (unique), email (optional), city_id, pincode, sub_community_id, gender, date_of_birth, photo_url, bio, role (member|editor|admin), trust_level (0–3), id_verification (none|pending|verified), recognised_surname bool, opt_in_email bool, opt_in_whatsapp bool`
+  - Membership is **open** (OTP only). `surname / city / pincode / gender / date_of_birth` are self-declared indicators + profile data (power directory, intelligence, matrimony, PIN-level nearby discovery).
+  - **No full/home address on the personal profile** — city + PIN only (lower friction, better privacy). Exact address, if ever needed, lives on a *listing*, not the person.
+  - **`email` is optional** — used for the weekly Email digest, renewal reminders, and listing-fee receipts. Members without email ride on WhatsApp + in-app; never block on it.
   - `id_verification = verified` is required to **host a stay or rent out a vehicle** (Level 2) — not to join.
   - `recognised_surname` is an optional soft badge from a reference list of common Nagar surnames; a warm signal only, never a gate.
 - **member_professions** — `member_id, profession_id, specialty_id, years_experience, status (current|retired|studying), is_verified bool` — *retired and studying still count*: retired expertise is surfaced as a resource; `studying` marks an aspiring member (a mentee candidate).
@@ -65,26 +39,18 @@ Source of truth for *what* to build. Constraints live in `CLAUDE.md`. Roadmap in
 - **verifications** — `member_id, method (referral|document|vouch), voucher_member_id, status, reviewed_by, notes`
 
 ### Trust economy
-- **listings** — `member_id, category_id, title, description, time_binding, price_text (free text — money is offline), location_city_id, contact_whatsapp, contact_phone, view_count, fee_paid bool, status (draft|active|paused|expired)`
+- **listings** — `member_id, category_id, title, description, time_binding, price_text (free text — money is offline), location_city_id, pincode, area_text, address (listing-level, optional), service_area, hours, contact_whatsapp, contact_phone, view_count, fee_paid bool, status (draft|active|paused|expired)`
+  - **Address is listing-level, scoped to what the listing needs:** business/service listings provide full address, hours, contact, service area (they must be findable). Room/PG/vehicle give area + city + PIN to be useful; exact location is shared member-to-member once they're talking — not published by default.
 - **availability** — `listing_id, start_date, end_date, status (available|tentative|blocked)` — *indicative only*
 - **inquiries** — `listing_id, seeker_id, requested_start, requested_end, requested_qty, message, channel (in_app|whatsapp|phone), status (open|connected|closed)` — *an inquiry is the seeker's expression of interest and the provider's **lead**; the provider's Lead Inbox is their inquiries.*
 - **saved_alerts** — `member_id, category_id, city_id, keyword` — "notify me when X is listed" (receiver-side nudge).
 - **reviews** — `listing_id (nullable), author_id, subject_id, rating (1–5), body` — two-way
-- **reports** — `reporter_id, subject_member_id, listing_id (nullable), community_event_id (nullable), scholarship_id (nullable), reason, details, status (open|reviewing|actioned|dismissed), action_taken` — see `DISPUTE.md`. The nullable `community_event_id` powers reactive moderation for `community_events` (§7.3); `scholarship_id` does the same for scholarship offers (§7.2). Same pipeline, no fan-out.
+- **reports** — `reporter_id, subject_member_id, listing_id (nullable), reason, details, status (open|reviewing|actioned|dismissed), action_taken` — see `DISPUTE.md`
 - **requests** — *demand / "wanted" posts (the seeker side, e.g. PG Seeker)* — `member_id, category_id, area_text, city_id, budget_text, needed_from, needed_to, gender_pref, food_pref, details, status (open|fulfilled|closed)`. **Free** (no listing fee); providers browse and reach out. Generalises to "looking for a room/ride/tutor".
 
 ### Magazine
 - **magazine_issues** — `issue_number, publish_date, status (open|curating|rendered|published), rendered_pdf_url`
 - **submissions** — `issue_id, author_id, genre_id, title, body, image_url, city_text, pull_quote, status (submitted|approved|rejected)`
-
-### Community Event Announcements
-- **community_events** — `title, description, event_type (annual_gathering|ritual|medical_camp|religious|cultural|other), organising_body, city_id, venue, start_datetime, end_datetime, contact_member_id, contact_whatsapp, cover_image_url, status (active|past|cancelled), created_by, significance_confirmed_at` — broadcast announcements; **member-published, NO admin pre-approval**. Spam-guarded by required `event_type` (controlled), member-affirmed significance (`significance_confirmed_at`), per-member rate limit, and reactive moderation via `reports`. See §7.3.
-- **community_event_alerts** — `member_id, event_type (nullable; null = all types), city_id (nullable; null = anywhere)` — saved-alert-style opt-in: "notify me about community events matching this filter".
-
-### Education
-- **scholarships** — `offered_by_member_id, title, description, criteria_course, criteria_merit_text, criteria_income_cap_text, criteria_city_id (nullable; null = anywhere), criteria_gender (boy|girl|any), criteria_other_text, amount_text, deadline (date), contact_member_id, contact_whatsapp, status (open|closed), published_at, closed_at` — a member/trust offers a scholarship with eligibility criteria. **Publishing requires L2 ID verification** (`members.id_verification = 'verified'`) — same gate as hosting a stay / renting a vehicle. Both offering and applying are FREE. See §7.2.
-- **scholarship_applications** — `scholarship_id, applicant_member_id, student_name, student_age, student_class_or_course, details, documents_url[], status (submitted|under_review|shortlisted|awarded|rejected|withdrawn), decided_by_member_id, decided_at, notes`. **Offering member is the sole adjudicator** — `decided_by_member_id` must equal `scholarships.offered_by_member_id` (enforced server-side); admin can override only via documented moderation action.
-- **scholarship_alerts** — `member_id, criteria_course (nullable), criteria_city_id (nullable), criteria_gender (nullable)` — saved-alert opt-in for eligibility matches; nulls mean "match any".
 
 ### Money (listing fee ONLY)
 - **payments** — `member_id, listing_id, amount, currency, gateway_ref, status` — never used for member-to-member transactions
@@ -96,14 +62,29 @@ Source of truth for *what* to build. Constraints live in `CLAUDE.md`. Roadmap in
 
 ## 3. Community Intelligence
 
-Aggregate views (SQL views / materialized views), not new free-typed data:
+Aggregate views (SQL views / materialized views) over structured fields — **this is why controlled
+lists, not free text, were mandatory.** "Doctor / Dr. / M.D." typed freely could never roll up;
+`profession_id` + `specialty_id` can.
 
-- Active members by **profession** → e.g. "347 doctors"
-- Drill by **specialty** → "41 cardiologists"
-- Drill by **city** → "89 in Ahmedabad"
-- Cross-cuts: profession × city, age-band × profession, sub-community × city
+**Multi-dimensional drill-down (the "scoop").** Members slice the community along any combination of:
+- **country** → **city** (and PIN) → **profession** → **specialty**
+- **job / role**, **expertise/capability** (from `member_capabilities`), **status** (current/retired/studying), **sub-community**, **age-band**, **gender**
 
-**Rules:** aggregate counts visible to members; individual contact details permission-gated; verified badge distinguishes self-declared from confirmed. Build these as read-only views over `members` ⋈ `member_professions` ⋈ lookups.
+**Drill-down example (the target behaviour):**
+> India → **Rajkot** → **Doctors (26)** → 3 neurophysicians · 6 MDs · 10 GPs · …
+> …and of those 26: **9 open to second opinions**, **4 willing to mentor** (capability layer).
+
+Each level shows a **count** and expands to the next; any node can reveal the member list
+(contact still permission-gated). The capability layer makes it *actionable* — not just "who exists"
+but "who is reachable for help".
+
+**Implementation:** read-only aggregate views over `members ⋈ member_professions ⋈ member_capabilities ⋈
+lookups`, grouped by the dimensions above; filterable/composable (e.g. country=USA + profession=Lawyer;
+city=Rajkot + capability=mentor). Materialize + refresh on a schedule as counts grow.
+
+**Rules:** aggregate counts visible to members; **individual contact details permission-gated**; verified
+badge distinguishes self-declared from confirmed; respect `status` (retired/current/studying) so counts
+are honest.
 
 ### 3.1 Public landing-page stats ("Community Pulse")
 
@@ -208,6 +189,24 @@ the circle* at entry, and keeps growing over time.
 can edit anytime. The system **nudges contextually later** ("3 students seek a medical mentor — open
 to it now?"). A member who said No today can opt in next month.
 
+**Do the expertise step in ONE continuous flow — do not defer it.** "Submit first, edit later" kills the
+supply side: members rarely return to edit, so a deferred opt-in leaves most invisible as resources.
+Keep profiling continuous (basics → encouragement → expertise opt-ins) while motivation is high.
+
+**Encouragement screen — placed BEFORE the expertise opt-ins as the motivating moment (not a dry label):**
+frame the questions as an act of સેવા, e.g. *"This is where Nagarsetu comes alive. Somewhere a Nagar
+student is anxious about a choice you've mastered; a family is frightened by a medical report you could
+explain; someone needs a professional they can trust. By sharing what you know, you could be the answer
+to a fellow Nagar's need. It takes two minutes — and you control everything, editable anytime."*
+
+**Honesty rule (protects the moat):** promise the **opportunity to help / possibility of connection**,
+never a guaranteed **outcome**. The app is a connector — it cannot guarantee a diagnosis, a legal win, or
+a solved problem. Never imply guaranteed results (avoids implied liability per DISPUTE.md; preserves trust).
+Full emotional pull ("you could be someone's answer") with an honest claim.
+
+**Skippable but not invisible:** a soft "I'll do this later" is allowed, but skipping triggers contextual
+re-surfacing later. Default is do-it-now via encouragement; nobody is trapped; skippers are followed up.
+
 **Value recognition (contribution, not rank):** the system reads the profession (current *or* past) to
 suggest *how this person can contribute* and match it to who needs it — a retired principal → guiding
 Class-12 students; a cardiologist → a worried family. It connects value; it does not rank people.
@@ -220,11 +219,12 @@ cover before sign-up. Acting (inquire, list, contact, message) prompts sign-up.
 
 **Flow:**
 1. **Welcome** — જય હાટકેશ + સેવા · સહકાર · શિસ્ત + emblem.
-2. **Sign up** — Meta WhatsApp OTP.
-3. **Profile + the "why"** — explain that a complete profile strengthens the samaj (helps Nagars
-   find a doctor / mentor / match / trusted business, and powers the directory). Collect basics
-   (name, surname, city, geo, gender, DOB, photo, profession); enrich later. On a recognised Nagar
-   surname, show the soft badge as a welcome moment.
+2. **Sign up (keep tiny)** — Meta WhatsApp OTP. Collect ONLY: **mobile number** (WhatsApp number = unique account key), **OTP**, and **consent** (Terms + WhatsApp opt-in line). No name/profile fields at this gate.
+3. **Profile + the "why"** — explain that a complete profile strengthens the samaj. Field tiers:
+   - **Required:** full name + surname (triggers recognised-Nagar badge), city, **PIN code**, gender, date of birth.
+   - **Encouraged / skippable:** email *(optional — for weekly digest, reminders, receipts)*, photo, sub-community, bio. *(No home/full address — city + PIN only.)*
+   - Then the smart branching profiling (§7.04): profession → specialty → status → consent opt-ins.
+   - A member is fully signed in with just a verified phone; profile can be completed/enriched anytime.
 4. **CTA hub — "What would you like to do?"** organised by intent (scales as features grow):
    - **Connect:** Browse Members · Matrimony · Find a Mentor
    - **Find:** Find a Room/PG · Find a Ride · Seek Guidance · Buy from Nagars · Jobs
@@ -305,7 +305,6 @@ how the supply side fills from *everyone*, not just obvious professionals — th
 **Data additions:**
 - `pricing` / `settings` — `listing_price, currency, term_days, expiry_policy (auto|self_renew|admin), self_renew_enabled`
 - `listings` gains — `published_at, expires_at, price_paid, term_days_paid`
-- `members` gains — `opt_in_email bool, opt_in_whatsapp bool`
 - `promo_sends` — `listing_id, channel (email|whatsapp), sent_at, status` (audit of weekly features)
 
 
@@ -313,94 +312,16 @@ how the supply side fills from *everyone*, not just obvious professionals — th
 
 ## 7.2 Education pillar
 
-Education is a full pillar with four sub-flows, not a single field. Demand-side
-recipients are naturally the `member_professions.status = studying` members
-captured during profiling.
+Education is a full pillar (not one field), with two-sided flows. Recipients are naturally the
+`status = studying` members captured in profiling.
 
-### 7.2.1 Scholarships (member/trust offers ↔ family applies)
-
-Both offering and applying are **free** — it's સેવા, not commerce. Schemas:
-`scholarships`, `scholarship_applications`, `scholarship_alerts` (see §2 Education).
-
-**Verification to publish a scholarship offer — L2 ID-verified:**
-A member must complete photo-ID verification before they can publish a scholarship
-offer — same gate as hosting a stay or renting out a vehicle. Reason: a fake
-scholarship raises false hope in families and damages community trust, even though
-no money flows through the app. Reactive moderation continues post-publish.
-
-**Publish flow:**
-1. Server checks `members.id_verification = 'verified'`; otherwise blocks with a
-   clear prompt routing the member into the verification flow.
-2. Member fills criteria + amount + deadline + contact.
-3. Submit → row inserted with `status = open`, `published_at = now()` → fan-out.
-
-**Notification fan-out (eligible families):**
-- **City + studying-status:** members in `criteria_city_id` (or anywhere if null)
-  whose `member_professions.status = studying` and (when set) `criteria_course` ≈
-  the student's course / `criteria_gender` matches.
-- **Saved alerts:** rows in `scholarship_alerts` matching course / city / gender
-  (nulls mean match-all on that axis).
-- **Channels:**
-  - **In-app + email** always (subject to per-member email opt-in).
-  - **WhatsApp:** **only** for members with `opt_in_whatsapp = true` AND a
-    matching `scholarship_alerts` row, via a **pre-approved Utility template**
-    ("scholarship matching your criteria is open"). The broader city +
-    studying-status fan-out uses in-app + email only — never blast WhatsApp to
-    non-opted members. (Protects WABA quality.)
-
-**Application state machine** (offering member is the sole adjudicator):
-```
-submitted → under_review → shortlisted → awarded
-       ↘          ↓             ↓
-        →   rejected ← ─ ─ ─ ─ ─┘
-applicant can withdraw at any state: → withdrawn
-```
-Each transition fires an in-app + email notification to the applicant; Utility
-WhatsApp template if the applicant has `opt_in_whatsapp = true`.
-
-**Lifecycle:** a cron job flips `status = open → closed` once `now > deadline + 24h grace`.
-No new applications accepted after close. Offering member can manually close earlier.
-
-**Connector disclaimer (every scholarship surface):**
-*"Nagarsetu lists this scholarship offered by {{offered_by_name}}
-({{contact_whatsapp}}). The offering party decides shortlisting and awards.
-Verify details directly with the offerer."*
-
-**Reactive moderation:** standard `reports` flow with `scholarship_id` populated.
-Admin can remove the scholarship (`status = closed` + admin note), warn the
-offering member, or trigger a trust-level review per `DISPUTE.md`.
-
-**Application documents:** uploaded supporting docs (mark sheets, income
-certificates, etc.) stored in a scoped Storage bucket; RLS-readable only by the
-applicant, the offering member, and admins; type/size-checked on upload.
-
-### 7.2.2 Career guidance
-
-Counselling, college admissions, study-abroad help. **Reuses existing mechanisms —
-no new tables:**
-- `member_capabilities` (kind = `expert_guidance` or `mentor`) — opt-in via
-  progressive profiling.
-- Mentorship matching routes mentees to mentors (see profiling section).
-- Discovery: directory filter on `member_capabilities.kind` + domain
-  (e.g. *"career guidance for medical aspirants"*).
-
-### 7.2.3 Education listings (tutors / coaching / courses)
-
-A **listing category** (`education`) under the unified Create-a-Listing hub.
-Carries the listing fee like other commercial offers — same lifecycle, pricing,
-and professional-promotion mechanisms as §7.1. No special treatment beyond
-category-specific form fields (subjects taught, level, mode online/in-person).
-
-### 7.2.4 Student profiles (recipients side)
-
-Members with `member_professions.status = studying` are naturally the
-recipients/mentees across this pillar:
-- **Scholarships:** matched by `criteria_course` / gender / city.
-- **Career guidance:** matched to mentors via `member_capabilities`.
-- **Education listings:** discovery via the unified listing feed.
-
-No new schema. Surface in admin views (*"X students seeking guidance in
-{{city}}"*) and as the implicit audience for scholarship + mentor notifications.
+- **Scholarships** — a member/trust **offers** a scholarship with criteria; eligible families **apply**.
+  - `scholarships` — `offered_by_member_id, title, description, criteria (course, merit, income_cap, city_id, gender, other), amount_text, deadline, contact, status (open|closed)`
+  - `scholarship_applications` — `scholarship_id, applicant_member_id, student_name, details, status (submitted|shortlisted|awarded|rejected)`
+  - Offering a scholarship is **free** (it's સેવા, not selling). Applications are free.
+- **Career guidance** — counselling, college admissions, study-abroad help. Reuses `member_capabilities` (expert_guidance / mentor) + mentorship matching; no new mechanism.
+- **Education listings** — tutors, coaching, courses → a **listing category** (`education`) under the unified Create-a-Listing hub (carries the listing fee like other offers).
+- **Student profiles** — `status = studying` members are the recipients/mentees; surface them for scholarships, mentorship, and guidance.
 
 ## 7.3 Community Event Announcements (broadcast, no pre-approval)
 
@@ -408,46 +329,12 @@ Any member can announce a **significant** Nagar community event (religious or ot
 broadcasts to the member base. **No admin approval before publishing** (frictionless), guarded by
 significance rules + reactive moderation instead of a pre-gate.
 
-**Data** (full schema in §2 → Community Event Announcements):
-- `community_events` — full fields listed in §2; key non-obvious ones: `significance_confirmed_at` (timestamp captured when the member ticks the significance checkbox at publish — audit trail), `created_by` (publisher), `contact_member_id` (may differ from creator if a designated point of contact is named).
-- `community_event_alerts` — per-member opt-in for the notification fan-out (filter by `event_type` and/or `city_id`; nulls mean "all types" / "anywhere").
-- `reports.community_event_id` — nullable column on the existing reports table (no new pipeline).
-- `settings` gains `community_event_rate_limit_count` (default **1**) and `community_event_rate_limit_days` (default **7**) — admin can tune.
+- `community_events` — `created_by, title, description, event_type (annual_gathering|ritual|medical_camp|religious|cultural|other), organising_body, city_id, venue, start_datetime, end_datetime, contact_member_id, contact_whatsapp, cover_image_url, status (active|past|cancelled)`
+- **Publish flow:** member creates → goes live immediately → added to Living Feed + relevant notifications (city + diaspora + interest; WhatsApp only with opt-in + approved template).
+- **Significance guard (no admin gate):** event_type required · a "this is a significant community-wide event" confirmation · per-member rate-limit on announcements.
+- **Reactive moderation:** existing report/flag path applies; admin can remove **post-hoc**. Not pre-approval.
 
-**Publish flow:**
-1. Member fills the form → required: `event_type` (controlled list), title, organising_body, city, start_datetime, end_datetime, contact. Cover image optional but recommended.
-2. **Significance checkbox** required to enable the Publish button: *"This is a significant community-wide Nagar event."* Server records `significance_confirmed_at = now()` on submit.
-3. **Rate limit check (server-side):** count this member's `community_events` rows created in the last `rate_limit_days`; reject with a clear message if `>= rate_limit_count` ("You've already published an announcement this week. Next slot opens {{date}}.").
-4. On success → row inserted with `status = active` → fan-out (below) → card lands in Living Feed.
-
-**Notification fan-out (relevant members):**
-- **City:** `members.city_id == community_events.city_id`.
-- **Diaspora / interest:** matches in `community_event_alerts` — opt-in members who chose this `event_type` and/or this `city_id` (null = match-all on that axis).
-- **Channels:**
-  - **In-app + email** always (subject to per-member opt-in for email).
-  - **WhatsApp** only for `members.opt_in_whatsapp = true`, via a **pre-approved Marketing template** for community announcements. Opt-out honoured per recipient. Never blast to non-opted members.
-  - Consistent with §7.06 channel discipline; no new pattern.
-
-**Living Feed:**
-- Card variant distinct from listings and events: announcement badge, organising body prominent, date band, single primary CTA (e.g. "WhatsApp the organiser" → `wa.me` deep link with pre-filled message).
-- Connector disclaimer on every card: *"Nagarsetu announces. The event is organised by {{organising_body}} — contact {{contact_name}} ({{contact_whatsapp}}). Verify details with the organiser."*
-
-**Lifecycle:**
-- `status = active` while `now < end_datetime`. A cron job flips to `past` after the end window.
-- Creator (or admin) can mark `status = cancelled` anytime → fires a **cancellation notification** to the same audience that received the original, on the same channels (Utility template for cancellations — recipients are party to the cancelled event).
-
-**Reactive moderation (replaces a pre-approval gate):**
-- Any member can flag an announcement via the standard `reports` flow (`community_event_id` populated).
-- Admin reviews per `DISPUTE.md`; can remove (`status = cancelled` with admin note), warn the creator, or impose a stricter rate limit on the creator if abuse is repeated.
-- Trust-level impact on the creator follows the same ladder as listing reports.
-
-**WhatsApp templates required (must be pre-approved by Meta before launch):**
-- *Community announcement* (Marketing) — initial broadcast.
-- *Community announcement: cancelled* (Utility) — cancellations.
-
-
-
-- **Privacy:** contact details permission-gated; aggregate-only intelligence; clear data controls.
+- **Privacy:** contact details permission-gated; aggregate-only intelligence; clear data controls. **Minimal location** — personal profile is city + PIN only (no home address). Exact address lives on a listing, scoped to that listing, and precise location for room/PG/vehicle is shared member-to-member, not published.
 - **i18n:** Gujarati + English; never break Gujarati glyphs; magazine fonts embedded in PDF.
 - **Security:** RLS everywhere; server-side payment verification (listing fee); rate-limit public/auth endpoints; secrets in env. Track in `AUDIT.md`.
 - **Connector disclaimers:** present on every transaction-implying surface (stay, mobility, goods, tours). See `DISPUTE.md`.
