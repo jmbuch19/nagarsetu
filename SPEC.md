@@ -77,13 +77,29 @@ Practical consequences:
 ### Community (Events & heritage) — Phase 1
 - **events** — `organizer_id, title, starts_at, ends_at, location_city_id, venue_text, description, max_attendees, visibility (public|community), status (draft|published|cancelled)`
 - **event_rsvps** — `event_id, member_id, status (going|maybe|declined)`
-- **heritage_articles** — *schema TBD before building.* Working sketch: `author_id (nullable; null = admin-curated), title, body, category (history|lineage|notable_persons|cultural_practice|tradition), image_url, published_at, status (draft|review|published)`. Authorship policy (admin-only vs member-contributed-with-review) → see AGENDA §7.
+- **heritage_articles** — `author_id (member, required), title, body, category (history|lineage|notable_persons|cultural_practice|tradition), image_url, submitted_at, reviewed_by (admin), published_at, status (draft|submitted|under_review|published|rejected)`. **Member-contributed with admin review** before publish.
+
+### Matrimony, Mentorship, Blogs — Phase 1 (promoted from Phase 2 on 2026-05-26)
+- **matrimony_profiles** — `member_id, looking_for (groom|bride|either), height_cm, education, profession_id, family_details, partner_preferences, photo_urls[], visibility (matrimony_participants_only|admins_only), status (active|paused|matched)`. Restricted visibility by default — never surfaced in the public directory.
+- **matrimony_interests** — `from_profile_id, to_profile_id, status (sent|reciprocated|declined|expired)`. Mutual interest reveals contact details.
+- **mentor_offers** — `member_id, profession_id, specialty_id, capacity_limit, status`. Backed by `member_capabilities (kind = mentor)`.
+- **mentee_requests** — `member_id, profession_id, specialty_id, goal_text, status (open|matched|closed)`.
+- **mentorships** — `mentor_id, mentee_id, profession_id, started_at, ended_at, status (active|paused|completed)`. Optional testimonial on completion.
+- **blogs** — `author_id, title, body (markdown), tags[], cover_image_url, language (en|gu), published_at, status (draft|published|archived)`. Free; evergreen (no auto-expiry); author archives.
+
+### Magazine audio + archive (Phase 1 extension of §Magazine)
+- **submission_audio** — `submission_id, audio_url, voice_id, status (queued|generated|approved|rejected), generated_at, approved_by, char_count, cost_estimate`. ElevenLabs-generated; admin approves before public release.
+- Searchable archive uses Postgres FTS over `submissions.body` (Gujarati-aware) — no new table.
 
 ### Money (listing fee ONLY)
 - **payments** — `member_id, listing_id, amount, currency, gateway_ref, status` — never used for member-to-member transactions
 
 ### Phase 2 (define later, do not build yet)
-`matrimony_profiles`, `mentorships (mentor_id, mentee_id, domain, status)`, `blogs`
+*No new schemas currently scheduled for Phase 2.* The original Phase 2 schemas
+(`matrimony_profiles`, `mentorships`, `blogs`, `events`, `event_rsvps`) were promoted
+to Phase 1 on 2026-05-26 — see the Community / Matrimony·Mentorship·Blogs / Magazine-audio
+sections above. The only deferred Phase 2 item is **optional in-app member-to-member
+payments**, which is held back to protect Hard Constraint #1 (see `CLAUDE.md`).
 
 ---
 

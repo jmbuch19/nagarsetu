@@ -41,6 +41,32 @@ and log each completed unit in `AUDIT.md`. Decisions needed → see `MEMORY.md`.
 - [ ] Permissioned contact reveal
 - [ ] Community Intelligence dashboard ("347 doctors… 41 cardiologists… city-wise")
 
+### 3a. Matrimony (under Connect)
+- [ ] Data model: `matrimony_profiles` — `member_id, looking_for (groom|bride|either), height_cm, education, profession_id, family_details, partner_preferences, photo_urls[], visibility (matrimony_participants_only|admins_only), status (active|paused|matched)`
+- [ ] Opt-in flow: a member explicitly publishes a matrimony profile; visibility is **restricted by default** to other matrimony participants (or admins) — never public directory
+- [ ] Search/filter: age range, height, education, profession, city, country, sub-community
+- [ ] Express interest → mutual interest reveals contact details (or fires the WhatsApp deep-link pattern from §4)
+- [ ] Privacy controls: hide photo from non-matched profiles by default; show only city, never exact geolocation
+- [ ] "I'm engaged / married" → pause profile; optional celebration post in the feed
+- [ ] Connector disclaimer on every matrimony surface — the app introduces; families and individuals decide
+
+### 3b. Mentorship matching (under Connect)
+- [ ] Data model: `mentor_offers` — `member_id, domain (profession_id/specialty_id), capacity_limit, status` · `mentee_requests` — `member_id, domain, goal_text, status (open|matched|closed)` · `mentorships` — `mentor_id, mentee_id, domain, started_at, ended_at, status (active|paused|completed)`
+- [ ] Built on existing `member_capabilities` (kind = `mentor`) — opt-in via progressive profiling
+- [ ] Match suggestion: a mentee posts a request; system suggests mentors by capability domain + city + sub-community proximity; mentor accepts/declines
+- [ ] Lightweight ongoing comms: in-app messages or WhatsApp deep link (member preference, same nudge plumbing as §4)
+- [ ] Optional testimonial from mentee on completion (feeds the trust ladder + Community Intelligence)
+- [ ] Connector disclaimer — the app introduces; mentorship happens between them
+
+### 3c. Member blogs
+- [ ] Data model: `blogs` — `author_id, title, body (markdown), tags[], cover_image_url, language (en|gu), published_at, status (draft|published|archived)`
+- [ ] Create / edit / publish / archive (member-owned; admin override)
+- [ ] Categories / tags for discovery
+- [ ] Listed in the Living Feed (separate filter for blog posts); reading view applies the same Gujarati typesetting discipline as the magazine
+- [ ] Reactions: like, comment (toggleable per-post); share to WhatsApp/FB
+- [ ] No fee (free content); soft moderation via reports per `DISPUTE.md`
+- [ ] No auto-expiry (blogs are evergreen); author can archive anytime
+
 ### 4. Listings + Availability + Inquiry
 - [ ] **Unified "Create a Listing" hub** → category picker (business/room/vehicle/pg/goods/tour/service); rentals NOT under business
 - [ ] Category-specific forms (rentals: Day/Week/Month + availability)
@@ -81,12 +107,21 @@ and log each completed unit in `AUDIT.md`. Decisions needed → see `MEMORY.md`.
 - [ ] One-click PDF render against fixed template (Gujarati fonts embedded)
 - [ ] Share to in-app + WhatsApp + Facebook
 
+### 6a. Magazine audio editions + searchable archive
+- [ ] Data model: `submission_audio` — `submission_id, audio_url, voice_id, status (queued|generated|approved|rejected), generated_at, approved_by, char_count, cost_estimate`
+- [ ] ElevenLabs integration: auto-generate Gujarati audio per approved submission; admin can re-run with a different voice
+- [ ] Audio QA flow: admin previews + approves audio before public release
+- [ ] In-app player alongside the text; downloadable per piece + full-issue podcast bundle
+- [ ] Cost guardrails: surface per-issue ElevenLabs character/cost estimate to admins; configurable per-issue cap
+- [ ] Searchable archive: full-text Gujarati search across all past issues (Postgres FTS or pg_search); filters by genre, author, year, city
+- [ ] Archive deep links shareable on WhatsApp/FB
+
 ### 7. Events & heritage
 - [ ] Data model: `events` (organizer_id, title, starts_at, ends_at, location_city_id, venue_text, description, max_attendees, visibility (public|community)); `event_rsvps` (event_id, member_id, status (going|maybe|declined))
 - [ ] Event creation / edit / cancel (organizer-owned; admin override)
 - [ ] Events in the Living Feed (by city + date); calendar view; cross-geo discovery ("Nagar events in {{city}} this month")
 - [ ] One-tap RSVP; attendee count for organizer; soft reminders day-of (member-local timezone)
-- [ ] Heritage content: schema for curated long-form articles (history · lineage · notable Nagars · cultural practices) — *refine before building: admin-authored, member-contributed with admin review, or both?*
+- [ ] Heritage content: **member-contributed** long-form articles (history · lineage · notable Nagars · cultural practices) with **admin review** before publish — schema in `SPEC.md` §2 Community
 - [ ] Heritage discovery: category navigation + search; render with same Gujarati typesetting discipline as the magazine
 - [ ] Connector disclaimer on event surfaces (events are organised by members, not by Nagarsetu)
 
@@ -108,11 +143,11 @@ and log each completed unit in `AUDIT.md`. Decisions needed → see `MEMORY.md`.
 
 ---
 
-## Phase 2 — Depth (do not build yet)
-- [ ] Matrimony
-- [ ] Mentorship matching (mentor/mentee)
-- [ ] Member blogs
-- [ ] Magazine audio editions (ElevenLabs) + searchable archive
-- [ ] *Optional:* in-app payments as a convenience (still no commission)
+## Phase 2 — Deferred (do not build yet)
+
+Most original Phase 2 items were promoted to Phase 1 on 2026-05-26. The single item left
+here is **explicitly held back to protect Hard Constraint #1** (connector, not cashier):
+
+- [ ] *Optional:* in-app member-to-member payments as a convenience (still no commission) — **violates CLAUDE.md Hard Constraint #1; do not promote without an explicit MEMORY.md override**
 
 > New ideas that arise mid-build → park them in `IDEAS.md`, don't inline them here.

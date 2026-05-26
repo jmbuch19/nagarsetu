@@ -30,7 +30,9 @@ Add new locked decisions here; move items out of "Open Decisions" once resolved.
 - **Gujarati is first-class.** Magazine render must reproduce the Setusarjan look.
 - **Stack:** Next.js (web, **hosted on Vercel**), Expo/RN (mobile via EAS, Android-first OK), Supabase, phone OTP, Claude API, Razorpay (listing fee only), WhatsApp/FB share. Scheduler via Vercel Cron (protected by `CRON_SECRET`) or Supabase pg_cron.
 - **Supabase region: Northeast Asia (Tokyo).** Accepted — not re-creating in Mumbai. Supabase doesn't support in-place region change; recreate-in-Mumbai was considered but ruled out. Latency from India will be higher than Mumbai but acceptable for Phase 1. Reconsider only if user-reported latency becomes a real complaint.
-- **Phasing:** Phase 1 = directory + intelligence + feed + listings/availability + magazine engine + listing-fee payment. Matrimony + audio editions + mentorship → Phase 2.
+- **Phasing (updated 2026-05-26):** Phase 1 now covers directory + intelligence + feed + listings/availability + magazine engine + listing-fee payment + **events & heritage (member-contributed with admin review) + matrimony + mentorship matching + member blogs + magazine audio editions (ElevenLabs) + searchable archive**. Phase 2 holds **only** optional in-app member-to-member payments (deferred to protect Hard Constraint #1).
+- **Heritage authorship: member-contributed with admin review.** Members submit long-form heritage articles (history · lineage · notable Nagars · cultural practices); admin reviews before publish. Schema in `SPEC.md` §2 Community.
+- **Hard Constraint #1 reaffirmed (2026-05-26):** even after the Phase-2 → Phase-1 sweep, in-app member-to-member payments stay deferred. The app handles **only** the listing fee. Promoting in-app payments requires an explicit MEMORY override per `CLAUDE.md` instructions.
 
 ## Context
 
@@ -58,7 +60,7 @@ Add new locked decisions here; move items out of "Open Decisions" once resolved.
 2. ~~**Listing fee** — amount + structure~~ → **RESOLVED:** admin-managed config (example ₹199/30 days), changeable anytime, price/term snapshotted at purchase; renewal via self-renew or admin extend.
 3. ~~**Free/paid boundary**~~ → **RESOLVED:** *Only Business is paid; all other Offer categories (Room/Vehicle/PG/Goods/Tour/Service) and all Requests are free.* Free listings have a soft-expiry refresh prompt (default 60–90 days, admin-configurable). See Locked decisions for full text.
 4. ~~**Geography**~~ → **RESOLVED:** *Global from day one — Nagars everywhere.* Diaspora is Phase 1, not "expand later". See Locked decisions + `SPEC.md` §1.5.
-5. **Phase-1 scope** — confirm the MVP cut in `AGENDA.md` is the right starting line.
+5. ~~**Phase-1 scope**~~ → **RESOLVED:** *Phase 1 now bundles five additional features promoted from Phase 2* — events & heritage, matrimony, mentorship matching, member blogs, and magazine audio + searchable archive. Only optional in-app payments stays Phase 2 (Hard Constraint #1 protected). See AGENDA §§3a, 3b, 3c, 6a, 7 + the updated Phase 2 framing.
 6. ~~**Governance**~~ → **PARTIALLY RESOLVED:** *User-facing label is "Nagarsetu Admins" for both Editor and Admin roles* — locked. Specific powers per role + the first humans assigned to each role are **deferred until launch is in sight** (tracked in `AGENDA.md` §9 Hardening). See Locked decisions.
 7. **Listing fee currency for international Business listings.** Working assumption: INR globally for Phase 1 (Razorpay accepts international cards in INR; avoids multi-currency complexity). Decide before building the payment flow whether to keep INR-only or introduce per-country pricing.
 
