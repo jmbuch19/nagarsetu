@@ -16,6 +16,8 @@ Add new locked decisions here; move items out of "Open Decisions" once resolved.
 - **Only in-app money = listing fee** (charged on publishing a commercial listing).
 - **Listing fee is admin-managed config**, editable anytime (example: ₹199 / 30 days). Price + term are **snapshotted at purchase** — admin price changes never retroactively affect active listings.
 - **Expiry policy (admin-configurable):** auto-expire, OR member self-renew (pay current amount), OR admin manual extend. Pre-expiry reminders ~day 25 & 28.
+- **Free/paid boundary: only Business listings are paid.** Every other category (Room, Vehicle, PG, Goods, Tour, Service) is free, plus all Requests. Business = the category for members using the portal's reach to earn commercially. The listing fee buys reach + visibility + delivered leads + the weekly digest/WhatsApp slot — never sales.
+- **Free-listing lifecycle: soft expiry with refresh prompt.** Free listings auto-expire after a long window (default 60–90 days, admin-configurable). On expiry the member gets a one-tap "still relevant? refresh" prompt — no payment, just re-affirmation. Keeps the feed honest without taxing community sharing.
 - **Professional activation perk:** while a paid listing is active, the professional is featured **weekly** in the community Email digest and WhatsApp broadcast. Requires member **opt-in** + **approved WhatsApp templates** + email unsubscribe.
 - **Belonging free, selling paid.** Directory + Community Intelligence free for all members.
 - **Open membership.** Anyone can sign up and build a profile; no hard Nagar gate. Nagar identity self-declared via indicators (surname, city, geo, gender, age).
@@ -37,7 +39,7 @@ Add new locked decisions here; move items out of "Open Decisions" once resolved.
 - **Onboarding:** guest browse → Meta OTP → profile (with the "why" + recognised-surname welcome) → intent CTA hub (Connect / Find / Offer).
 - **Unified "Create a Listing" hub** — Business is ONE category among several (Business · Room · Vehicle · PG · Goods · Tour · Service). Rentals are **not** nested under Business; intent drives the category.
 - **Verification per listing category:** open (goods/tour/service/expert) · ID-verified L2 (room/vehicle/PG — high-risk hosting) · admin-reviewed (business = the "Gate-2" anti-scam check).
-- **Offers vs Requests:** Offers (supply) carry the listing fee; **Requests** (seeker posts — PG Seeker, "looking for a room/ride/tutor") are **free**, demand-side. PG is two-sided (Provider listing + Seeker request).
+- **Offers vs Requests:** only **Business** Offers carry the listing fee; all other Offers (Room, Vehicle, PG, Goods, Tour, Service) and all Requests (PG Seeker, "looking for a room/ride/tutor") are free. PG is two-sided (Provider listing + Seeker request) — both sides free, since PG isn't Business.
 - **Role fluidity (core principle):** every member is both provider AND seeker — never lock roles. A member holds any mix of offers, requests, and professions at once; "professional" = a state (active promoted listing), not a class. Intent-based UI for all. Onboarding/profile invite everyone to "offer something to the circle". The economy is circular, not one-way.
 - **Connect mechanism:** "I'm interested" tap → records a **lead** (provider Lead Inbox + notification) AND fires a **dual WhatsApp nudge** to BOTH parties (seller: "X from city is interested"; buyer: "we passed it to seller") AND offers the buyer a `wa.me` deep link. Deal completes offline.
 - **WhatsApp nudges = business-initiated → pre-approved Utility templates + opt-in** (captured at signup → `opt_in_whatsapp`). Distinct from the weekly digest (Marketing templates). Small per-conversation cost, funded by the ₹199. Fire only on real interest events to protect WABA quality. No opt-in → in-app + email fallback.
@@ -52,7 +54,7 @@ Add new locked decisions here; move items out of "Open Decisions" once resolved.
 
 1. ~~**Verification method**~~ → **RESOLVED:** *Open membership.* Anyone signs up via Meta WhatsApp OTP and builds a profile — no hard "are you a Nagar" gate. Surname, city, geolocation, gender, age are self-declared **indicators + profile data** (power directory, intelligence, matrimony, discovery). Trust is **earned**, not gated: high-risk actions (hosting a stay, renting a vehicle) require ID verification + reviews. Trust ladder: L0 OTP (browse/profile) → L1 active (inquire/list/participate) → L2 ID-verified (host stay / rent vehicle). Optional "recognised Nagar surname" soft badge — never a gate.
 2. ~~**Listing fee** — amount + structure~~ → **RESOLVED:** admin-managed config (example ₹199/30 days), changeable anytime, price/term snapshotted at purchase; renewal via self-renew or admin extend.
-3. **Free/paid boundary** — confirm exactly which listing categories are free vs paid.
+3. ~~**Free/paid boundary**~~ → **RESOLVED:** *Only Business is paid; all other Offer categories (Room/Vehicle/PG/Goods/Tour/Service) and all Requests are free.* Free listings have a soft-expiry refresh prompt (default 60–90 days, admin-configurable). See Locked decisions for full text.
 4. **Geography** — Nagars everywhere, or Gujarat-first then expand?
 5. **Phase-1 scope** — confirm the MVP cut in `AGENDA.md` is the right starting line.
 6. **Governance** — who are the admins/editors (e.g. the Setusarjan team) and their exact powers?

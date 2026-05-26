@@ -22,9 +22,9 @@ Source of truth for *what* to build. Constraints live in `CLAUDE.md`. Roadmap in
 - **sub_communities** — `name` (Nagar sub-groups, e.g. Vadnagara, Visnagara, Sathodara…)
 - **professions** — `name`
 - **specialties** — `profession_id → professions, name`
-- **listing_categories** — `name, time_binding` (`business | room | vehicle | pg | goods | tour | service | expert`)
+- **listing_categories** — `name, time_binding, is_paid bool` (`business | room | vehicle | pg | goods | tour | service | expert`)
   - **Verification per category:** *open* (any member) for goods/tour/service/expert · *ID-verified L2* for room/vehicle/pg (high-risk hosting) · *admin-reviewed* for business (the "Gate-2" quality/anti-scam check before publish).
-  - All **offers** (supply listings) carry the listing fee; **requests** (below) are free.
+  - **Free/paid:** only **business** offers carry the listing fee (`is_paid = true`); every other category is free. All **requests** (below) are also free.
 - **genres** — `name` (magazine: લેખ, ચિંતન, લઘુવાર્તા, કવિતા, ગઝલ, ગીત, અછાંદસ, ગરબો, બાળગીત, હાસ્ય)
 
 ### Core
@@ -195,12 +195,13 @@ cover before sign-up. Acting (inquire, list, contact, message) prompts sign-up.
 
 **Create a Listing (unified):** one entry point → pick a category (Business · Room · Vehicle · PG ·
 Goods · Tour · Service) → category-specific form (rentals include Day/Week/Month + availability) →
-verification per category (open / ID-verified / admin) → listing fee → publish. **Rentals are NOT
-nested under "Business"** — Business is one category among several; the member's intent drives the
-choice, not a business framing.
+verification per category (open / ID-verified / admin) → listing fee **(Business only)** → publish.
+**Rentals are NOT nested under "Business"** — Business is one category among several; the member's
+intent drives the choice, not a business framing.
 
-**Offers vs Requests:** supply listings are **Offers** (carry the fee); seeker posts (PG Seeker,
-"looking for a room/ride/tutor") are **Requests** (free, demand-side).
+**Offers vs Requests:** only **Business Offers** carry the listing fee. Every other Offer category
+(Room, Vehicle, PG, Goods, Tour, Service) is free. Seeker posts (PG Seeker, "looking for a room/ride/tutor")
+are **Requests** — always free, demand-side.
 
 **Empty-state:** early on, lead with Community Pulse + "be the first to list"; respect the per-metric
 threshold guard. Nudge profile completion after the first action.
@@ -232,12 +233,15 @@ how the supply side fills from *everyone*, not just obvious professionals — th
 
 **Receiver nudges:** discovery (feed/search/category) · timely seasonal/festival pushes ("mango season — Nagars near you are selling") · **saved alerts** ("notify me when pickles are listed") · social proof (review counts + ratings on cards).
 
-**What the listing fee promises (honesty protects the moat):**
+**What the listing fee promises (honesty protects the moat) — Business listings only:**
 - **Promise (controllable):** reach + visibility + delivered leads. The **pre-listing screen shows a real reach estimate** — e.g. *"reaches ~1,095 Nagars across India, USA & Dubai, appears in this week's e-magazine digest, notifies your category."*
 - **Do NOT promise sales** — that's member-to-member; the app is a connector.
 - **Tie the fee to real reach:** keep listings free/token while the community is small; ₹199 kicks in once reach genuinely justifies it (admin-managed). Never charge a meaningful fee to reach a trivial audience.
 
-## 7.1 Listings: pricing, lifecycle & professional perks
+## 7.1 Business listings: pricing, lifecycle & professional perks
+
+> Applies to **Business** listings only — the one paid category. Every other
+> category's lifecycle is in §7.1a.
 
 **Pricing (admin-managed):**
 - Listing price and term are **config, editable by admin anytime** (e.g. ₹199 / 30 days) via an admin settings screen. Store in a `settings`/`pricing` table — never hard-code.
@@ -270,6 +274,23 @@ how the supply side fills from *everyone*, not just obvious professionals — th
 - `listings` gains — `published_at, expires_at, price_paid, term_days_paid`
 - `members` gains — `opt_in_email bool, opt_in_whatsapp bool`
 - `promo_sends` — `listing_id, channel (email|whatsapp), sent_at, status` (audit of weekly features)
+
+## 7.1a Free listing lifecycle (Room · Vehicle · PG · Goods · Tour · Service)
+
+Non-Business listings carry no fee, but they expire on a long, soft cadence so the
+feed reflects what's actually still on offer.
+
+**Lifecycle:**
+- On publish: `published_at = now`, `expires_at = now + free_default_days` (admin-configurable, default 60–90 days). `fee_paid = false`.
+- **Pre-expiry reminders** at ~day-7 and day-2 — *"Is your {{listing_title}} still relevant? One tap to refresh."*
+- On expiry: status → `expired`; member can re-publish anytime with a single confirm (no payment; the listing's original verification level holds).
+- Member can pause/edit/delete anytime, same as Business.
+
+**Why soft expiry:** prevents the feed silting up with years-old "still available?" listings; refresh signals real, current intent; community-side sharing is never punished with cost.
+
+**Schema:** same `listings.published_at`, `expires_at`, `status` columns as Business — **no schema split.** The category's `is_paid` flag drives the lifecycle policy (Business → paid renewal per §7.1; others → free refresh per this section).
+
+**Admin settings additions:** `free_default_days` (e.g. 60–90); the four-job scheduler in §7.1 gains a fifth job — free-listing expiry + refresh-reminder.
 
 
 ---

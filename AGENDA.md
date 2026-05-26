@@ -47,10 +47,10 @@ and log each completed unit in `AUDIT.md`. Decisions needed → see `MEMORY.md`.
 - [ ] Verification routing per category: open / ID-verified (room·vehicle·pg) / admin-reviewed (business)
 - [ ] **Requests (seeker side):** PG Seeker + generalised "looking for room/ride/tutor" — free, demand-side
 - [ ] Create/edit/pause listing; time-binding per category
-- [ ] Admin pricing/settings: listing price + term + expiry policy + self-renew toggle (editable anytime)
-- [ ] Listing-fee payment on first publish (server-verified); **snapshot price + term onto the listing/payment**
-- [ ] Lifecycle: `published_at` / `expires_at`; expiry job; pre-expiry reminders (~day 25 & 28)
-- [ ] Renewal paths: member self-renew (pay current amount) + admin manual extend
+- [ ] Admin pricing/settings: listing price + term + expiry policy + self-renew toggle (Business); `free_default_days` for non-Business; all editable anytime
+- [ ] **Business only:** Listing-fee payment on first publish (server-verified); **snapshot price + term onto the listing/payment**
+- [ ] Lifecycle: `published_at` / `expires_at`; expiry jobs; pre-expiry reminders — **Business: ~day 25 & 28 (paid renewal); Free: ~day -7 & -2 (one-tap refresh)**
+- [ ] Renewal paths: **Business** — member self-renew (pay current amount) + admin manual extend; **Free** — one-tap free refresh (no payment)
 - [ ] Indicative availability windows (soft status: available/tentative/blocked)
 - [ ] Date-aware inquiry → connect channel (in-app chat or reveal WhatsApp/phone)
 - [ ] "I'm interested" → lead capture + provider Lead Inbox + notification
