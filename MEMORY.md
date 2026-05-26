@@ -21,6 +21,7 @@ Add new locked decisions here; move items out of "Open Decisions" once resolved.
 - **Professional activation perk:** while a paid listing is active, the professional is featured **weekly** in the community Email digest and WhatsApp broadcast. Requires member **opt-in** + **approved WhatsApp templates** + email unsubscribe.
 - **Belonging free, selling paid.** Directory + Community Intelligence free for all members.
 - **Open membership.** Anyone can sign up and build a profile; no hard Nagar gate. Nagar identity self-declared via indicators (surname, city, geo, gender, age).
+- **Geography: global from day one — no India-primary, no Gujarat-primary.** Nagars live everywhere (India, USA, UK, Gulf, East Africa, East Asia, Australia, …) and the platform reflects that immediately. Diaspora is Phase 1, not "expand later". Cities seed globally; ID verification accepts any government-issued photo ID; reminders fire in member-local timezone. The connector ethos especially shines cross-border: *"I'm based in Tokyo — all Nagars welcome, ping me if you plan to visit."* See `SPEC.md` §1.5.
 - **Auth = Meta WhatsApp OTP** via Supabase Auth Hook (approved authentication template); Supabase manages sessions.
 - **Trust is earned, not gated at entry.** High-risk actions (hosting a stay, renting a vehicle) require ID verification + reviews via the trust ladder (L0 browse → L1 participate → L2 ID-verified hosting).
 - **Availability = coordination aid, not a booking.** No hard locks, no adjudication.
@@ -55,9 +56,10 @@ Add new locked decisions here; move items out of "Open Decisions" once resolved.
 1. ~~**Verification method**~~ → **RESOLVED:** *Open membership.* Anyone signs up via Meta WhatsApp OTP and builds a profile — no hard "are you a Nagar" gate. Surname, city, geolocation, gender, age are self-declared **indicators + profile data** (power directory, intelligence, matrimony, discovery). Trust is **earned**, not gated: high-risk actions (hosting a stay, renting a vehicle) require ID verification + reviews. Trust ladder: L0 OTP (browse/profile) → L1 active (inquire/list/participate) → L2 ID-verified (host stay / rent vehicle). Optional "recognised Nagar surname" soft badge — never a gate.
 2. ~~**Listing fee** — amount + structure~~ → **RESOLVED:** admin-managed config (example ₹199/30 days), changeable anytime, price/term snapshotted at purchase; renewal via self-renew or admin extend.
 3. ~~**Free/paid boundary**~~ → **RESOLVED:** *Only Business is paid; all other Offer categories (Room/Vehicle/PG/Goods/Tour/Service) and all Requests are free.* Free listings have a soft-expiry refresh prompt (default 60–90 days, admin-configurable). See Locked decisions for full text.
-4. **Geography** — Nagars everywhere, or Gujarat-first then expand?
+4. ~~**Geography**~~ → **RESOLVED:** *Global from day one — Nagars everywhere.* Diaspora is Phase 1, not "expand later". See Locked decisions + `SPEC.md` §1.5.
 5. **Phase-1 scope** — confirm the MVP cut in `AGENDA.md` is the right starting line.
 6. **Governance** — who are the admins/editors (e.g. the Setusarjan team) and their exact powers?
+7. **Listing fee currency for international Business listings.** Working assumption: INR globally for Phase 1 (Razorpay accepts international cards in INR; avoids multi-currency complexity). Decide before building the payment flow whether to keep INR-only or introduce per-country pricing.
 
 > If a build step needs one of these and it's unresolved, STOP and ask the founder.
 > Implementation details (naming, file structure, library choices) are within Claude Code's authority.

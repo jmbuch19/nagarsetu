@@ -12,6 +12,29 @@ Source of truth for *what* to build. Constraints live in `CLAUDE.md`. Roadmap in
 
 ---
 
+## 1.5 Geography & diaspora
+
+Nagarsetu is **global from day one** — not India-primary, not Gujarat-primary. The
+community already lives across India, the USA, UK, Gulf, East Africa, East Asia,
+Australia, and beyond; the platform reflects that immediately.
+
+The connector ethos especially shines across borders. Examples in spirit:
+- A Tokyo-based Nagar: *"I am based out of Tokyo, Japan. All Nagars are welcome — do ping me if you plan to visit."*
+- A Utah-based Nagar offers a PG room or homestay to visiting Nagars.
+- A Nairobi-based Nagar offers Masai Mara visit assistance.
+
+In every case the deal is offline, member-to-member; the platform is the bridge.
+
+Practical consequences:
+- `cities` lookup seeds **globally** from the start — not regionally, not "expand later".
+- Reach estimates, category notifications, saved alerts, and Community Pulse counters span all geographies.
+- ID verification (Level 2 — only for hosting stays / renting out vehicles) accepts **any government-issued photo ID** (passport, national ID, driver's licence, etc.); admin reviews.
+- `members.geo_lat / geo_lng + cities.country` power nearby-when-travelling discovery (e.g. *"Nagars in or near {{city}} this week"*).
+- Reminders and pre-expiry nudges fire in the **member's local timezone**; capture `members.timezone` at signup or derive from city.
+- Listing fee currency for international Business listings — see Open Decision in `MEMORY.md` (working assumption: INR globally for Phase 1).
+
+---
+
 ## 2. Data Model (Phase 1 first cut)
 
 > All tables get `id uuid pk`, `created_at`, `updated_at`. RLS on every table.
@@ -28,7 +51,7 @@ Source of truth for *what* to build. Constraints live in `CLAUDE.md`. Roadmap in
 - **genres** — `name` (magazine: લેખ, ચિંતન, લઘુવાર્તા, કવિતા, ગઝલ, ગીત, અછાંદસ, ગરબો, બાળગીત, હાસ્ય)
 
 ### Core
-- **members** — `full_name, surname, phone (unique), city_id, sub_community_id, geo_lat, geo_lng, gender, date_of_birth, photo_url, bio, role (member|editor|admin), trust_level (0–3), id_verification (none|pending|verified), recognised_surname bool`
+- **members** — `full_name, surname, phone (unique), city_id, sub_community_id, geo_lat, geo_lng, timezone (IANA, e.g. Asia/Tokyo), gender, date_of_birth, photo_url, bio, role (member|editor|admin), trust_level (0–3), id_verification (none|pending|verified), recognised_surname bool`
   - Membership is **open** (OTP only). `surname / city / geo / gender / date_of_birth` are self-declared indicators + profile data (power directory, intelligence, matrimony, nearby discovery).
   - `id_verification = verified` is required to **host a stay or rent out a vehicle** (Level 2) — not to join.
   - `recognised_surname` is an optional soft badge from a reference list of common Nagar surnames; a warm signal only, never a gate.

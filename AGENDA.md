@@ -15,7 +15,7 @@ and log each completed unit in `AUDIT.md`. Decisions needed → see `MEMORY.md`.
 
 ### 1. Data model (do this first — schema before screens)
 - [ ] Lookup tables: cities, sub_communities, professions, specialties, listing_categories, genres
-- [ ] Seed lookups (initial cities, Nagar sub-communities, profession/specialty lists, genres)
+- [ ] Seed lookups — cities **global from day one** (India + diaspora hubs: USA, UK, Gulf, East Africa, East Asia, Australia); Nagar sub-communities; profession/specialty lists; genres
 - [ ] Core: members, member_professions, verifications
 - [ ] Trust economy: listings, availability, inquiries, reviews, reports
 - [ ] Magazine: magazine_issues, submissions
@@ -32,7 +32,7 @@ and log each completed unit in `AUDIT.md`. Decisions needed → see `MEMORY.md`.
 - [ ] Smart progressive profiling: consent-first opt-ins → `member_capabilities` (expert_guidance / mentor / other); editable anytime; "No" re-offered later
 - [ ] Contextual opt-in nudges (e.g. "students seek a mentor in your field")
 - [ ] "Recognised Nagar surname" soft badge from a reference surname list (signal only, never a gate)
-- [ ] ID verification flow (photo ID) — **only required to host a stay / rent out a vehicle (L2)**; admin reviews; sets trust level
+- [ ] ID verification flow (photo ID — accept **any government-issued ID**: passport, national ID, driver's licence, etc.) — **only required to host a stay / rent out a vehicle (L2)**; admin reviews; sets trust level
 
 ### 3. Directory & Intelligence
 - [ ] Guest browse (pre-auth): Community Pulse teaser + sample feed + latest magazine cover
