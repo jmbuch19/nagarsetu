@@ -31,7 +31,7 @@ and log each completed unit in `AUDIT.md`. Decisions needed → see `MEMORY.md`.
 - [ ] Admin city queue: list `cities WHERE status = 'pending'`; per-row actions = approve / reject / merge-into-canonical (sets `merged_into` + `status = 'merged'`); application read paths follow `merged_into` so aggregation is honest
 - [ ] Onboarding nudge: "What can you offer the circle?" — invite at least one offer from every member
 - [ ] Profile surfaces both sides: what the member offers + what they're seeking
-- [ ] member_professions UI (controlled lists only) — cascading profession → specialty (auto-appears), with status (current/retired/studying)
+- [ ] member_professions UI (controlled lists only) — cascading profession → specialty (auto-appears), then **years_experience** (optional number) and **expertise_text** (optional ~280 chars, "what you actually did"; FTS-indexed), then status (current/retired/studying)
 - [ ] Smart progressive profiling: consent-first opt-ins → `member_capabilities` (expert_guidance / mentor / other); editable anytime; "No" re-offered later
 - [ ] Encouragement screen BEFORE expertise opt-ins (સેવા framing; promise connection/possibility, never guaranteed outcomes)
 - [ ] Continuous flow (basics → encouragement → expertise); "I'll do this later" allowed but re-surfaced contextually

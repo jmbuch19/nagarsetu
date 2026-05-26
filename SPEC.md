@@ -34,7 +34,7 @@ Source of truth for *what* to build. Constraints live in `CLAUDE.md`. Roadmap in
   - **`email` is optional** — used for the weekly Email digest, renewal reminders, and listing-fee receipts. Members without email ride on WhatsApp + in-app; never block on it.
   - `id_verification = verified` is required to **host a stay or rent out a vehicle** (Level 2) — not to join.
   - `recognised_surname` is an optional soft badge from a reference list of common Nagar surnames; a warm signal only, never a gate.
-- **member_professions** — `member_id, profession_id, specialty_id, years_experience, status (current|retired|studying), is_verified bool` — *retired and studying still count*: retired expertise is surfaced as a resource; `studying` marks an aspiring member (a mentee candidate).
+- **member_professions** — `member_id, profession_id, specialty_id, years_experience, expertise_text, status (current|retired|studying), is_verified bool` — *retired and studying still count*: retired expertise is surfaced as a resource; `studying` marks an aspiring member (a mentee candidate). `expertise_text` is a short (~280 chars) free-text "what I actually did" — e.g. *"Turnkey project management for power plants, 30 years"* — that captures depth the controlled-list specialty can't. Indexed for FTS (Gujarati + English).
 - **member_capabilities** — `member_id, kind (expert_guidance|mentor|other), domain, description, is_offered bool` — non-paid community offers (સેવા): willingness to give guidance, mentor aspirants, or other help. **Consent-first, editable anytime.** Feeds Community Intelligence ("38 doctors open to second opinions"), discovery, and mentorship matching.
 - **verifications** — `member_id, method (referral|document|vouch), voucher_member_id, status, reviewed_by, notes`
 
@@ -180,10 +180,14 @@ the circle* at entry, and keeps growing over time.
 **Branching flow:**
 1. **Profession** (dropdown, controlled list).
 2. **Specialty** — a cascading field that *auto-appears based on profession* (e.g. Doctor → Cardiology).
-3. **Status** — current / retired / studying. Retired expertise still counts; `studying` = aspiring (mentee candidate).
-4. **Consent — expert guidance:** "Open to guiding fellow Nagars in your field?" → Yes writes `member_capabilities(expert_guidance, domain=specialty)`; No is respected and re-offered later.
-5. **Beyond expertise:** "Can you offer anything more?" → Yes → `member_capabilities(mentor|other, …)` (e.g. "mentor aspiring Nagar doctors"); No → move on.
-6. **Registered** — minimal and warm.
+3. **Years of experience** (number, optional). Powers later drill-down ("Doctors with 10+ years in Mumbai").
+4. **What you actually did** (optional, ~280 chars) — writes to `member_professions.expertise_text`. The controlled-list specialty alone can't tell future Nagars *"I ran turnkey power-plant projects for 30 years and can guide your son"*. This field does. Always-on profile fact; consent-independent.
+5. **Status** — current / retired / studying. Retired expertise still counts; `studying` = aspiring (mentee candidate).
+6. **Consent — expert guidance:** "Open to guiding fellow Nagars in your field?" → Yes writes `member_capabilities(expert_guidance, domain=specialty)`; No is respected and re-offered later.
+7. **Beyond expertise:** "Can you offer anything more?" → Yes → `member_capabilities(mentor|other, …)` (e.g. "mentor aspiring Nagar doctors"); No → move on.
+8. **Registered** — minimal and warm.
+
+> **Two complementary fields:** `member_professions.expertise_text` is "what I do" (always-on profile fact, never gated). `member_capabilities.description` is "what I'll help with" (consent-gated service offer). A member who fills only the first is still findable as a turnkey-project veteran in search; a member who also fills the second has explicitly opted into guidance/mentorship matching. Don't conflate them.
 
 **Progressive + consent-first:** nothing is forced. Every offer is an opt-in the member controls and
 can edit anytime. The system **nudges contextually later** ("3 students seek a medical mentor — open
