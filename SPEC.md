@@ -12,6 +12,34 @@ Source of truth for *what* to build. Constraints live in `CLAUDE.md`. Roadmap in
 
 ---
 
+## 1.5 Session & device policy
+
+**Goal:** keep a member effectively logged in for **30 days per device** with **no OTP re-prompt** during that window, on **as many devices as they like** (multi-device by design). Driver: cut Meta WhatsApp OTP delivery cost (~₹0.30–₹0.50 per send) and remove re-auth friction — without weakening revocation.
+
+**Mechanism (Supabase Auth, no custom JWT layer):**
+- **Access token (JWT)** — short-lived (default **1 hour**). Deliberately NOT long-lived: a long-lived JWT cannot be revoked before its expiry, which would break our security posture for lost/compromised devices and account-takeover response.
+- **Refresh token** — rolling **30-day inactivity timeout**. The Supabase SDK on each client silently exchanges the refresh token for a fresh access token in the background; the member sees no interactive prompt unless 30 days pass without opening the app on that device.
+- **Rolling window:** the 30-day clock **resets on every successful refresh** — open the app, the clock restarts.
+- **Multi-device:** each device gets its own refresh-token pair; no upper limit. Sessions are independent — signing out of one device does not sign out of others.
+
+**Storage (security-critical):**
+- **Web (Next.js):** httpOnly secure cookies via Supabase's SSR cookie strategy. **Never** localStorage / sessionStorage.
+- **Mobile (Expo):** `expo-secure-store` → iOS Keychain / Android Keystore. **Never** AsyncStorage in plaintext.
+
+**Active sessions UI (mandatory before launch):**
+- Profile screen lists every device with: last-seen timestamp, rough city derived from IP, device label (browser / OS).
+- Per-device **"Sign out"** button → revokes that refresh token.
+- **"Sign out everywhere"** → admin-RPC call that revokes every refresh token for the member; each device's next access-token expiry (within 1 h) drops it out.
+
+**OTP re-entry triggers (besides 30 days of inactivity):**
+- Explicit member logout (per-device or everywhere).
+- Admin-triggered revocation (e.g. on a reported account-takeover).
+- Phone-number change (when that flow exists).
+
+**Cost rationale, made concrete:** at ~₹0.40 per Meta WhatsApp OTP, an active member who opens the app weekly triggers ~52 OTPs/year on a per-session model (~₹21/year/member). With the 30-day rolling window, the same member triggers ~12 OTPs/year (~₹5/year/member) — roughly a **4× saving** on auth-delivery cost at no revocation cost (short access tokens preserve it).
+
+---
+
 ## 2. Data Model (Phase 1 first cut)
 
 > All tables get `id uuid pk`, `created_at`, `updated_at`. RLS on every table.

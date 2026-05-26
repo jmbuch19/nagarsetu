@@ -25,6 +25,10 @@ and log each completed unit in `AUDIT.md`. Decisions needed → see `MEMORY.md`.
 
 ### 2. Auth & identity
 - [ ] Meta WhatsApp OTP via Supabase Auth Hook (approved authentication template); sessions in Supabase
+- [ ] **Session policy** (`SPEC.md` §1.5): access token 1 h (default), refresh token **rolling 30-day inactivity timeout**; multi-device unlimited; SDK auto-refreshes silently — no OTP re-prompt unless device idle >30 days
+- [ ] Secure token storage: **httpOnly secure cookies** on Next.js (Supabase SSR pattern); **expo-secure-store** on Expo (iOS Keychain / Android Keystore); never localStorage / AsyncStorage
+- [ ] **Active sessions screen** in profile: list each device (last-seen, rough city from IP, browser/OS label) with per-device "Sign out" + "Sign out everywhere" (admin revocation RPC)
+- [ ] Account-takeover response: admin-triggered "revoke all sessions" path (UI + audit log entry)
 - [ ] Open sign-up + member profile create/edit (name, surname, city, sub-community, geolocation, gender, DOB, photo, bio)
 - [ ] Onboarding nudge: "What can you offer the circle?" — invite at least one offer from every member
 - [ ] Profile surfaces both sides: what the member offers + what they're seeking
