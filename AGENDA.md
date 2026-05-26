@@ -81,17 +81,26 @@ and log each completed unit in `AUDIT.md`. Decisions needed → see `MEMORY.md`.
 - [ ] One-click PDF render against fixed template (Gujarati fonts embedded)
 - [ ] Share to in-app + WhatsApp + Facebook
 
-### 7. Moderation & disputes
+### 7. Events & heritage
+- [ ] Data model: `events` (organizer_id, title, starts_at, ends_at, location_city_id, venue_text, description, max_attendees, visibility (public|community)); `event_rsvps` (event_id, member_id, status (going|maybe|declined))
+- [ ] Event creation / edit / cancel (organizer-owned; admin override)
+- [ ] Events in the Living Feed (by city + date); calendar view; cross-geo discovery ("Nagar events in {{city}} this month")
+- [ ] One-tap RSVP; attendee count for organizer; soft reminders day-of (member-local timezone)
+- [ ] Heritage content: schema for curated long-form articles (history · lineage · notable Nagars · cultural practices) — *refine before building: admin-authored, member-contributed with admin review, or both?*
+- [ ] Heritage discovery: category navigation + search; render with same Gujarati typesetting discipline as the magazine
+- [ ] Connector disclaimer on event surfaces (events are organised by members, not by Nagarsetu)
+
+### 8. Moderation & disputes
 - [ ] Reports flow (member → admin); actions per `DISPUTE.md`
 - [ ] Trust-level impact + listing suspension
 
-### 8. Hardening (before any wider release)
+### 9. Hardening (before any wider release)
 - [ ] Security pass per `AUDIT.md` checklist (RLS, validation, rate limits, secrets, payment verification)
 - [ ] Gujarati glyph QA across app + rendered PDF
 - [ ] Privacy controls + connector disclaimers verified
 - [ ] Governance: assign first **Nagarsetu Admins** (editor + admin roles in `members.role`); finalise the powers matrix per actual operational needs; lock the Gujarati equivalent of the user-facing label
 
-### 9. Launch polish (data-gated — turn on once there's ample data)
+### 10. Launch polish (data-gated — turn on once there's ample data)
 - [ ] Public "Community Pulse" counters on the landing page (state counts: members, doctors, professionals, articles published, listings…)
 - [ ] Activity counters via connector-safe proxy (reviews and/or "did you connect?" confirmation) — labelled "facilitated", never "booked"
 - [ ] Per-metric threshold guard so low/empty numbers never show
@@ -103,7 +112,6 @@ and log each completed unit in `AUDIT.md`. Decisions needed → see `MEMORY.md`.
 - [ ] Matrimony
 - [ ] Mentorship matching (mentor/mentee)
 - [ ] Member blogs
-- [ ] Events & heritage modules
 - [ ] Magazine audio editions (ElevenLabs) + searchable archive
 - [ ] *Optional:* in-app payments as a convenience (still no commission)
 

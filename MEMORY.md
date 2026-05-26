@@ -59,7 +59,7 @@ Add new locked decisions here; move items out of "Open Decisions" once resolved.
 3. ~~**Free/paid boundary**~~ → **RESOLVED:** *Only Business is paid; all other Offer categories (Room/Vehicle/PG/Goods/Tour/Service) and all Requests are free.* Free listings have a soft-expiry refresh prompt (default 60–90 days, admin-configurable). See Locked decisions for full text.
 4. ~~**Geography**~~ → **RESOLVED:** *Global from day one — Nagars everywhere.* Diaspora is Phase 1, not "expand later". See Locked decisions + `SPEC.md` §1.5.
 5. **Phase-1 scope** — confirm the MVP cut in `AGENDA.md` is the right starting line.
-6. ~~**Governance**~~ → **PARTIALLY RESOLVED:** *User-facing label is "Nagarsetu Admins" for both Editor and Admin roles* — locked. Specific powers per role + the first humans assigned to each role are **deferred until launch is in sight** (tracked in `AGENDA.md` §8 Hardening). See Locked decisions.
+6. ~~**Governance**~~ → **PARTIALLY RESOLVED:** *User-facing label is "Nagarsetu Admins" for both Editor and Admin roles* — locked. Specific powers per role + the first humans assigned to each role are **deferred until launch is in sight** (tracked in `AGENDA.md` §9 Hardening). See Locked decisions.
 7. **Listing fee currency for international Business listings.** Working assumption: INR globally for Phase 1 (Razorpay accepts international cards in INR; avoids multi-currency complexity). Decide before building the payment flow whether to keep INR-only or introduce per-country pricing.
 
 > If a build step needs one of these and it's unresolved, STOP and ask the founder.

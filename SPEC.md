@@ -74,11 +74,16 @@ Practical consequences:
 - **magazine_issues** — `issue_number, publish_date, status (open|curating|rendered|published), rendered_pdf_url`
 - **submissions** — `issue_id, author_id, genre_id, title, body, image_url, city_text, pull_quote, status (submitted|approved|rejected)`
 
+### Community (Events & heritage) — Phase 1
+- **events** — `organizer_id, title, starts_at, ends_at, location_city_id, venue_text, description, max_attendees, visibility (public|community), status (draft|published|cancelled)`
+- **event_rsvps** — `event_id, member_id, status (going|maybe|declined)`
+- **heritage_articles** — *schema TBD before building.* Working sketch: `author_id (nullable; null = admin-curated), title, body, category (history|lineage|notable_persons|cultural_practice|tradition), image_url, published_at, status (draft|review|published)`. Authorship policy (admin-only vs member-contributed-with-review) → see AGENDA §7.
+
 ### Money (listing fee ONLY)
 - **payments** — `member_id, listing_id, amount, currency, gateway_ref, status` — never used for member-to-member transactions
 
 ### Phase 2 (define later, do not build yet)
-`matrimony_profiles`, `mentorships (mentor_id, mentee_id, domain, status)`, `blogs`, `events`, `event_rsvps`
+`matrimony_profiles`, `mentorships (mentor_id, mentee_id, domain, status)`, `blogs`
 
 ---
 
