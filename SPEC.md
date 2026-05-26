@@ -10,31 +10,6 @@ Source of truth for *what* to build. Constraints live in `CLAUDE.md`. Roadmap in
 - **Editor** — manages the magazine (curate submissions, render, publish). E.g. the Setusarjan team.
 - **Admin** — verification, moderation, reports/disputes, listing oversight, issue config.
 
-> **User-facing label:** for now, every UI surface, disclaimer, magazine credit, and notification refers to both Editor and Admin uniformly as **"Nagarsetu Admins"**. The schema keeps the technical `role` split (because magazine + moderation flows need it), but the public-facing distinction is collapsed until after launch. The Gujarati equivalent of "Nagarsetu Admins" for bilingual surfaces is TBD at i18n time. Specific powers per role will be locked in `MEMORY.md` once real operational needs surface.
-
----
-
-## 1.5 Geography & diaspora
-
-Nagarsetu is **global from day one** — not India-primary, not Gujarat-primary. The
-community already lives across India, the USA, UK, Gulf, East Africa, East Asia,
-Australia, and beyond; the platform reflects that immediately.
-
-The connector ethos especially shines across borders. Examples in spirit:
-- A Tokyo-based Nagar: *"I am based out of Tokyo, Japan. All Nagars are welcome — do ping me if you plan to visit."*
-- A Utah-based Nagar offers a PG room or homestay to visiting Nagars.
-- A Nairobi-based Nagar offers Masai Mara visit assistance.
-
-In every case the deal is offline, member-to-member; the platform is the bridge.
-
-Practical consequences:
-- `cities` lookup seeds **globally** from the start — not regionally, not "expand later".
-- Reach estimates, category notifications, saved alerts, and Community Pulse counters span all geographies.
-- ID verification (Level 2 — only for hosting stays / renting out vehicles) accepts **any government-issued photo ID** (passport, national ID, driver's licence, etc.); admin reviews.
-- `members.geo_lat / geo_lng + cities.country` power nearby-when-travelling discovery (e.g. *"Nagars in or near {{city}} this week"*).
-- Reminders and pre-expiry nudges fire in the **member's local timezone**; capture `members.timezone` at signup or derive from city.
-- Listing fee currency for international Business listings — see Open Decision in `MEMORY.md` (working assumption: INR globally for Phase 1).
-
 ---
 
 ## 2. Data Model (Phase 1 first cut)
@@ -47,13 +22,13 @@ Practical consequences:
 - **sub_communities** — `name` (Nagar sub-groups, e.g. Vadnagara, Visnagara, Sathodara…)
 - **professions** — `name`
 - **specialties** — `profession_id → professions, name`
-- **listing_categories** — `name, time_binding, is_paid bool` (`business | room | vehicle | pg | goods | tour | service | expert`)
+- **listing_categories** — `name, time_binding` (`business | room | vehicle | pg | goods | tour | service | expert | education`)
   - **Verification per category:** *open* (any member) for goods/tour/service/expert · *ID-verified L2* for room/vehicle/pg (high-risk hosting) · *admin-reviewed* for business (the "Gate-2" quality/anti-scam check before publish).
-  - **Free/paid:** only **business** offers carry the listing fee (`is_paid = true`); every other category is free. All **requests** (below) are also free.
+  - All **offers** (supply listings) carry the listing fee; **requests** (below) are free.
 - **genres** — `name` (magazine: લેખ, ચિંતન, લઘુવાર્તા, કવિતા, ગઝલ, ગીત, અછાંદસ, ગરબો, બાળગીત, હાસ્ય)
 
 ### Core
-- **members** — `full_name, surname, phone (unique), city_id, sub_community_id, geo_lat, geo_lng, timezone (IANA, e.g. Asia/Tokyo), gender, date_of_birth, photo_url, bio, role (member|editor|admin), trust_level (0–3), id_verification (none|pending|verified), recognised_surname bool`
+- **members** — `full_name, surname, phone (unique), city_id, sub_community_id, geo_lat, geo_lng, gender, date_of_birth, photo_url, bio, role (member|editor|admin), trust_level (0–3), id_verification (none|pending|verified), recognised_surname bool`
   - Membership is **open** (OTP only). `surname / city / geo / gender / date_of_birth` are self-declared indicators + profile data (power directory, intelligence, matrimony, nearby discovery).
   - `id_verification = verified` is required to **host a stay or rent out a vehicle** (Level 2) — not to join.
   - `recognised_surname` is an optional soft badge from a reference list of common Nagar surnames; a warm signal only, never a gate.
@@ -67,39 +42,22 @@ Practical consequences:
 - **inquiries** — `listing_id, seeker_id, requested_start, requested_end, requested_qty, message, channel (in_app|whatsapp|phone), status (open|connected|closed)` — *an inquiry is the seeker's expression of interest and the provider's **lead**; the provider's Lead Inbox is their inquiries.*
 - **saved_alerts** — `member_id, category_id, city_id, keyword` — "notify me when X is listed" (receiver-side nudge).
 - **reviews** — `listing_id (nullable), author_id, subject_id, rating (1–5), body` — two-way
-- **reports** — `reporter_id, subject_member_id, listing_id (nullable), reason, details, status (open|reviewing|actioned|dismissed), action_taken` — see `DISPUTE.md`
+- **reports** — `reporter_id, subject_member_id, listing_id (nullable), community_event_id (nullable), reason, details, status (open|reviewing|actioned|dismissed), action_taken` — see `DISPUTE.md`. The nullable `community_event_id` powers reactive moderation for `community_events` (§7.3) — same flow, no new pipeline.
 - **requests** — *demand / "wanted" posts (the seeker side, e.g. PG Seeker)* — `member_id, category_id, area_text, city_id, budget_text, needed_from, needed_to, gender_pref, food_pref, details, status (open|fulfilled|closed)`. **Free** (no listing fee); providers browse and reach out. Generalises to "looking for a room/ride/tutor".
 
 ### Magazine
 - **magazine_issues** — `issue_number, publish_date, status (open|curating|rendered|published), rendered_pdf_url`
 - **submissions** — `issue_id, author_id, genre_id, title, body, image_url, city_text, pull_quote, status (submitted|approved|rejected)`
 
-### Community (Events & heritage) — Phase 1
-- **events** — `organizer_id, title, starts_at, ends_at, location_city_id, venue_text, description, max_attendees, visibility (public|community), status (draft|published|cancelled)`
-- **event_rsvps** — `event_id, member_id, status (going|maybe|declined)`
-- **heritage_articles** — `author_id (member, required), title, body, category (history|lineage|notable_persons|cultural_practice|tradition), image_url, submitted_at, reviewed_by (admin), published_at, status (draft|submitted|under_review|published|rejected)`. **Member-contributed with admin review** before publish.
-
-### Matrimony, Mentorship, Blogs — Phase 1 (promoted from Phase 2 on 2026-05-26)
-- **matrimony_profiles** — `member_id, looking_for (groom|bride|either), height_cm, education, profession_id, family_details, partner_preferences, photo_urls[], visibility (matrimony_participants_only|admins_only), status (active|paused|matched)`. Restricted visibility by default — never surfaced in the public directory.
-- **matrimony_interests** — `from_profile_id, to_profile_id, status (sent|reciprocated|declined|expired)`. Mutual interest reveals contact details.
-- **mentor_offers** — `member_id, profession_id, specialty_id, capacity_limit, status`. Backed by `member_capabilities (kind = mentor)`.
-- **mentee_requests** — `member_id, profession_id, specialty_id, goal_text, status (open|matched|closed)`.
-- **mentorships** — `mentor_id, mentee_id, profession_id, started_at, ended_at, status (active|paused|completed)`. Optional testimonial on completion.
-- **blogs** — `author_id, title, body (markdown), tags[], cover_image_url, language (en|gu), published_at, status (draft|published|archived)`. Free; evergreen (no auto-expiry); author archives.
-
-### Magazine audio + archive (Phase 1 extension of §Magazine)
-- **submission_audio** — `submission_id, audio_url, voice_id, status (queued|generated|approved|rejected), generated_at, approved_by, char_count, cost_estimate`. ElevenLabs-generated; admin approves before public release.
-- Searchable archive uses Postgres FTS over `submissions.body` (Gujarati-aware) — no new table.
+### Community Event Announcements
+- **community_events** — `title, description, event_type (annual_gathering|ritual|medical_camp|religious|cultural|other), organising_body, city_id, venue, start_datetime, end_datetime, contact_member_id, contact_whatsapp, cover_image_url, status (active|past|cancelled), created_by, significance_confirmed_at` — broadcast announcements; **member-published, NO admin pre-approval**. Spam-guarded by required `event_type` (controlled), member-affirmed significance (`significance_confirmed_at`), per-member rate limit, and reactive moderation via `reports`. See §7.3.
+- **community_event_alerts** — `member_id, event_type (nullable; null = all types), city_id (nullable; null = anywhere)` — saved-alert-style opt-in: "notify me about community events matching this filter".
 
 ### Money (listing fee ONLY)
 - **payments** — `member_id, listing_id, amount, currency, gateway_ref, status` — never used for member-to-member transactions
 
 ### Phase 2 (define later, do not build yet)
-*No new schemas currently scheduled for Phase 2.* The original Phase 2 schemas
-(`matrimony_profiles`, `mentorships`, `blogs`, `events`, `event_rsvps`) were promoted
-to Phase 1 on 2026-05-26 — see the Community / Matrimony·Mentorship·Blogs / Magazine-audio
-sections above. The only deferred Phase 2 item is **optional in-app member-to-member
-payments**, which is held back to protect Hard Constraint #1 (see `CLAUDE.md`).
+`matrimony_profiles`, `mentorships (mentor_id, mentee_id, domain, status)`, `blogs`, `events`, `event_rsvps`
 
 ---
 
@@ -241,13 +199,12 @@ cover before sign-up. Acting (inquire, list, contact, message) prompts sign-up.
 
 **Create a Listing (unified):** one entry point → pick a category (Business · Room · Vehicle · PG ·
 Goods · Tour · Service) → category-specific form (rentals include Day/Week/Month + availability) →
-verification per category (open / ID-verified / admin) → listing fee **(Business only)** → publish.
-**Rentals are NOT nested under "Business"** — Business is one category among several; the member's
-intent drives the choice, not a business framing.
+verification per category (open / ID-verified / admin) → listing fee → publish. **Rentals are NOT
+nested under "Business"** — Business is one category among several; the member's intent drives the
+choice, not a business framing.
 
-**Offers vs Requests:** only **Business Offers** carry the listing fee. Every other Offer category
-(Room, Vehicle, PG, Goods, Tour, Service) is free. Seeker posts (PG Seeker, "looking for a room/ride/tutor")
-are **Requests** — always free, demand-side.
+**Offers vs Requests:** supply listings are **Offers** (carry the fee); seeker posts (PG Seeker,
+"looking for a room/ride/tutor") are **Requests** (free, demand-side).
 
 **Empty-state:** early on, lead with Community Pulse + "be the first to list"; respect the per-metric
 threshold guard. Nudge profile completion after the first action.
@@ -279,15 +236,12 @@ how the supply side fills from *everyone*, not just obvious professionals — th
 
 **Receiver nudges:** discovery (feed/search/category) · timely seasonal/festival pushes ("mango season — Nagars near you are selling") · **saved alerts** ("notify me when pickles are listed") · social proof (review counts + ratings on cards).
 
-**What the listing fee promises (honesty protects the moat) — Business listings only:**
+**What the listing fee promises (honesty protects the moat):**
 - **Promise (controllable):** reach + visibility + delivered leads. The **pre-listing screen shows a real reach estimate** — e.g. *"reaches ~1,095 Nagars across India, USA & Dubai, appears in this week's e-magazine digest, notifies your category."*
 - **Do NOT promise sales** — that's member-to-member; the app is a connector.
 - **Tie the fee to real reach:** keep listings free/token while the community is small; ₹199 kicks in once reach genuinely justifies it (admin-managed). Never charge a meaningful fee to reach a trivial audience.
 
-## 7.1 Business listings: pricing, lifecycle & professional perks
-
-> Applies to **Business** listings only — the one paid category. Every other
-> category's lifecycle is in §7.1a.
+## 7.1 Listings: pricing, lifecycle & professional perks
 
 **Pricing (admin-managed):**
 - Listing price and term are **config, editable by admin anytime** (e.g. ₹199 / 30 days) via an admin settings screen. Store in a `settings`/`pricing` table — never hard-code.
@@ -321,27 +275,66 @@ how the supply side fills from *everyone*, not just obvious professionals — th
 - `members` gains — `opt_in_email bool, opt_in_whatsapp bool`
 - `promo_sends` — `listing_id, channel (email|whatsapp), sent_at, status` (audit of weekly features)
 
-## 7.1a Free listing lifecycle (Room · Vehicle · PG · Goods · Tour · Service)
-
-Non-Business listings carry no fee, but they expire on a long, soft cadence so the
-feed reflects what's actually still on offer.
-
-**Lifecycle:**
-- On publish: `published_at = now`, `expires_at = now + free_default_days` (admin-configurable, default 60–90 days). `fee_paid = false`.
-- **Pre-expiry reminders** at ~day-7 and day-2 — *"Is your {{listing_title}} still relevant? One tap to refresh."*
-- On expiry: status → `expired`; member can re-publish anytime with a single confirm (no payment; the listing's original verification level holds).
-- Member can pause/edit/delete anytime, same as Business.
-
-**Why soft expiry:** prevents the feed silting up with years-old "still available?" listings; refresh signals real, current intent; community-side sharing is never punished with cost.
-
-**Schema:** same `listings.published_at`, `expires_at`, `status` columns as Business — **no schema split.** The category's `is_paid` flag drives the lifecycle policy (Business → paid renewal per §7.1; others → free refresh per this section).
-
-**Admin settings additions:** `free_default_days` (e.g. 60–90); the four-job scheduler in §7.1 gains a fifth job — free-listing expiry + refresh-reminder.
-
 
 ---
 
-## 8. Non-functional
+## 7.2 Education pillar
+
+Education is a full pillar (not one field), with two-sided flows. Recipients are naturally the
+`status = studying` members captured in profiling.
+
+- **Scholarships** — a member/trust **offers** a scholarship with criteria; eligible families **apply**.
+  - `scholarships` — `offered_by_member_id, title, description, criteria (course, merit, income_cap, city_id, gender, other), amount_text, deadline, contact, status (open|closed)`
+  - `scholarship_applications` — `scholarship_id, applicant_member_id, student_name, details, status (submitted|shortlisted|awarded|rejected)`
+  - Offering a scholarship is **free** (it's સેવા, not selling). Applications are free.
+- **Career guidance** — counselling, college admissions, study-abroad help. Reuses `member_capabilities` (expert_guidance / mentor) + mentorship matching; no new mechanism.
+- **Education listings** — tutors, coaching, courses → a **listing category** (`education`) under the unified Create-a-Listing hub (carries the listing fee like other offers).
+- **Student profiles** — `status = studying` members are the recipients/mentees; surface them for scholarships, mentorship, and guidance.
+
+## 7.3 Community Event Announcements (broadcast, no pre-approval)
+
+Any member can announce a **significant** Nagar community event (religious or otherwise) that
+broadcasts to the member base. **No admin approval before publishing** (frictionless), guarded by
+significance rules + reactive moderation instead of a pre-gate.
+
+**Data** (full schema in §2 → Community Event Announcements):
+- `community_events` — full fields listed in §2; key non-obvious ones: `significance_confirmed_at` (timestamp captured when the member ticks the significance checkbox at publish — audit trail), `created_by` (publisher), `contact_member_id` (may differ from creator if a designated point of contact is named).
+- `community_event_alerts` — per-member opt-in for the notification fan-out (filter by `event_type` and/or `city_id`; nulls mean "all types" / "anywhere").
+- `reports.community_event_id` — nullable column on the existing reports table (no new pipeline).
+- `settings` gains `community_event_rate_limit_count` (default **1**) and `community_event_rate_limit_days` (default **7**) — admin can tune.
+
+**Publish flow:**
+1. Member fills the form → required: `event_type` (controlled list), title, organising_body, city, start_datetime, end_datetime, contact. Cover image optional but recommended.
+2. **Significance checkbox** required to enable the Publish button: *"This is a significant community-wide Nagar event."* Server records `significance_confirmed_at = now()` on submit.
+3. **Rate limit check (server-side):** count this member's `community_events` rows created in the last `rate_limit_days`; reject with a clear message if `>= rate_limit_count` ("You've already published an announcement this week. Next slot opens {{date}}.").
+4. On success → row inserted with `status = active` → fan-out (below) → card lands in Living Feed.
+
+**Notification fan-out (relevant members):**
+- **City:** `members.city_id == community_events.city_id`.
+- **Diaspora / interest:** matches in `community_event_alerts` — opt-in members who chose this `event_type` and/or this `city_id` (null = match-all on that axis).
+- **Channels:**
+  - **In-app + email** always (subject to per-member opt-in for email).
+  - **WhatsApp** only for `members.opt_in_whatsapp = true`, via a **pre-approved Marketing template** for community announcements. Opt-out honoured per recipient. Never blast to non-opted members.
+  - Consistent with §7.06 channel discipline; no new pattern.
+
+**Living Feed:**
+- Card variant distinct from listings and events: announcement badge, organising body prominent, date band, single primary CTA (e.g. "WhatsApp the organiser" → `wa.me` deep link with pre-filled message).
+- Connector disclaimer on every card: *"Nagarsetu announces. The event is organised by {{organising_body}} — contact {{contact_name}} ({{contact_whatsapp}}). Verify details with the organiser."*
+
+**Lifecycle:**
+- `status = active` while `now < end_datetime`. A cron job flips to `past` after the end window.
+- Creator (or admin) can mark `status = cancelled` anytime → fires a **cancellation notification** to the same audience that received the original, on the same channels (Utility template for cancellations — recipients are party to the cancelled event).
+
+**Reactive moderation (replaces a pre-approval gate):**
+- Any member can flag an announcement via the standard `reports` flow (`community_event_id` populated).
+- Admin reviews per `DISPUTE.md`; can remove (`status = cancelled` with admin note), warn the creator, or impose a stricter rate limit on the creator if abuse is repeated.
+- Trust-level impact on the creator follows the same ladder as listing reports.
+
+**WhatsApp templates required (must be pre-approved by Meta before launch):**
+- *Community announcement* (Marketing) — initial broadcast.
+- *Community announcement: cancelled* (Utility) — cancellations.
+
+
 
 - **Privacy:** contact details permission-gated; aggregate-only intelligence; clear data controls.
 - **i18n:** Gujarati + English; never break Gujarati glyphs; magazine fonts embedded in PDF.
