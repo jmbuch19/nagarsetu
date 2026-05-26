@@ -25,6 +25,7 @@ Add new locked decisions here; move items out of "Open Decisions" once resolved.
 - **App is never a party to disputes** (see `DISPUTE.md`).
 - **Gujarati is first-class.** Magazine render must reproduce the Setusarjan look.
 - **Stack:** Next.js (web, **hosted on Vercel**), Expo/RN (mobile via EAS, Android-first OK), Supabase, phone OTP, Claude API, Razorpay (listing fee only), WhatsApp/FB share. Scheduler via Vercel Cron (protected by `CRON_SECRET`) or Supabase pg_cron.
+- **Supabase region: Northeast Asia (Tokyo).** Accepted — not re-creating in Mumbai. Supabase doesn't support in-place region change; recreate-in-Mumbai was considered but ruled out. Latency from India will be higher than Mumbai but acceptable for Phase 1. Reconsider only if user-reported latency becomes a real complaint.
 - **Phasing:** Phase 1 = directory + intelligence + feed + listings/availability + magazine engine + listing-fee payment. Matrimony + audio editions + mentorship → Phase 2.
 
 ## Context

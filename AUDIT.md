@@ -48,4 +48,5 @@ before any wider release and re-run it after touching auth, data, or payments.
 ## Build log
 *(append newest at top: date — area — what changed — checks run)*
 
+- 2026-05-26 — Foundations — GitHub repo initialised at github.com/jmbuch19/nagarsetu; all 8 root docs committed (`CLAUDE.md`, `CONCEPT.md`, `SPEC.md`, `AGENDA.md`, `MEMORY.md`, `AUDIT.md`, `DISPUTE.md`, `IDEAS.md`) plus `.env.example` (placeholders only — no real secrets) and `.gitignore`. Supabase CLI installed via Scoop; `supabase init` ran; project linked to ref `wfkeyjukkoktubeqvjch` (Tokyo region) under account `jambuch@gmail.com`. — Checks: verified `.env.example` contains no live credentials before pushing; fixed a `.gitignore` bug where an inline comment on `!.env.example` would have caused the template to be ignored; `supabase/.gitignore` ignores `.temp/` and `.env*.local` so project-ref + local secrets stay out of git.
 - _YYYY-MM-DD_ — _area_ — _what was built_ — _security items verified_

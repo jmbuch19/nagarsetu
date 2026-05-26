@@ -6,8 +6,8 @@ and log each completed unit in `AUDIT.md`. Decisions needed → see `MEMORY.md`.
 ---
 
 ## Phase 0 — Foundations
-- [ ] Initialise repo; add `CLAUDE.md`, `SPEC.md`, `MEMORY.md`, `AUDIT.md`, `DISPUTE.md`, `IDEAS.md` at root
-- [ ] Set up Supabase project; wire env/secrets
+- [x] Initialise repo; add `CLAUDE.md`, `SPEC.md`, `MEMORY.md`, `AUDIT.md`, `DISPUTE.md`, `IDEAS.md` at root
+- [x] Set up Supabase project; wire env/secrets
 - [ ] Set up Next.js (web) and Expo (mobile) shells
 - [ ] Confirm the 6 Open Decisions in `MEMORY.md` are resolved (or flag blockers)
 
