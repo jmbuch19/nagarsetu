@@ -87,10 +87,28 @@ and log each completed unit in `AUDIT.md`. Decisions needed → see `MEMORY.md`.
 - [ ] Reactive moderation for broadcasts (flag + post-hoc removal) + per-member rate-limits
 
 ### 7b. Education pillar
-- [ ] Scholarships: offer (with criteria) ↔ application flow (free)
-- [ ] `education` listing category (tutors/coaching/courses)
-- [ ] Career guidance via existing member_capabilities + mentorship matching
-- [ ] Surface `status = studying` students as recipients/mentees
+
+**Scholarships (member/trust offers ↔ family applies; both sides FREE):**
+- [ ] Data model: `scholarships`, `scholarship_applications` (state machine: submitted | under_review | shortlisted | awarded | rejected | withdrawn), `scholarship_alerts` (member_id, criteria_course nullable, criteria_city_id nullable, criteria_gender nullable) — full schemas in `SPEC.md` §2 Education
+- [ ] Extend `reports` with `scholarship_id (nullable)` for reactive moderation (same pipeline as listings / community_events)
+- [ ] **L2 ID-verification gate on publish** — server blocks unless `members.id_verification = 'verified'`; clear "verify your ID to offer a scholarship" prompt routes the member into the verification flow
+- [ ] Publish form: title, description, criteria (course, merit, income cap, city, gender, other), amount text, deadline, contact (member + WhatsApp)
+- [ ] Discovery surface: filter by course / city / gender / deadline; sort by deadline-nearest; open/closed status badge
+- [ ] Connector disclaimer on every scholarship card: *"Nagarsetu lists this scholarship offered by {{offered_by_name}}. The offering party decides shortlisting and awards. Verify details directly with the offerer."*
+- [ ] Application flow: family submits → offering member's Scholarship Inbox → offering member moves through states (submitted → under_review → shortlisted → awarded / rejected); applicant can withdraw anytime
+- [ ] **Offering member is the sole adjudicator** — schema enforces `scholarship_applications.decided_by_member_id == scholarships.offered_by_member_id`; admin can override only via a documented moderation action (audit-logged)
+- [ ] Each state transition fires in-app + email notification to applicant; Utility WhatsApp template if `opt_in_whatsapp = true`
+- [ ] Notification fan-out on publish: in-app + email to members in criteria-matched city with `status = studying`; WhatsApp Utility template (*"scholarship matching your criteria is open"*) **only** to opted-in members with a matching `scholarship_alerts` row
+- [ ] Member-facing `scholarship_alerts` opt-in UI: *"tell me about new scholarships for {{course}} in {{city}}"* — leave any axis null for match-all
+- [ ] Lifecycle cron: flip `status = open → closed` after `deadline + 24h grace`; reject new applications post-close; offering member can manually close earlier
+- [ ] Document uploads on applications: type/size-checked; stored in scoped Storage bucket; RLS so only the applicant + offering member + admins can read
+- [ ] Reactive moderation: standard `reports` flow with `scholarship_id`; admin actions per `DISPUTE.md`
+
+**Career guidance:** reuses `member_capabilities` (expert_guidance / mentor) + mentorship matching — no new tables; surface a "find career guidance" entry point in the Connect intent hub.
+
+**Education listings (tutors / coaching / courses):** uses the existing `education` listing category under the unified Create-a-Listing hub; carries the listing fee like other commercial offers (no special handling beyond category-specific form fields: subjects taught, level, mode online/in-person).
+
+**Student profiles:** surface members with `member_professions.status = studying` as natural recipients in scholarship + mentor notifications and in admin views ("X students seeking guidance in {{city}}"). No new schema.
 
 ### 7c. Community Event Announcements
 - [ ] Data model: `community_events` (full schema in `SPEC.md` §2 → Community Event Announcements); `community_event_alerts` (member_id, event_type nullable, city_id nullable); add `community_event_id (nullable)` to existing `reports` table

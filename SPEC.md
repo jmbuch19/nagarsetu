@@ -42,7 +42,7 @@ Source of truth for *what* to build. Constraints live in `CLAUDE.md`. Roadmap in
 - **inquiries** — `listing_id, seeker_id, requested_start, requested_end, requested_qty, message, channel (in_app|whatsapp|phone), status (open|connected|closed)` — *an inquiry is the seeker's expression of interest and the provider's **lead**; the provider's Lead Inbox is their inquiries.*
 - **saved_alerts** — `member_id, category_id, city_id, keyword` — "notify me when X is listed" (receiver-side nudge).
 - **reviews** — `listing_id (nullable), author_id, subject_id, rating (1–5), body` — two-way
-- **reports** — `reporter_id, subject_member_id, listing_id (nullable), community_event_id (nullable), reason, details, status (open|reviewing|actioned|dismissed), action_taken` — see `DISPUTE.md`. The nullable `community_event_id` powers reactive moderation for `community_events` (§7.3) — same flow, no new pipeline.
+- **reports** — `reporter_id, subject_member_id, listing_id (nullable), community_event_id (nullable), scholarship_id (nullable), reason, details, status (open|reviewing|actioned|dismissed), action_taken` — see `DISPUTE.md`. The nullable `community_event_id` powers reactive moderation for `community_events` (§7.3); `scholarship_id` does the same for scholarship offers (§7.2). Same pipeline, no fan-out.
 - **requests** — *demand / "wanted" posts (the seeker side, e.g. PG Seeker)* — `member_id, category_id, area_text, city_id, budget_text, needed_from, needed_to, gender_pref, food_pref, details, status (open|fulfilled|closed)`. **Free** (no listing fee); providers browse and reach out. Generalises to "looking for a room/ride/tutor".
 
 ### Magazine
@@ -52,6 +52,11 @@ Source of truth for *what* to build. Constraints live in `CLAUDE.md`. Roadmap in
 ### Community Event Announcements
 - **community_events** — `title, description, event_type (annual_gathering|ritual|medical_camp|religious|cultural|other), organising_body, city_id, venue, start_datetime, end_datetime, contact_member_id, contact_whatsapp, cover_image_url, status (active|past|cancelled), created_by, significance_confirmed_at` — broadcast announcements; **member-published, NO admin pre-approval**. Spam-guarded by required `event_type` (controlled), member-affirmed significance (`significance_confirmed_at`), per-member rate limit, and reactive moderation via `reports`. See §7.3.
 - **community_event_alerts** — `member_id, event_type (nullable; null = all types), city_id (nullable; null = anywhere)` — saved-alert-style opt-in: "notify me about community events matching this filter".
+
+### Education
+- **scholarships** — `offered_by_member_id, title, description, criteria_course, criteria_merit_text, criteria_income_cap_text, criteria_city_id (nullable; null = anywhere), criteria_gender (boy|girl|any), criteria_other_text, amount_text, deadline (date), contact_member_id, contact_whatsapp, status (open|closed), published_at, closed_at` — a member/trust offers a scholarship with eligibility criteria. **Publishing requires L2 ID verification** (`members.id_verification = 'verified'`) — same gate as hosting a stay / renting a vehicle. Both offering and applying are FREE. See §7.2.
+- **scholarship_applications** — `scholarship_id, applicant_member_id, student_name, student_age, student_class_or_course, details, documents_url[], status (submitted|under_review|shortlisted|awarded|rejected|withdrawn), decided_by_member_id, decided_at, notes`. **Offering member is the sole adjudicator** — `decided_by_member_id` must equal `scholarships.offered_by_member_id` (enforced server-side); admin can override only via documented moderation action.
+- **scholarship_alerts** — `member_id, criteria_course (nullable), criteria_city_id (nullable), criteria_gender (nullable)` — saved-alert opt-in for eligibility matches; nulls mean "match any".
 
 ### Money (listing fee ONLY)
 - **payments** — `member_id, listing_id, amount, currency, gateway_ref, status` — never used for member-to-member transactions
@@ -280,16 +285,94 @@ how the supply side fills from *everyone*, not just obvious professionals — th
 
 ## 7.2 Education pillar
 
-Education is a full pillar (not one field), with two-sided flows. Recipients are naturally the
-`status = studying` members captured in profiling.
+Education is a full pillar with four sub-flows, not a single field. Demand-side
+recipients are naturally the `member_professions.status = studying` members
+captured during profiling.
 
-- **Scholarships** — a member/trust **offers** a scholarship with criteria; eligible families **apply**.
-  - `scholarships` — `offered_by_member_id, title, description, criteria (course, merit, income_cap, city_id, gender, other), amount_text, deadline, contact, status (open|closed)`
-  - `scholarship_applications` — `scholarship_id, applicant_member_id, student_name, details, status (submitted|shortlisted|awarded|rejected)`
-  - Offering a scholarship is **free** (it's સેવા, not selling). Applications are free.
-- **Career guidance** — counselling, college admissions, study-abroad help. Reuses `member_capabilities` (expert_guidance / mentor) + mentorship matching; no new mechanism.
-- **Education listings** — tutors, coaching, courses → a **listing category** (`education`) under the unified Create-a-Listing hub (carries the listing fee like other offers).
-- **Student profiles** — `status = studying` members are the recipients/mentees; surface them for scholarships, mentorship, and guidance.
+### 7.2.1 Scholarships (member/trust offers ↔ family applies)
+
+Both offering and applying are **free** — it's સેવા, not commerce. Schemas:
+`scholarships`, `scholarship_applications`, `scholarship_alerts` (see §2 Education).
+
+**Verification to publish a scholarship offer — L2 ID-verified:**
+A member must complete photo-ID verification before they can publish a scholarship
+offer — same gate as hosting a stay or renting out a vehicle. Reason: a fake
+scholarship raises false hope in families and damages community trust, even though
+no money flows through the app. Reactive moderation continues post-publish.
+
+**Publish flow:**
+1. Server checks `members.id_verification = 'verified'`; otherwise blocks with a
+   clear prompt routing the member into the verification flow.
+2. Member fills criteria + amount + deadline + contact.
+3. Submit → row inserted with `status = open`, `published_at = now()` → fan-out.
+
+**Notification fan-out (eligible families):**
+- **City + studying-status:** members in `criteria_city_id` (or anywhere if null)
+  whose `member_professions.status = studying` and (when set) `criteria_course` ≈
+  the student's course / `criteria_gender` matches.
+- **Saved alerts:** rows in `scholarship_alerts` matching course / city / gender
+  (nulls mean match-all on that axis).
+- **Channels:**
+  - **In-app + email** always (subject to per-member email opt-in).
+  - **WhatsApp:** **only** for members with `opt_in_whatsapp = true` AND a
+    matching `scholarship_alerts` row, via a **pre-approved Utility template**
+    ("scholarship matching your criteria is open"). The broader city +
+    studying-status fan-out uses in-app + email only — never blast WhatsApp to
+    non-opted members. (Protects WABA quality.)
+
+**Application state machine** (offering member is the sole adjudicator):
+```
+submitted → under_review → shortlisted → awarded
+       ↘          ↓             ↓
+        →   rejected ← ─ ─ ─ ─ ─┘
+applicant can withdraw at any state: → withdrawn
+```
+Each transition fires an in-app + email notification to the applicant; Utility
+WhatsApp template if the applicant has `opt_in_whatsapp = true`.
+
+**Lifecycle:** a cron job flips `status = open → closed` once `now > deadline + 24h grace`.
+No new applications accepted after close. Offering member can manually close earlier.
+
+**Connector disclaimer (every scholarship surface):**
+*"Nagarsetu lists this scholarship offered by {{offered_by_name}}
+({{contact_whatsapp}}). The offering party decides shortlisting and awards.
+Verify details directly with the offerer."*
+
+**Reactive moderation:** standard `reports` flow with `scholarship_id` populated.
+Admin can remove the scholarship (`status = closed` + admin note), warn the
+offering member, or trigger a trust-level review per `DISPUTE.md`.
+
+**Application documents:** uploaded supporting docs (mark sheets, income
+certificates, etc.) stored in a scoped Storage bucket; RLS-readable only by the
+applicant, the offering member, and admins; type/size-checked on upload.
+
+### 7.2.2 Career guidance
+
+Counselling, college admissions, study-abroad help. **Reuses existing mechanisms —
+no new tables:**
+- `member_capabilities` (kind = `expert_guidance` or `mentor`) — opt-in via
+  progressive profiling.
+- Mentorship matching routes mentees to mentors (see profiling section).
+- Discovery: directory filter on `member_capabilities.kind` + domain
+  (e.g. *"career guidance for medical aspirants"*).
+
+### 7.2.3 Education listings (tutors / coaching / courses)
+
+A **listing category** (`education`) under the unified Create-a-Listing hub.
+Carries the listing fee like other commercial offers — same lifecycle, pricing,
+and professional-promotion mechanisms as §7.1. No special treatment beyond
+category-specific form fields (subjects taught, level, mode online/in-person).
+
+### 7.2.4 Student profiles (recipients side)
+
+Members with `member_professions.status = studying` are naturally the
+recipients/mentees across this pillar:
+- **Scholarships:** matched by `criteria_course` / gender / city.
+- **Career guidance:** matched to mentors via `member_capabilities`.
+- **Education listings:** discovery via the unified listing feed.
+
+No new schema. Surface in admin views (*"X students seeking guidance in
+{{city}}"*) and as the implicit audience for scholarship + mentor notifications.
 
 ## 7.3 Community Event Announcements (broadcast, no pre-approval)
 

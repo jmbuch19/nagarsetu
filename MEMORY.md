@@ -26,6 +26,14 @@ Add new locked decisions here; move items out of "Open Decisions" once resolved.
 - **Gujarati is first-class.** Magazine render must reproduce the Setusarjan look.
 - **Stack:** Next.js (web, **hosted on Vercel**), Expo/RN (mobile via EAS, Android-first OK), Supabase, phone OTP, Claude API, Razorpay (listing fee only), WhatsApp/FB share. Scheduler via Vercel Cron (protected by `CRON_SECRET`) or Supabase pg_cron.
 - **Phasing:** Phase 1 = directory + intelligence + feed + listings/availability + magazine engine + listing-fee payment. Matrimony + audio editions + mentorship → Phase 2.
+- **Education pillar — full Phase-1 scope (four sub-flows).** Education is not one field: (a) **Scholarships** — member/trust offers ↔ family applies (both sides FREE — સેવા); (b) **Career guidance** — reuses `member_capabilities` (expert_guidance / mentor) + mentorship matching, no new tables; (c) **Education listings** — tutors/coaching/courses via the `education` listing category (paid, like Business); (d) **Student profiles** — `member_professions.status = studying` members are the recipients.
+  Scholarship policy (locked):
+  - **L2 ID-verified required to publish a scholarship offer** — same gate as hosting a stay / renting a vehicle. Reason: fake scholarships raise false hope and damage community trust even though no money flows through the app.
+  - **Offering member is the sole adjudicator** of shortlisting / awarding / rejecting. Nagarsetu never adjudicates; admin only via the standard `reports` flow.
+  - **WhatsApp scholarship notifications use Utility templates** and go **only** to opted-in members with matching `scholarship_alerts`. The broader city + studying-status fan-out is in-app + email only (protects WABA quality).
+  - **Connector disclaimer** on every scholarship surface — the offering party decides; verify directly with them.
+  - **Lifecycle:** cron flips `status = open → closed` after `deadline + 24h grace`; no late applications.
+  See `SPEC.md` §7.2 and `AGENDA.md` §7b.
 - **Community Event Announcements — member-published, NO admin pre-approval (Phase 1).** Any member can broadcast a *significant* Nagar community event (religious, ritual, cultural, annual gathering, medical camp, or other). Spam-protected by four guards instead of an editorial gate: (1) required `event_type` from a controlled list; (2) member-affirmed significance checkbox at publish (`significance_confirmed_at`); (3) hard per-member rate limit (default **1 announcement per 7 days**, admin-tunable via `settings.community_event_rate_limit_*`); (4) reactive moderation via the existing `reports` flow (admin removes post-hoc; repeat abuse tightens the creator's rate limit + trust level). WhatsApp uses pre-approved templates only (Marketing for the initial blast, Utility for cancellations) + `opt_in_whatsapp = true`; in-app + email fallback always. Connector disclaimer on every announcement surface. See `SPEC.md` §7.3 and `AGENDA.md` §7c.
 
 ## Context
