@@ -18,7 +18,7 @@ Source of truth for *what* to build. Constraints live in `CLAUDE.md`. Roadmap in
 > Controlled-list tables exist so Community Intelligence can aggregate reliably.
 
 ### Controlled lists (lookups)
-- **cities** — `name, state, country`
+- **cities** — `name, state, country, status (pending|approved|rejected|merged), merged_into (nullable; self-FK)` — suggest-and-approve flow: seeded rows default to `approved`; a member who types an unlisted city creates a `pending` row they can use immediately; admin later approves, rejects, or `merges` into a canonical city (`merged_into` points to the canonical row, application read paths follow it). Preserves controlled-list discipline without blocking diaspora signups.
 - **sub_communities** — `name` (Nagar sub-groups, e.g. Vadnagara, Visnagara, Sathodara…)
 - **professions** — `name`
 - **specialties** — `profession_id → professions, name`

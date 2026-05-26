@@ -27,6 +27,8 @@ and log each completed unit in `AUDIT.md`. Decisions needed → see `MEMORY.md`.
 - [ ] Meta WhatsApp OTP via Supabase Auth Hook (approved authentication template); sessions in Supabase
 - [ ] Sign-up gate = mobile + OTP + consent only (Terms + WhatsApp opt-in); NO profile fields here
 - [ ] Profile create/edit — required: name, surname, city, PIN, gender, DOB; optional: email, photo, sub-community, bio (NO home address)
+- [ ] City picker: typeahead over `cities WHERE status IN ('approved', 'pending')`; if no match, surface "Suggest this city" → inserts `cities` row with `status = 'pending'`, member uses immediately
+- [ ] Admin city queue: list `cities WHERE status = 'pending'`; per-row actions = approve / reject / merge-into-canonical (sets `merged_into` + `status = 'merged'`); application read paths follow `merged_into` so aggregation is honest
 - [ ] Onboarding nudge: "What can you offer the circle?" — invite at least one offer from every member
 - [ ] Profile surfaces both sides: what the member offers + what they're seeking
 - [ ] member_professions UI (controlled lists only) — cascading profession → specialty (auto-appears), with status (current/retired/studying)
