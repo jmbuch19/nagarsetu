@@ -14,8 +14,8 @@ and log each completed unit in `AUDIT.md`. Decisions needed → see `MEMORY.md`.
 ## Phase 1 — The Core Loop (MVP)
 
 ### 1. Data model (do this first — schema before screens)
-- [ ] Lookup tables: cities, sub_communities, professions, specialties, listing_categories, genres
-- [ ] Seed lookups (initial cities, Nagar sub-communities, profession/specialty lists, genres)
+- [x] Lookup tables: cities, sub_communities, professions, specialties, listing_categories, genres
+- [x] Seed lookups (initial cities, Nagar sub-communities, profession/specialty lists, genres)
 - [ ] Core: members, member_professions, verifications
 - [ ] Trust economy: listings, availability, inquiries, reviews, reports
 - [ ] Magazine: magazine_issues, submissions
