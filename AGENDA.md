@@ -9,7 +9,7 @@ and log each completed unit in `AUDIT.md`. Decisions needed → see `MEMORY.md`.
 - [x] Initialise repo; add `CLAUDE.md`, `SPEC.md`, `MEMORY.md`, `AUDIT.md`, `DISPUTE.md`, `IDEAS.md` at root
 - [x] Set up Supabase project; wire env/secrets
 - [ ] Set up Next.js (web) and Expo (mobile) shells
-- [ ] Confirm the 6 Open Decisions in `MEMORY.md` are resolved (or flag blockers)
+- [x] Confirm the Open Decisions in `MEMORY.md` are resolved (or flag blockers) — #1–#6 resolved (#6 partial: powers deferred to launch hardening); #7 (international listing fee currency) deferred to payment build
 
 ## Phase 1 — The Core Loop (MVP)
 
