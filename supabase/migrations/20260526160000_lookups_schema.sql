@@ -24,19 +24,32 @@ $$;
 
 -- cities ─────────────────────────────────────────────────────────────────────
 -- Global from day one (SPEC §1.5 / MEMORY). India + diaspora hubs in seed.
+--
+-- `status` supports the suggest-and-approve flow: seeded rows are `approved`
+-- (the default); a member typing a city not in the list creates a `pending`
+-- row that the member can use immediately; admins later approve, reject, or
+-- `merge` it into a canonical city. On `merged`, `merged_into` points to the
+-- canonical row — application read paths follow it (so picking "NYC" still
+-- resolves to "New York" for aggregation).
 create table public.cities (
-  id         uuid primary key default gen_random_uuid(),
-  name       text not null,
-  state      text,
-  country    text not null,
-  created_at timestamptz not null default now(),
-  updated_at timestamptz not null default now(),
-  unique (name, state, country)
+  id          uuid primary key default gen_random_uuid(),
+  name        text not null,
+  state       text,
+  country     text not null,
+  status      text not null default 'approved'
+              check (status in ('pending','approved','rejected','merged')),
+  merged_into uuid references public.cities(id) on delete set null,
+  created_at  timestamptz not null default now(),
+  updated_at  timestamptz not null default now(),
+  unique (name, state, country),
+  -- Only merged rows may set merged_into; merged rows MUST set it.
+  check ((status = 'merged') = (merged_into is not null))
 );
 
 create index cities_country_idx on public.cities (country);
 create index cities_state_idx   on public.cities (state);
 create index cities_name_idx    on public.cities (name);
+create index cities_status_idx  on public.cities (status);  -- admin queue queries
 
 create trigger trg_cities_updated_at
   before update on public.cities
