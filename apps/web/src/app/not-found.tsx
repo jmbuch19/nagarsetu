@@ -12,7 +12,7 @@ export default function NotFound() {
         href="/"
         className="mt-8 inline-block rounded-md bg-brand-primary px-6 py-2 text-white transition-colors hover:bg-brand-primary-dark"
       >
-        Back to Nagarsetu
+        Back to Jay Hatkesh
       </Link>
     </main>
   );

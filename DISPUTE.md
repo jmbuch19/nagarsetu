@@ -1,6 +1,6 @@
 # DISPUTE.md — Member Dispute Handling (Connector-Safe)
 
-Because **Nagarsetu is a connector, not a party** to any member-to-member deal, it cannot
+Because **Jay Hatkesh is a connector, not a party** to any member-to-member deal, it cannot
 and must not act as judge, escrow, or guarantor. But trust still has to be protected. This
 document defines how disputes are handled — socially and through reputation, not legally.
 
@@ -9,7 +9,7 @@ document defines how disputes are handled — socially and through reputation, n
 ## First principle
 
 > The app introduced two members. What happened between them — the rent, the ride, the
-> mangoes, the money — is theirs. Nagarsetu does not hold the money, does not guarantee the
+> mangoes, the money — is theirs. Jay Hatkesh does not hold the money, does not guarantee the
 > outcome, and does not decide who is right.
 
 This must be stated plainly in the **Terms** and shown as a **disclaimer** on every surface
@@ -74,7 +74,7 @@ it does not replace it.
 
 ## Disclaimer text (starting point — founder to finalise/legal-review)
 
-> *Nagarsetu only connects members of the community. We are not a party to any arrangement,
+> *Jay Hatkesh only connects members of the community. We are not a party to any arrangement,
 > payment, stay, ride, sale, or service between members, and we do not guarantee the
 > availability, quality, safety, or outcome of any such arrangement. Members deal with each
 > other at their own discretion and responsibility.*

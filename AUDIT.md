@@ -1,4 +1,4 @@
-# AUDIT.md — Nagarsetu Build & Security Log
+# AUDIT.md — Jay Hatkesh (Nagarsetu) Build & Security Log
 
 Append an entry whenever a unit of work is completed. Run the security checklist
 before any wider release and re-run it after touching auth, data, or payments.

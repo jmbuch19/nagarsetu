@@ -43,7 +43,7 @@ export default function GlobalError({
             Something went wrong
           </h1>
           <p style={{ marginTop: "1rem", maxWidth: "28rem", fontSize: "0.95rem", color: "#5B6B6B" }}>
-            An unexpected error stopped this page from loading. Try again, or head back to Nagarsetu.
+            An unexpected error stopped this page from loading. Try again, or head back to Jay Hatkesh.
           </p>
           {error?.digest && (
             <p style={{ marginTop: "0.5rem", fontSize: "0.75rem", color: "#5B6B6B" }}>
@@ -77,7 +77,7 @@ export default function GlobalError({
                 fontSize: "0.95rem",
               }}
             >
-              Back to Nagarsetu
+              Back to Jay Hatkesh
             </Link>
           </div>
         </main>

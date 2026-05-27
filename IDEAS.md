@@ -1,4 +1,4 @@
-# IDEAS.md — Nagarsetu Parking Lot
+# IDEAS.md — Jay Hatkesh (Nagarsetu) Parking Lot
 
 Capture ideas here so they don't clutter the active build. Nothing here is committed.
 Promote an item into `SPEC.md` + `AGENDA.md` only after the founder decides to do it.

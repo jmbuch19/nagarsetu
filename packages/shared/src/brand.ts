@@ -15,6 +15,17 @@ export const brand = {
 
 export type BrandToken = keyof typeof brand;
 
+// Product identity. Per MEMORY locked decision: "Jay Hatkesh" is the
+// product name everywhere user-facing; "Nagarsetu" is the descriptive
+// tagline AND the secular/operational name (Meta WABA, Razorpay KYC,
+// search/SEO). Repo folder stays `nagarsetu` (cosmetic only).
+export const identity = {
+  name: { en: "Jay Hatkesh", gu: "જય હાટકેશ" },
+  tagline: { en: "Nagarsetu — bridge of the community", gu: "નાગરસેતુ — સમુદાયનો સેતુ" },
+  nameSecular: "Nagarsetu",
+  domain: "jayhatkesh.in",
+} as const;
+
 export const motto = {
   gu: "સેવા · સહકાર · શિસ્ત",
   en: "Service · Cooperation · Discipline",
