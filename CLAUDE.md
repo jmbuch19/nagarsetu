@@ -1,14 +1,15 @@
-# CLAUDE.md — Nagarsetu
+# CLAUDE.md — Jay Hatkesh
 
+> **Brand:** Jay Hatkesh · **Tagline:** Nagarsetu — the bridge of the Nagar community · **Domain:** jayhatkesh.in
 > Read this file at the start of **every** session. It is the operating manual.
 > Then read `MEMORY.md` (durable decisions) and `AGENDA.md` (what to build next).
 > When you finish a unit of work, update `AGENDA.md` (check off) and `AUDIT.md` (log it).
 
 ---
 
-## What Nagarsetu is
+## What Jay Hatkesh is
 
-A community platform for the **Nagar samaj**. Name = નાગર (community identity) + સેતુ (bridge).
+A community platform for the **Nagar samaj**. **Brand: Jay Hatkesh** (the community's own salutation, to kuldevta Hatkeshwar). **Tagline: Nagarsetu** — નાગર (community identity) + સેતુ (bridge). Domain: **jayhatkesh.in**.
 Ethos: **સેવા · સહકાર · શિસ્ત** (Service · Cooperation · Discipline).
 
 **The thesis:** a closed-loop economy where value circulates *among Nagars* instead of leaking out — knowledge, hospitality, mobility, goods, services, and culture, all flowing through one verified community.

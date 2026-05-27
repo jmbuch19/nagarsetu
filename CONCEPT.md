@@ -1,4 +1,6 @@
-# Nagarsetu — Concept Document
+# Jay Hatkesh — Concept Document
+
+**Brand:** Jay Hatkesh (the Nagar community's salutation, to kuldevta Hatkeshwar) · **Tagline:** Nagarsetu · **Domain:** jayhatkesh.in
 
 **નાગર** (community identity) **+ સેતુ** (bridge) → *the bridge of the Nagar community.*
 

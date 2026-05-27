@@ -1,8 +1,8 @@
 # EMAILS.md — Email Templates
 
-Transactional + digest emails (sent via Resend; see `.env.example`). Email is **optional** per member —
-send only if `email` present and (for non-essential) `opt_in_email = true`. Every email has an
-**unsubscribe** link and the Nagarsetu footer. Keep Gujarati-friendly; lead with warmth (જય હાટકેશ).
+Transactional + digest emails (sent via Resend; see `.env.example`). Brand **Jay Hatkesh** (tagline: Nagarsetu).
+Email is **optional** per member — send only if `email` present and (for non-essential) `opt_in_email = true`. Every email has an
+**unsubscribe** link and the Jay Hatkesh footer. Keep Gujarati-friendly; lead with warmth (જય હાટકેશ).
 
 > Placeholders use `{{snake_case}}`. Subjects are kept short. Tone: warm, community, honest
 > (promise connection/possibility, never guaranteed outcomes — consistent with LEGAL.md).
@@ -10,15 +10,15 @@ send only if `email` present and (for non-essential) `opt_in_email = true`. Ever
 ---
 
 ## Conventions
-- **From:** `Nagarsetu <no-reply@your-domain>`
-- **Footer (all):** "You're receiving this as a member of Nagarsetu. [Manage preferences]({{prefs_url}}) · [Unsubscribe]({{unsub_url}}). જય હાટકેશ 🪔"
+- **From:** `Jay Hatkesh <no-reply@jayhatkesh.in>`
+- **Footer (all):** "You're receiving this as a member of Jay Hatkesh (Nagarsetu). [Manage preferences]({{prefs_url}}) · [Unsubscribe]({{unsub_url}}). જય હાટકેશ 🪔"
 - **Categories:** Transactional (always send if email present) vs Digest/Marketing (require `opt_in_email`).
 
 ---
 
 ## 1. Welcome (transactional)
-**Subject:** Welcome to Nagarsetu, {{first_name}} 🪔
-Welcome to the bridge of our community — સેવા · સહકાર · શિસ્ત.
+**Subject:** જય હાટકેશ, {{first_name}} — welcome to Jay Hatkesh 🪔
+Welcome to our community bridge — સેવા · સહકાર · શિસ્ત.
 Your profile helps fellow Nagars find a doctor, a mentor, a match, or a business they can trust.
 Complete your profile and tell us what you can offer the circle: {{profile_url}}
 
@@ -87,8 +87,8 @@ Details: {{verification_url}}
 
 ## WhatsApp parity (registered as templates in Meta Business Manager)
 These mirror the emails but must be **pre-approved templates** (Utility for interest, Marketing for digest):
-- **Interest → seller (Utility):** "Interest on your Nagarsetu listing! {{buyer_name}} from {{city}} wants {{listing_title}}. Tap to talk: {{link}}"
+- **Interest → seller (Utility):** "Interest on your Jay Hatkesh listing! {{buyer_name}} from {{city}} wants {{listing_title}}. Tap to talk: {{link}}"
 - **Interest → buyer (Utility):** "We've shared your interest in {{listing_title}} with {{seller_name}}. Message now: {{link}}"
-- **Renewal reminder (Utility):** "Your Nagarsetu listing {{listing_title}} expires in {{days_left}} days. Renew: {{link}}"
+- **Renewal reminder (Utility):** "Your Jay Hatkesh listing {{listing_title}} expires in {{days_left}} days. Renew: {{link}}"
 - **Weekly digest (Marketing, opt-in):** "This week in our Nagar community: {{highlight}}. See more: {{link}}"
 - **OTP (Authentication):** standard auth template for login.

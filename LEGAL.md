@@ -1,6 +1,6 @@
-# LEGAL.md — Legal & Policy Pages
+# LEGAL.md — Legal & Policy Pages (Jay Hatkesh · jayhatkesh.in)
 
-The public pages Nagarsetu must host, the routes for each, and **where the link is required**
+The public pages Jay Hatkesh must host, the routes for each, and **where the link is required**
 (Meta WhatsApp / Razorpay / in-app). These are drafting *starting points* — have them reviewed by
 a lawyer before launch. They must stay consistent with the connector-only model (see `DISPUTE.md`).
 
@@ -31,7 +31,7 @@ Terms · Privacy · Refunds · Contact · About · Community Guidelines · Prici
 
 ## Signup consent CTAs (at the OTP gate)
 - ☑ "I agree to the [Terms](/terms) and [Privacy Policy](/privacy)."
-- ☑ "I agree to receive WhatsApp messages from Nagarsetu about interest in my listings and my inquiries." → sets `opt_in_whatsapp`.
+- ☑ "I agree to receive WhatsApp messages from Jay Hatkesh about interest in my listings and my inquiries." → sets `opt_in_whatsapp`.
 
 ---
 
@@ -52,7 +52,7 @@ Razorpay account approval typically requires live, reachable links to:
 
 ### /terms — Terms of Service
 - Who we are; eligibility (open membership).
-- **Connector clause (core):** Nagarsetu only connects members; it is **not a party** to any arrangement, payment, stay, ride, sale, or service, and does **not** guarantee availability, quality, safety, or outcome. Members deal at their own discretion and responsibility.
+- **Connector clause (core):** Jay Hatkesh only connects members; it is **not a party** to any arrangement, payment, stay, ride, sale, or service, and does **not** guarantee availability, quality, safety, or outcome. Members deal at their own discretion and responsibility.
 - Listing fee terms; admin may change pricing; price/term snapshotted at purchase.
 - Acceptable use; prohibited content; broadcast/announcement rules; reactive moderation & removal rights.
 - No professional advice: guidance/second opinions shared by members are **not** a substitute for professional/medical/legal advice.
@@ -72,10 +72,10 @@ Razorpay account approval typically requires live, reachable links to:
 ### /refunds — Refund & Cancellation
 - Listing fee: recommended **non-refundable once the listing is live** (reach delivered immediately); state clearly.
 - How to cancel a listing (stops renewal; no refund of active term).
-- No member-to-member refunds handled by Nagarsetu (connector — money is offline).
+- No member-to-member refunds handled by Jay Hatkesh (connector — money is offline).
 
 ### /shipping — Shipping/Delivery
-- State plainly: Nagarsetu sells a **digital listing service**; no physical goods are shipped by Nagarsetu. Any goods (e.g. mangoes) are arranged and delivered **member-to-member, offline.**
+- State plainly: Jay Hatkesh sells a **digital listing service**; no physical goods are shipped by Jay Hatkesh. Any goods (e.g. mangoes) are arranged and delivered **member-to-member, offline.**
 
 ### /contact — Contact Us
 - Real support email, response window, and a registered address/city (Razorpay needs a genuine contact). Optional support WhatsApp.
@@ -86,7 +86,7 @@ Razorpay account approval typically requires live, reachable links to:
 - Reporting & consequences; trust ladder.
 
 ### /disclaimer — Connector Disclaimer (shown on transaction surfaces)
-> *Nagarsetu only connects members of the community. We are not a party to any arrangement, payment, stay, ride, sale, or service between members, and we do not guarantee the availability, quality, safety, or outcome of any such arrangement. Members deal with each other at their own discretion and responsibility.*
+> *Jay Hatkesh only connects members of the community. We are not a party to any arrangement, payment, stay, ride, sale, or service between members, and we do not guarantee the availability, quality, safety, or outcome of any such arrangement. Members deal with each other at their own discretion and responsibility.*
 
 ### /data — Data Deletion / Manage My Data
 - Self-serve delete + email request path; what's removed; retention notes. (Meta app-review needs this reachable.)
