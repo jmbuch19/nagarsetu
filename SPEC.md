@@ -214,6 +214,19 @@ Aspiring members (status = studying) are captured as mentees and matched to ment
 
 ## 7.05 Onboarding & information architecture
 
+**Landing page (pre-auth) — must do four jobs in the first second (a bare "Sign in" gate fails all four):**
+1. **Signal belonging unmistakably.** Beyond "Jay Hatkesh", show an explicit line, e.g. *"The digital home of the Nagar samaj — worldwide."* Salutation greets; this line confirms it's for Nagars.
+2. **Show the WHY before the gate** — benefit lines so a visitor knows what signing in gives:
+   - Find a Nagar doctor, lawyer, or mentor — anywhere in the world
+   - Discover homes, rooms & rides within the community
+   - Buy from and sell to your own people
+   - Stand together in genuine need (verified help drives)
+2a. **A "why now" mission statement (the soul line) — LOCKED copy (Option A, warm/rooted):**
+   > *"Once, our community was a phone call away. Today we're scattered across cities and continents — yet a fellow Nagar's help, trust, and warmth is still the most valuable thing we have. Jay Hatkesh brings the samaj back within reach: to find each other, help each other, and grow together — wherever in the world we are."*
+   Flows into the Sign in / "Join the community" CTA. Consider a co-equal Gujarati rendering. **Honesty rule applies** — connection/belonging, never guaranteed outcomes.
+3. **Peep, don't transact (NOT a hard gate).** Guests CAN see: Community Pulse counters, a teaser of recent listings/events (contact masked / "sign in to connect"), latest Setusarjan cover. Sign-in required only to **act** (contact, inquire, list, donate, see full details). A visitor who sees *nothing* has no reason to join — a living community is the strongest pull.
+4. **Gujarati sized as a first-class language, not a subtitle.** Gujarati script needs larger size + line-height than Latin to read comfortably (critical for elders). જય હાટકેશ co-equal with "Jay Hatkesh"; the motto's Gujarati line ≥ its English translation. Never render Gujarati smaller than its English counterpart.
+
 **Guest browse (pre-auth):** show Community Pulse counters, a teaser feed, and the latest magazine
 cover before sign-up. Acting (inquire, list, contact, message) prompts sign-up.
 
@@ -235,6 +248,13 @@ Goods · Tour · Service) → category-specific form (rentals include Day/Week/M
 verification per category (open / ID-verified / admin) → listing fee → publish. **Rentals are NOT
 nested under "Business"** — Business is one category among several; the member's intent drives the
 choice, not a business framing.
+
+**Offer-side persuasion (at the Offer/Create-a-Listing entry — convince a member it's worth offering):**
+show the four levers — **Earning** (your idle room/car/skill earns instead of sitting), **Security**
+(you deal with a *verified* fellow Nagar, not an anonymous stranger), **Safety** (reviews + community
+accountability; your home/keys go to someone the samaj knows), **Service / સેવા** (you help a fellow
+Nagar in need). Positioning: **compete on trust + belonging, not price** — a Nagar might earn more on a
+stranger-platform, but here gains a trusted guest, community goodwill, and the pride of seva.
 
 **Offers vs Requests:** supply listings are **Offers** (carry the fee); seeker posts (PG Seeker,
 "looking for a room/ride/tutor") are **Requests** (free, demand-side).
@@ -413,3 +433,8 @@ Palette derived from the *Setusarjan* magazine cover, so the app feels like its 
 one primary action per screen); gold reserved for heritage/badge moments; generous ivory/sage
 space. Provide a dark theme later (Phase 2). Fonts: a clean sans for UI; the magazine render
 keeps its own Gujarati display fonts.
+
+**Gujarati typography (first-class, not subtitle):** Gujarati needs larger font-size and line-height
+than Latin to read comfortably — especially for elder members. Render Gujarati at least as large as
+its English counterpart (the motto's Gujarati line ≥ English; જય હાટકેશ co-equal with "Jay Hatkesh").
+Never let Gujarati look secondary. Verify glyph rendering on mobile.

@@ -14,24 +14,22 @@ and log each completed unit in `AUDIT.md`. Decisions needed → see `MEMORY.md`.
 ## Phase 1 — The Core Loop (MVP)
 
 ### 1. Data model (do this first — schema before screens)
-- [x] Lookup tables: cities, sub_communities, professions, specialties, listing_categories, genres
-- [x] Seed lookups (initial cities, Nagar sub-communities, profession/specialty lists, genres)
-- [x] Core: members (linked 1:1 to auth.users, auth bootstrap trigger), member_professions (with expertise_text + FTS), member_capabilities, verifications
-- [x] Trust economy: listings (with §7.1 lifecycle fields baked in + FTS), availability, inquiries, saved_alerts, reviews, reports, requests
-- [x] Magazine: magazine_issues, submissions
-- [x] Money: payments (listing fee only)
-- [x] RLS policies on every table
-- [x] Community Intelligence aggregate views
+- [ ] Lookup tables: cities, sub_communities, professions, specialties, listing_categories, genres
+- [ ] Seed lookups (initial cities, Nagar sub-communities, profession/specialty lists, genres)
+- [ ] Core: members, member_professions, verifications
+- [ ] Trust economy: listings, availability, inquiries, reviews, reports
+- [ ] Magazine: magazine_issues, submissions
+- [ ] Money: payments (listing fee only)
+- [ ] RLS policies on every table
+- [ ] Community Intelligence aggregate views
 
 ### 2. Auth & identity
 - [ ] Meta WhatsApp OTP via Supabase Auth Hook (approved authentication template); sessions in Supabase
-- [x] Sign-up gate = mobile + OTP + consent only (Terms + WhatsApp opt-in); NO profile fields here
+- [ ] Sign-up gate = mobile + OTP + consent only (Terms + WhatsApp opt-in); NO profile fields here
 - [ ] Profile create/edit — required: name, surname, city, PIN, gender, DOB; optional: email, photo, sub-community, bio (NO home address)
-- [ ] City picker: typeahead over `cities WHERE status IN ('approved', 'pending')`; if no match, surface "Suggest this city" → inserts `cities` row with `status = 'pending'`, member uses immediately
-- [ ] Admin city queue: list `cities WHERE status = 'pending'`; per-row actions = approve / reject / merge-into-canonical (sets `merged_into` + `status = 'merged'`); application read paths follow `merged_into` so aggregation is honest
 - [ ] Onboarding nudge: "What can you offer the circle?" — invite at least one offer from every member
 - [ ] Profile surfaces both sides: what the member offers + what they're seeking
-- [ ] member_professions UI (controlled lists only) — cascading profession → specialty (auto-appears), then **years_experience** (optional number) and **expertise_text** (optional ~280 chars, "what you actually did"; FTS-indexed), then status (current/retired/studying)
+- [ ] member_professions UI (controlled lists only) — cascading profession → specialty (auto-appears), with status (current/retired/studying)
 - [ ] Smart progressive profiling: consent-first opt-ins → `member_capabilities` (expert_guidance / mentor / other); editable anytime; "No" re-offered later
 - [ ] Encouragement screen BEFORE expertise opt-ins (સેવા framing; promise connection/possibility, never guaranteed outcomes)
 - [ ] Continuous flow (basics → encouragement → expertise); "I'll do this later" allowed but re-surfaced contextually
@@ -40,6 +38,8 @@ and log each completed unit in `AUDIT.md`. Decisions needed → see `MEMORY.md`.
 - [ ] ID verification flow (photo ID) — **only required to host a stay / rent out a vehicle (L2)**; admin reviews; sets trust level
 
 ### 3. Directory & Intelligence
+- [ ] Landing page: explicit Nagar-belonging line + "why now" mission/soul statement + benefit/why lines + "peep-not-transact" (guests see Pulse + teaser feed + magazine cover; sign-in only to act)
+- [ ] Gujarati typography pass: Gujarati sized ≥ English everywhere; mobile glyph QA
 - [ ] Guest browse (pre-auth): Community Pulse teaser + sample feed + latest magazine cover
 - [ ] Onboarding CTA hub by intent (Connect / Find / Offer) with short descriptions
 - [ ] Directory search/filter (profession, specialty, city, sub-community)
@@ -48,6 +48,7 @@ and log each completed unit in `AUDIT.md`. Decisions needed → see `MEMORY.md`.
 
 ### 4. Listings + Availability + Inquiry
 - [ ] **Unified "Create a Listing" hub** → category picker (business/room/vehicle/pg/goods/tour/service); rentals NOT under business
+- [ ] Offer-side persuasion at the Offer entry: Earning · Security · Safety · Service/સેવા (trust+belonging, not price)
 - [ ] Category-specific forms (rentals: Day/Week/Month + availability; business/service: full address, hours, service area, contact; room/PG/vehicle: area+city+PIN, exact location shared on connect)
 - [ ] Verification routing per category: open / ID-verified (room·vehicle·pg) / admin-reviewed (business)
 - [ ] **Requests (seeker side):** PG Seeker + generalised "looking for room/ride/tutor" — free, demand-side
