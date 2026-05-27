@@ -78,4 +78,5 @@ Full functional detail is in `SPEC.md`. Background narrative is in `CONCEPT.md`.
 | `DISPUTE.md` | Member-dispute handling (connector-safe). |
 | `LEGAL.md` | Required legal/policy pages, footer/consent CTAs, Meta + Razorpay link checklists. |
 | `EMAILS.md` | Email templates (transactional + digest) + WhatsApp template parity. |
+| `WHATSAPP.md` | Meta WhatsApp Cloud API ops: WABA setup, Auth/Utility/Marketing templates, hook wiring. |
 | `IDEAS.md` | Parking lot for deferred ideas. |
