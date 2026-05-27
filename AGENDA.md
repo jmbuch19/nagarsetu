@@ -16,7 +16,7 @@ and log each completed unit in `AUDIT.md`. Decisions needed → see `MEMORY.md`.
 ### 1. Data model (do this first — schema before screens)
 - [x] Lookup tables: cities, sub_communities, professions, specialties, listing_categories, genres
 - [x] Seed lookups (initial cities, Nagar sub-communities, profession/specialty lists, genres)
-- [ ] Core: members, member_professions, verifications
+- [x] Core: members (linked 1:1 to auth.users, auth bootstrap trigger), member_professions (with expertise_text + FTS), member_capabilities, verifications
 - [ ] Trust economy: listings, availability, inquiries, reviews, reports
 - [ ] Magazine: magazine_issues, submissions
 - [ ] Money: payments (listing fee only)
