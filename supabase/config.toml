@@ -250,25 +250,37 @@ otp_expiry = 3600
 # content_path = "./templates/password_changed_notification.html"
 
 [auth.sms]
-# Allow/disallow new user signups via SMS to your project.
-enable_signup = false
-# If enabled, users need to confirm their phone number before signing in.
+# Phone OTP signup is the only sign-up gate per CLAUDE.md hard constraint.
+# Live SMS delivery via Meta WhatsApp Cloud API is wired in a follow-up slice
+# once the WABA + Authentication template are approved (MEMORY locked
+# decision). Until then, test_otp below short-circuits delivery in dev.
+enable_signup = true
+# OTP success IS the confirmation — no separate confirmation step.
 enable_confirmations = false
-# Template for sending OTP to users
-template = "Your code is {{ .Code }}"
-# Controls the minimum amount of time that must pass before sending another sms otp.
-max_frequency = "5s"
+# Default template (overridden by the WhatsApp hook once configured).
+template = "Jay Hatkesh OTP: {{ .Code }}"
+# Rate-limit per phone number — 30s between resends.
+max_frequency = "30s"
 
-# Use pre-defined map of phone number to OTP for testing.
-# [auth.sms.test_otp]
-# 4152127777 = "123456"
+# Pre-defined dev OTPs. These phones bypass the SMS provider entirely and
+# always accept the listed OTP — used to build and test the sign-up flow
+# without a live WhatsApp / Twilio account. SAFE to commit because they're
+# only honoured by `supabase start` (local) and remote dev environments
+# explicitly opted in via the dashboard. Remove or rotate before launch.
+[auth.sms.test_otp]
+"919876543210"     = "123456"  # India dev test phone
+"15555550100"      = "654321"  # US dev test phone
+"447700900100"     = "246810"  # UK dev test phone
 
-# Configure logged in session timeouts.
-# [auth.sessions]
-# Force log out after the specified duration.
-# timebox = "24h"
-# Force log out if the user has been inactive longer than the specified duration.
-# inactivity_timeout = "8h"
+# Session policy per MEMORY locked decision (2026-05-26):
+#   • Short access token (1h, see jwt_expiry above) auto-refreshed by SDK
+#   • Rolling 30-day refresh window per device — no OTP re-prompt while
+#     the member opens the app within the window
+#   • Multi-device unlimited (no cap on concurrent refresh tokens)
+# `timebox` left unset = no hard upper bound; `inactivity_timeout` is the
+# rolling refresh window.
+[auth.sessions]
+inactivity_timeout = "720h"   # 30 days
 
 # This hook runs before a new user is created and allows developers to reject the request based on the incoming user object.
 # [auth.hook.before_user_created]
