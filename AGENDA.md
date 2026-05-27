@@ -19,9 +19,9 @@ and log each completed unit in `AUDIT.md`. Decisions needed → see `MEMORY.md`.
 - [x] Core: members (linked 1:1 to auth.users, auth bootstrap trigger), member_professions (with expertise_text + FTS), member_capabilities, verifications
 - [x] Trust economy: listings (with §7.1 lifecycle fields baked in + FTS), availability, inquiries, saved_alerts, reviews, reports, requests
 - [x] Magazine: magazine_issues, submissions
-- [ ] Money: payments (listing fee only)
-- [ ] RLS policies on every table
-- [ ] Community Intelligence aggregate views
+- [x] Money: payments (listing fee only)
+- [x] RLS policies on every table
+- [x] Community Intelligence aggregate views
 
 ### 2. Auth & identity
 - [ ] Meta WhatsApp OTP via Supabase Auth Hook (approved authentication template); sessions in Supabase
