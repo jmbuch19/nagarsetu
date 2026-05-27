@@ -34,7 +34,7 @@ Knowledge, hospitality, mobility, goods, services, and culture all circulate amo
 - **The app is a connector, not a cashier.** In Phase 1, no money moves through the app. Nagarsetu makes the introduction; the deal happens member-to-member.
 - **Belonging is free; selling carries a small fee.** Anyone can join, build a profile, and be counted. A modest listing fee applies only when a member publishes a *commercial* offer.
 - **No commission, ever.** The app never skims member-to-member transactions. Value stays fully inside the circle.
-- **Self-sustaining, not investor-driven.** Listing fees cover break-even; donations are invited later, in the spirit of સેવા.
+- **Self-sustaining, not investor-driven.** Listing fees cover break-even; voluntary patron contributions to the platform are invited later, in the spirit of સેવા. *(Distinct from §7.4 Help Drives, where members give directly to a verified family in need — the app never touches those funds.)*
 
 ---
 
@@ -190,7 +190,7 @@ The app's job ends at *"you two have found each other and know each other's avai
 ## 12. Business Model & Break-Even
 
 - **Listing fees** — a small fee from anyone publishing a *commercial* listing (business, room, vehicle, tour, goods). This is the break-even engine.
-- **Donations** — invited later, once the community feels the value.
+- **Voluntary patron contributions to the platform** — invited later, once the community feels the value. *Not the same as §7.4 Help Drives (member-to-family giving, where the app is only a verifier and never a custodian of funds).*
 - **No commission** — the app never touches member-to-member money.
 - **Free vs paid boundary** — directory profile and Community Intelligence stay free (empty data kills the intelligence layer); the fee applies only at the moment of publishing a commercial offer.
 - **Low break-even bar** — a community app's hosting runs cheap, so even a modest number of paid listings sustains it. No investor, no pressure.
