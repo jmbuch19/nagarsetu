@@ -18,7 +18,7 @@ and log each completed unit in `AUDIT.md`. Decisions needed → see `MEMORY.md`.
 - [x] Seed lookups (initial cities, Nagar sub-communities, profession/specialty lists, genres)
 - [x] Core: members (linked 1:1 to auth.users, auth bootstrap trigger), member_professions (with expertise_text + FTS), member_capabilities, verifications
 - [x] Trust economy: listings (with §7.1 lifecycle fields baked in + FTS), availability, inquiries, saved_alerts, reviews, reports, requests
-- [ ] Magazine: magazine_issues, submissions
+- [x] Magazine: magazine_issues, submissions
 - [ ] Money: payments (listing fee only)
 - [ ] RLS policies on every table
 - [ ] Community Intelligence aggregate views
