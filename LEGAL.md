@@ -21,6 +21,7 @@ a lawyer before launch. They must stay consistent with the connector-only model 
 | Pricing | `/pricing` | Razorpay (what the fee buys), app |
 | Community Guidelines | `/guidelines` | app (broadcasts, listings, conduct) |
 | Connector Disclaimer | `/disclaimer` (or within Terms) | app (every transaction-implying surface) |
+| Help Drives Policy | `/help-drives` | app (donation drives — verification claim + connector) |
 | Data Deletion / Manage My Data | `/data` | **Meta (mandatory for app review)** |
 | WhatsApp Opt-in & Messaging Policy | section in `/privacy` | **Meta (mandatory)** |
 
@@ -44,7 +45,7 @@ Razorpay account approval typically requires live, reachable links to:
 - Public **Privacy Policy** URL (mandatory in the app/business setup).
 - **Opt-in evidence** — describe in the privacy policy how/where users consent to WhatsApp messages.
 - **Data deletion** instructions/URL (`/data`).
-- Message templates pre-approved (see `EMAILS.md` for copy parity; WhatsApp templates are registered in Meta Business Manager — Utility category for interest nudges, Marketing for the weekly digest).
+- Message templates pre-approved (see `EMAILS.md` for copy parity; WhatsApp templates are registered in Meta Business Manager — Utility category for interest nudges, Marketing for the fortnightly digest).
 
 ---
 
@@ -90,3 +91,10 @@ Razorpay account approval typically requires live, reachable links to:
 
 ### /data — Data Deletion / Manage My Data
 - Self-serve delete + email request path; what's removed; retention notes. (Meta app-review needs this reachable.)
+
+### /help-drives — Help Drives Policy (donation drives)
+- **What admin verification means (precise — protects everyone):** admin reviews that **supporting documents were submitted and appear legitimate**. It is **NOT** a guarantee of the beneficiary's situation, the outcome, or how funds are ultimately used, and is **NOT** an endorsement by Jay Hatkesh.
+- **Connector only:** Jay Hatkesh does **not** collect, hold, pool, or transfer donation funds, and takes **no fee/commission**. All giving is **directly donor → beneficiary**. The platform only surfaces verified drives and relays payment details privately.
+- **Privacy:** beneficiary documents are shown only to members who choose to help; beneficiary bank/UPI is never published — relayed privately by admin.
+- **Donor responsibility:** donors give at their own discretion; confirm the recipient name before sending; Jay Hatkesh is not liable for any drive's authenticity or outcome.
+- **Cross-border note:** donations from outside India (NRI members) may carry additional legal considerations; *this policy and the feature require legal review before launch* (fundraising / 80G / FCRA).

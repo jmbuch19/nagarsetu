@@ -59,7 +59,7 @@ and log each completed unit in `AUDIT.md`. Decisions needed → see `MEMORY.md`.
 - [ ] Indicative availability windows (soft status: available/tentative/blocked)
 - [ ] Date-aware inquiry → connect channel (in-app chat or reveal WhatsApp/phone)
 - [ ] "I'm interested" → lead capture + provider Lead Inbox + notification
-- [ ] Dual WhatsApp nudge on interest (seller + buyer) via approved Utility templates; opt-in checked; in-app+email fallback
+- [ ] Dual WhatsApp nudge on interest (seller + buyer) via approved Utility templates; opt-in checked; in-app notification fallback if no WA opt-in
 - [ ] WhatsApp opt-in consent captured at signup
 - [ ] "Continue on WhatsApp" `wa.me` deep link with pre-filled message
 - [ ] Pre-listing reach estimate ("reaches ~N Nagars across India/USA/Dubai…")
@@ -70,9 +70,9 @@ and log each completed unit in `AUDIT.md`. Decisions needed → see `MEMORY.md`.
 
 ### 4a. Professional promotion (the paid value)
 - [ ] Member opt-in flags (email / WhatsApp)
-- [ ] Weekly Email digest of active professionals
-- [ ] Weekly WhatsApp broadcast (approved templates, opted-in members only)
-- [ ] `promo_sends` tracking + pg_cron jobs (expire, reminders, weekly email, weekly WhatsApp)
+- [ ] In-app feed prominence + push for active professionals (bulk discovery)
+- [ ] Fortnightly (15-day, admin-adjustable) community WhatsApp digest — opt-in, curated per member by interest+city, ONE message per member per cycle (never split), approved Marketing template
+- [ ] `promo_sends` + `last_digest_sent_at` to enforce one-per-cycle; pg_cron/Vercel Cron jobs (expire, reminders, fortnightly digest, feed/views refresh)
 
 ### 5. The Living Feed
 - [ ] Unified feed of active listings; filters by category/city/time-binding
@@ -102,11 +102,21 @@ and log each completed unit in `AUDIT.md`. Decisions needed → see `MEMORY.md`.
 - [ ] Significance guard: event_type + significance confirmation + rate-limit
 - [ ] WhatsApp/email notify (opt-in + approved templates only)
 
+### 7d. Donation / Help Drives (admin-verified, connector-only — sensitive)
+- [ ] Raise-a-need form (patient/guardian, gap amount, story, document upload, private UPI/bank for admin)
+- [ ] Mandatory admin verification gate (approve/reject + notes); verified badge + precise citation
+- [ ] Landing-page header CTA "Verified Help Drives"
+- [ ] Docs access-gated: visible only after "I want to help" tap (`help_intents`)
+- [ ] Payment details ADMIN-ONLY, never public/broadcast; admin relays privately to donor
+- [ ] Admin amplification (in-app + WhatsApp + rare email) citing verification
+- [ ] Report/flag + admin pull-anytime; connector disclaimer (no funds through app)
+- [ ] LEGAL.md page for drives + precise verification-claim disclaimer
+
 ### 8. Hardening (before any wider release)
 - [ ] Legal/policy pages per `LEGAL.md` (/terms /privacy /refunds /shipping /contact /about /pricing /guidelines /disclaimer /data) + footer & consent CTAs
 - [ ] Razorpay activation links verified; Meta privacy + data-deletion + opt-in links verified
-- [ ] Email templates per `EMAILS.md` (transactional always; digest gated on opt_in_email; unsubscribe in all)
-- [ ] WhatsApp templates registered + approved (Utility: interest/renewal; Marketing: digest; Auth: OTP)
+- [ ] Email templates per `EMAILS.md` (receipts + OTP fallback ONLY; not a discovery channel)
+- [ ] WhatsApp templates registered + approved (Utility: interest/renewal; Marketing: fortnightly digest; Auth: OTP)
 - [ ] Security pass per `AUDIT.md` checklist (RLS, validation, rate limits, secrets, payment verification)
 - [ ] Gujarati glyph QA across app + rendered PDF
 - [ ] Privacy controls + connector disclaimers verified

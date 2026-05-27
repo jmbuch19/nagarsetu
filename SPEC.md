@@ -31,7 +31,7 @@ Source of truth for *what* to build. Constraints live in `CLAUDE.md`. Roadmap in
 - **members** — `full_name, surname, phone (unique), email (optional), city_id, pincode, sub_community_id, gender, date_of_birth, photo_url, bio, role (member|editor|admin), trust_level (0–3), id_verification (none|pending|verified), recognised_surname bool, opt_in_email bool, opt_in_whatsapp bool`
   - Membership is **open** (OTP only). `surname / city / pincode / gender / date_of_birth` are self-declared indicators + profile data (power directory, intelligence, matrimony, PIN-level nearby discovery).
   - **No full/home address on the personal profile** — city + PIN only (lower friction, better privacy). Exact address, if ever needed, lives on a *listing*, not the person.
-  - **`email` is optional** — used for the weekly Email digest, renewal reminders, and listing-fee receipts. Members without email ride on WhatsApp + in-app; never block on it.
+  - **`email` is optional** — used for listing-fee **receipts and OTP fallback only** (NOT for digests; email is largely unread by this audience). Members without email ride on WhatsApp + in-app; never block on it.
   - `id_verification = verified` is required to **host a stay or rent out a vehicle** (Level 2) — not to join.
   - `recognised_surname` is an optional soft badge from a reference list of common Nagar surnames; a warm signal only, never a gate.
 - **member_professions** — `member_id, profession_id, specialty_id, years_experience, status (current|retired|studying), is_verified bool` — *retired and studying still count*: retired expertise is surfaced as a resource; `studying` marks an aspiring member (a mentee candidate).
@@ -222,7 +222,7 @@ cover before sign-up. Acting (inquire, list, contact, message) prompts sign-up.
 2. **Sign up (keep tiny)** — Meta WhatsApp OTP. Collect ONLY: **mobile number** (WhatsApp number = unique account key), **OTP**, and **consent** (Terms + WhatsApp opt-in line). No name/profile fields at this gate.
 3. **Profile + the "why"** — explain that a complete profile strengthens the samaj. Field tiers:
    - **Required:** full name + surname (triggers recognised-Nagar badge), city, **PIN code**, gender, date of birth.
-   - **Encouraged / skippable:** email *(optional — for weekly digest, reminders, receipts)*, photo, sub-community, bio. *(No home/full address — city + PIN only.)*
+   - **Encouraged / skippable:** email *(optional — receipts/OTP fallback only; not a discovery channel)*, photo, sub-community, bio. *(No home/full address — city + PIN only.)*
    - Then the smart branching profiling (§7.04): profession → specialty → status → consent opt-ins.
    - A member is fully signed in with just a verified phone; profile can be completed/enriched anytime.
 4. **CTA hub — "What would you like to do?"** organised by intent (scales as features grow):
@@ -251,6 +251,23 @@ everyone, always. The profile surfaces both sides — what a member *offers* and
 at least one offer, even a small one (e.g. "15 min of career guidance to a Nagar student"). This is
 how the supply side fills from *everyone*, not just obvious professionals — the circle actually closing.
 
+## 7.055 Channel strategy (how members are reached)
+
+**Audience reality:** members are homemakers, business owners, elders. They **live in WhatsApp** and open
+the app for leads; **email is largely unread** (often exists only from phone setup). So:
+
+- **Email = receipts + OTP fallback ONLY.** Never relied on for discovery/digests.
+- **In-app feed + push = browsing discovery.** Carries the *bulk* discovery load — unlimited, free, no spam risk (member opened it). Full catalogue lives here.
+- **WhatsApp = high-signal only:** (a) "about you, now" — lead on your listing / reply / renewal (instant, individual, Utility templates); plus (b) **one fortnightly community digest** (below).
+
+**Fortnightly community digest (the one community WhatsApp message):**
+- **Cadence: every 15 days** (admin-adjustable; fortnightly preferred over weekly — calmer, safer for WhatsApp quality, cheaper). Opt-in; one Marketing template.
+- **One message per member per cycle — ALWAYS.** Never split into multiple messages to the same person (that reads as spam to members and Meta → mutes/reports → lead pings start failing).
+- **Curate, don't cram or split:** if the feed is heavy, send a short **highlights** message ("This fortnight: 6 new tiffin services · mango season · 2 events") + **"see all in the app →"**. Overflow lives in the app; the digest is the teaser that pulls them back.
+- **Divide by relevance, not by message count:** each member's single digest is weighted to their interests + city (Rita → food/tiffin; Hardik → his interests). Big feed → still one short, personal message.
+
+> Rule of thumb: **WhatsApp = "this is about *you*."  In-app = "here's the whole community."  Email = receipts only.**
+
 ## 7.06 Connection, leads & the value of a listing
 
 **Connect mechanism (universal, all categories):**
@@ -261,16 +278,16 @@ how the supply side fills from *everyone*, not just obvious professionals — th
 **Dual WhatsApp nudge on every interest event (the heart of lead delivery):**
 - **→ Seller:** "Interest on your listing! {{buyer_name}} from {{city}} wants {{listing_title}}. Tap to talk: {{link}}"
 - **→ Buyer:** "We've shared your interest in {{listing_title}} with {{seller_name}}. Message them now: {{link}}"
-- Both are **business-initiated → require pre-approved Utility templates** (each message concerns an interaction the recipient is party to → easier approval, cheaper, exempt from marketing limits). Separate from the weekly digest, which uses Marketing templates.
+- Both are **business-initiated → require pre-approved Utility templates** (each message concerns an interaction the recipient is party to → easier approval, cheaper, exempt from marketing limits). Separate from the fortnightly community digest, which uses a Marketing template.
 - **Opt-in required**, captured at signup ("Nagarsetu will WhatsApp you about interest in your listings and your inquiries") → `members.opt_in_whatsapp`. No opt-in → fall back to in-app + email.
 - **Cost:** a small per-conversation fee, **funded by the ₹199** (delivered WA leads are the value). Fire only on genuine interest events (never blasts) to protect the WABA quality rating.
 
-**Provider gets leads via:** Living Feed placement + targeted push (category/city interest + relevant diaspora) + the weekly Email/WhatsApp digest. The provider sees a **Lead Inbox** + a dashboard (**views · reach · leads**) so accumulating interest is visible — the assurance made tangible.
+**Provider gets leads via:** Living Feed placement + in-app push (category/city interest) + the fortnightly community WhatsApp digest. The provider sees a **Lead Inbox** + a dashboard (**views · reach · leads**) so accumulating interest is visible — the assurance made tangible.
 
 **Receiver nudges:** discovery (feed/search/category) · timely seasonal/festival pushes ("mango season — Nagars near you are selling") · **saved alerts** ("notify me when pickles are listed") · social proof (review counts + ratings on cards).
 
 **What the listing fee promises (honesty protects the moat):**
-- **Promise (controllable):** reach + visibility + delivered leads. The **pre-listing screen shows a real reach estimate** — e.g. *"reaches ~1,095 Nagars across India, USA & Dubai, appears in this week's e-magazine digest, notifies your category."*
+- **Promise (controllable):** reach + visibility + delivered leads. The **pre-listing screen shows a real reach estimate** — e.g. *"reaches ~1,095 Nagars across India, USA & Dubai, appears in the fortnightly community digest, notifies your category."*
 - **Do NOT promise sales** — that's member-to-member; the app is a connector.
 - **Tie the fee to real reach:** keep listings free/token while the community is small; ₹199 kicks in once reach genuinely justifies it (admin-managed). Never charge a meaningful fee to reach a trivial audience.
 
@@ -290,22 +307,23 @@ how the supply side fills from *everyone*, not just obvious professionals — th
 
 **Professional activation perks (the value behind the fee):**
 - *"Professional" = any member with an active paid listing* (a consultant, a business, a PG provider, a seller) — a state, not a class.
-- While a listing is **active**, the member is featured **weekly** in:
-  - the **community Email** digest, and
-  - the **WhatsApp** broadcast.
-- Cadence: weekly, for the full activation duration. Track each send.
-- **Compliance (mandatory):** proactive WhatsApp requires **approved message templates** + member **opt-in**; email requires unsubscribe. Respect both; record opt-in state per member.
+- While a listing is **active**, the member is featured in:
+  - the **fortnightly community WhatsApp digest** (curated, one message per member per cycle), and
+  - **in-app feed prominence** + relevant push.
+- Cadence: every 15 days (admin-adjustable), for the full activation duration. Track each send.
+- **Compliance (mandatory):** proactive WhatsApp requires **approved Marketing template** + member **opt-in**; one message per member per cycle (never split). Record opt-in state per member. Email is NOT used for this (receipts/OTP only).
 
-**Scheduler (Vercel Cron on protected routes, or Supabase pg_cron) — four jobs:**
+**Scheduler (Vercel Cron on protected routes, or Supabase pg_cron) — jobs:**
 1. Expire listings past `expires_at` per policy.
-2. Send pre-expiry renewal reminders.
-3. Assemble + send the **weekly Email** batch (active professionals).
-4. Assemble + send the **weekly WhatsApp** batch (opted-in, approved templates).
+2. Send pre-expiry renewal reminders (WhatsApp Utility template).
+3. Assemble + send the **fortnightly community WhatsApp digest** (opted-in; curated per member by interest + city; one message each; approved Marketing template).
+4. Refresh in-app feed ranking / Community Intelligence materialized views.
 
 **Data additions:**
-- `pricing` / `settings` — `listing_price, currency, term_days, expiry_policy (auto|self_renew|admin), self_renew_enabled`
+- `pricing` / `settings` — `listing_price, currency, term_days, expiry_policy (auto|self_renew|admin), self_renew_enabled, digest_interval_days (default 15)`
 - `listings` gains — `published_at, expires_at, price_paid, term_days_paid`
-- `promo_sends` — `listing_id, channel (email|whatsapp), sent_at, status` (audit of weekly features)
+- `members` gains — `last_digest_sent_at` (enforce one-per-cycle)
+- `promo_sends` — `member_id, channel (whatsapp|inapp), cycle_date, sent_at, status` (audit; enforces one digest per member per cycle)
 
 
 ---
@@ -334,7 +352,37 @@ significance rules + reactive moderation instead of a pre-gate.
 - **Significance guard (no admin gate):** event_type required · a "this is a significant community-wide event" confirmation · per-member rate-limit on announcements.
 - **Reactive moderation:** existing report/flag path applies; admin can remove **post-hoc**. Not pre-approval.
 
-- **Privacy:** contact details permission-gated; aggregate-only intelligence; clear data controls. **Minimal location** — personal profile is city + PIN only (no home address). Exact address lives on a listing, scoped to that listing, and precise location for room/PG/vehicle is shared member-to-member, not published.
+## 7.4 Donation / Help Drives (admin-VERIFIED, connector-only) — most sensitive feature
+
+Admin-verified, document-backed drives for **genuine need only** (medical aid, education aid, other genuine
+need). Money flows **directly donor → family** — the app NEVER touches, pools, holds, or takes a cut of funds.
+
+**Landing-page header CTA:** "Verified Help Drives" — surfaces currently active admin-verified drives.
+
+**Flow:**
+1. **Member raises a need** — form: patient details, guardian details, specific **gap amount**, full text explanation, and uploads supporting **documents** (estimates, prescriptions, ID). Family's UPI/bank captured **privately for admin only** (NOT a public field).
+2. **Admin verification — MANDATORY gate** (unlike broadcasts). Admin reviews documents, may call to confirm, then approves or rejects. Nothing goes live unverified.
+3. **Drive goes live** with a verified badge + citation: "Admin has reviewed the submitted documents for this drive."
+4. **Admin amplifies** — in-app notification + WhatsApp + (rare, justified) email, each citing admin verification.
+5. **Donor decides** — taps **"I want to help"** → only THEN can view the uploaded documents (not public to casual browsers).
+6. **Payment details handled privately:** family's UPI/bank is **never public / never broadcast**. On "I want to help", the **admin relays/confirms** the verified family's payment details to that donor privately (admin as trusted intermediary). No clone-drive / account-swap risk.
+7. **Money goes directly** donor → family. App records nothing about the transaction (connector).
+
+**Data:**
+- `help_drives` — `raised_by_member_id, beneficiary_name, guardian_name, category (medical|education|other), gap_amount, story, status (pending|verified|live|closed|rejected), verified_by, verified_at, verification_notes`
+- `help_drive_documents` — `drive_id, file_url, doc_type` — **access-gated: visible only after a member taps "I want to help"**; admin always.
+- `help_drive_payment` — `drive_id, upi, bank_details` — **ADMIN-ONLY; never exposed in any list/broadcast/public view.** Relayed privately on donor request.
+- `help_intents` — `drive_id, donor_member_id, created_at` — records "I want to help" taps (gates doc access; lets admin relay payment details).
+
+**Hard rules (protect family, donors, and the platform):**
+- **App is a connector — money never flows through it, is never pooled, never commissioned.** This also keeps clear of Indian fundraising/80G/FCRA exposure (NRI donations from USA/Dubai make this sharper). *Lawyer review required before launch.*
+- **Verification claim is precise:** admin verifies that **documents were submitted and appear legitimate** — NOT a guarantee of outcome, fund usage, or platform endorsement. (Mirror in LEGAL.md + a disclaimer on every drive.)
+- **Privacy/dignity:** medical docs behind "I want to help"; bank details admin-relayed only; a vulnerable family receives help **without surrendering privacy to the whole community.**
+- **Fraud guard:** mandatory admin gate + private payment relay + report/flag path; admin can pull a drive anytime.
+
+## 8. Non-functional
+
+- **Privacy:** contact details permission-gated; aggregate-only intelligence; clear data controls. **Minimal location** — personal profile is city + PIN only (no home address). Exact address lives on a listing, scoped to that listing, and precise location for room/PG/vehicle is shared member-to-member, not published. **Help-drive docs gated behind "I want to help"; help-drive payment details admin-only.**
 - **i18n:** Gujarati + English; never break Gujarati glyphs; magazine fonts embedded in PDF.
 - **Security:** RLS everywhere; server-side payment verification (listing fee); rate-limit public/auth endpoints; secrets in env. Track in `AUDIT.md`.
 - **Connector disclaimers:** present on every transaction-implying surface (stay, mobility, goods, tours). See `DISPUTE.md`.
