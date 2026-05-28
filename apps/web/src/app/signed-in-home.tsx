@@ -103,6 +103,9 @@ export function SignedInHome({
         <Link href="/connections" className="text-brand-primary underline">
           Your connections
         </Link>
+        <Link href="/intelligence" className="text-brand-primary underline">
+          Community insights
+        </Link>
         <Link href="/profile" className="text-brand-primary underline">
           Edit your profile
         </Link>

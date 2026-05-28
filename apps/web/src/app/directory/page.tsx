@@ -223,12 +223,20 @@ export default async function DirectoryPage({
             — and reach them with their consent.
           </p>
         </div>
-        <Link
-          href="/connections"
-          className="shrink-0 rounded-lg border border-brand-border px-3 py-1.5 text-sm text-brand-text transition hover:border-brand-primary hover:text-brand-primary"
-        >
-          Your connections
-        </Link>
+        <div className="flex shrink-0 gap-2">
+          <Link
+            href="/intelligence"
+            className="rounded-lg border border-brand-border px-3 py-1.5 text-sm text-brand-text transition hover:border-brand-primary hover:text-brand-primary"
+          >
+            Insights
+          </Link>
+          <Link
+            href="/connections"
+            className="rounded-lg border border-brand-border px-3 py-1.5 text-sm text-brand-text transition hover:border-brand-primary hover:text-brand-primary"
+          >
+            Your connections
+          </Link>
+        </div>
       </header>
 
       <DirectoryFilters
