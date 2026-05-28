@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
-import { GENDER_OPTIONS, BIO_MAX, NAME_MAX } from "./constants";
+import { GENDER_OPTIONS, BIO_MAX, NAME_MAX, BLOOD_GROUPS } from "./constants";
 import { updateProfile, type ProfileFormState } from "./actions";
 
 export type City = {
@@ -24,6 +24,8 @@ export type ProfileValues = {
   sub_community_id: string | null;
   bio: string | null;
   openly_contactable: boolean | null;
+  blood_group: string | null;
+  willing_to_donate: boolean | null;
   recognised_surname?: boolean | null;
 };
 
@@ -321,6 +323,57 @@ export function ProfileForm({
             placeholder="A line or two about you for fellow Nagars."
           />
           <FieldError msg={err?.bio} />
+        </div>
+
+        <div className="grid gap-5 sm:grid-cols-2">
+          <div>
+            <label className={labelClass} htmlFor="blood_group">
+              Blood group
+            </label>
+            <select
+              id="blood_group"
+              name="blood_group"
+              defaultValue={v?.blood_group ?? ""}
+              className={inputClass}
+            >
+              <option value="">Prefer not to say</option>
+              {BLOOD_GROUPS.map((g) => (
+                <option key={g} value={g}>
+                  {g}
+                </option>
+              ))}
+            </select>
+            <p className="mt-1 text-xs text-brand-danger">
+              Please double-check your blood group before selecting — it matters
+              in an emergency.
+            </p>
+          </div>
+
+          <div>
+            <label className={labelClass} htmlFor="willing_to_donate">
+              Ready to donate blood when a fellow Nagar needs it?
+            </label>
+            <select
+              id="willing_to_donate"
+              name="willing_to_donate"
+              defaultValue={
+                v?.willing_to_donate == null
+                  ? ""
+                  : v.willing_to_donate
+                    ? "yes"
+                    : "no"
+              }
+              className={inputClass}
+            >
+              <option value="">Prefer not to say</option>
+              <option value="yes">Yes</option>
+              <option value="no">No</option>
+            </select>
+            <p className="mt-1 text-xs text-brand-text-muted">
+              Only shown to members if you say yes (and you&apos;re in the
+              18–65 donation age range).
+            </p>
+          </div>
         </div>
 
         <label className="flex items-start gap-2 text-sm text-brand-text">

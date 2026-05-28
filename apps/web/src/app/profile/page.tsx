@@ -62,7 +62,7 @@ export default async function ProfilePage() {
     supabase
       .from("members")
       .select(
-        "full_name, surname, city_id, pincode, gender, date_of_birth, email, sub_community_id, bio, openly_contactable, recognised_surname",
+        "full_name, surname, city_id, pincode, gender, date_of_birth, email, sub_community_id, bio, openly_contactable, recognised_surname, blood_group, willing_to_donate",
       )
       .eq("id", user.id)
       .maybeSingle(),

@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
+import { BLOOD_GROUPS } from "../profile/constants";
 
 export type Lookup = { id: string; name: string };
 export type Specialty = { id: string; profession_id: string; name: string };
@@ -32,6 +33,7 @@ export function DirectoryFilters({
     specialty: string;
     city: string;
     sub_community: string;
+    blood: string;
   };
 }) {
   const router = useRouter();
@@ -39,6 +41,7 @@ export function DirectoryFilters({
   const [specialty, setSpecialty] = useState(current.specialty);
   const [city, setCity] = useState(current.city);
   const [subCommunity, setSubCommunity] = useState(current.sub_community);
+  const [blood, setBlood] = useState(current.blood);
 
   const specialtiesForProfession = useMemo(
     () =>
@@ -64,6 +67,7 @@ export function DirectoryFilters({
     if (specialty) params.set("specialty", specialty);
     if (city) params.set("city", city);
     if (subCommunity) params.set("sub_community", subCommunity);
+    if (blood) params.set("blood", blood);
     const qs = params.toString();
     router.push(qs ? `/directory?${qs}` : "/directory");
   }
@@ -73,10 +77,11 @@ export function DirectoryFilters({
     setSpecialty("");
     setCity("");
     setSubCommunity("");
+    setBlood("");
     router.push("/directory");
   }
 
-  const hasFilters = profession || specialty || city || subCommunity;
+  const hasFilters = profession || specialty || city || subCommunity || blood;
 
   return (
     <div className="rounded-2xl border border-brand-border bg-white p-4 shadow-sm">
@@ -160,6 +165,25 @@ export function DirectoryFilters({
             {subCommunities.map((s) => (
               <option key={s.id} value={s.id} lang="gu">
                 {s.name}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div>
+          <label className={labelClass} htmlFor="f-blood">
+            Blood donor
+          </label>
+          <select
+            id="f-blood"
+            value={blood}
+            onChange={(e) => setBlood(e.target.value)}
+            className={selectClass}
+          >
+            <option value="">Any</option>
+            {BLOOD_GROUPS.map((g) => (
+              <option key={g} value={g}>
+                {g}
               </option>
             ))}
           </select>

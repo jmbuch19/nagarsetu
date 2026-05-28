@@ -31,6 +31,7 @@ const MISSION_EN =
 
 const BENEFITS = [
   "Find a Nagar doctor, lawyer, or mentor — anywhere in the world.",
+  "Reach a willing blood donor in the community when it matters most.",
   "Discover homes, rooms & rides within the community.",
   "Buy from and sell to your own people.",
   "Stand together in genuine need — verified help drives.",

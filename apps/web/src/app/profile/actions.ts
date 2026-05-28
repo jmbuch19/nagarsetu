@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import {
   BIO_MAX,
+  BLOOD_GROUPS,
   EMAIL_MAX,
   EMAIL_RE,
   GENDER_VALUES,
@@ -24,7 +25,8 @@ export type ProfileField =
   | "date_of_birth"
   | "email"
   | "sub_community_id"
-  | "bio";
+  | "bio"
+  | "blood_group";
 
 export type ProfileFormState = {
   ok: boolean;
@@ -79,6 +81,8 @@ export async function updateProfile(
   const emailRaw = field(formData, "email");
   const subCommunityRaw = field(formData, "sub_community_id");
   const bioRaw = field(formData, "bio");
+  const bloodRaw = field(formData, "blood_group");
+  const willingRaw = field(formData, "willing_to_donate");
   // Checkbox: present = opted in to direct contact, absent = request required.
   const openly_contactable = formData.get("openly_contactable") != null;
 
@@ -149,6 +153,18 @@ export async function updateProfile(
     else bio = bioRaw;
   }
 
+  // Blood group (optional) — must be one of the controlled set if provided.
+  let blood_group: string | null = null;
+  if (bloodRaw) {
+    if (!(BLOOD_GROUPS as readonly string[]).includes(bloodRaw))
+      errors.blood_group = "Please choose a valid blood group.";
+    else blood_group = bloodRaw;
+  }
+
+  // Donation willingness (optional) — "yes"/"no"/unanswered.
+  const willing_to_donate: boolean | null =
+    willingRaw === "yes" ? true : willingRaw === "no" ? false : null;
+
   if (Object.keys(errors).length > 0) {
     return { ok: false, errors, message: "Please fix the highlighted fields." };
   }
@@ -162,6 +178,8 @@ export async function updateProfile(
     sub_community_id,
     bio,
     openly_contactable,
+    blood_group,
+    willing_to_donate,
   };
   // Only write the locked fields on first set; never overwrite once present.
   if (!fullNameLocked) updateData.full_name = full_name;

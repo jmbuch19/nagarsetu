@@ -37,6 +37,7 @@ type MemberRow = {
   id_verification: string;
   recognised_surname: boolean;
   openly_contactable: boolean;
+  donor_blood_group: string | null;
 };
 
 // Warm one-line intro composed from profile fields + the member's own bio.
@@ -83,6 +84,7 @@ export default async function DirectoryPage({
   const fSpecialty = pick("specialty");
   const fCity = pick("city");
   const fSub = pick("sub_community");
+  const fBlood = pick("blood");
 
   const supabase = await createClient();
   const {
@@ -127,7 +129,7 @@ export default async function DirectoryPage({
   let mq = supabase
     .from("members_directory")
     .select(
-      "id, full_name, surname, bio, city_id, sub_community_id, trust_level, id_verification, recognised_surname, openly_contactable",
+      "id, full_name, surname, bio, city_id, sub_community_id, trust_level, id_verification, recognised_surname, openly_contactable, donor_blood_group",
     )
     .not("full_name", "is", null)
     .neq("id", user.id)
@@ -135,6 +137,7 @@ export default async function DirectoryPage({
     .limit(60);
   if (fCity) mq = mq.eq("city_id", fCity);
   if (fSub) mq = mq.eq("sub_community_id", fSub);
+  if (fBlood) mq = mq.eq("donor_blood_group", fBlood);
   if (candidateIds) mq = mq.in("id", candidateIds);
   const { data: membersData } = await mq;
   const members = (membersData ?? []) as MemberRow[];
@@ -238,6 +241,7 @@ export default async function DirectoryPage({
           specialty: fSpecialty,
           city: fCity,
           sub_community: fSub,
+          blood: fBlood,
         }}
       />
 
@@ -269,6 +273,11 @@ export default async function DirectoryPage({
                   {m.recognised_surname ? (
                     <span className="ml-2 rounded-full bg-brand-success/10 px-2 py-0.5 text-xs font-medium text-brand-success">
                       Nagar surname
+                    </span>
+                  ) : null}
+                  {m.donor_blood_group ? (
+                    <span className="ml-2 rounded-full bg-brand-danger/10 px-2 py-0.5 text-xs font-medium text-brand-danger">
+                      Blood donor · {m.donor_blood_group}
                     </span>
                   ) : null}
                 </p>
