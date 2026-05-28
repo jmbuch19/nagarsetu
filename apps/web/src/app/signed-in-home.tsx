@@ -68,18 +68,22 @@ export function SignedInHome({
           </p>
         </div>
 
-        {/* FIND — find help & expertise */}
+        {/* FIND — find offers & help */}
         <div className={cardClass}>
           <h2 className="text-lg font-medium text-brand-primary">Find</h2>
           <p className="mt-1 flex-1 text-sm text-brand-text-muted">
-            Find a doctor, lawyer, mentor, or a willing blood donor when you
-            need one.
+            Browse rooms, rides, goods and services on offer — or find a doctor,
+            mentor, or blood donor in the directory.
           </p>
-          <Link href="/directory" className={liveLink}>
-            Find expertise
+          <Link href="/feed" className={liveLink}>
+            Browse the feed
           </Link>
           <p className="mt-2 text-xs text-brand-text-muted">
-            Rooms, rides, things to buy &amp; jobs — coming soon.
+            Looking for people? Try the{" "}
+            <Link href="/directory" className="underline">
+              directory
+            </Link>
+            .
           </p>
         </div>
 
@@ -100,8 +104,14 @@ export function SignedInHome({
       </div>
 
       <div className="mt-6 flex flex-wrap gap-4 text-sm">
+        <Link href="/feed" className="text-brand-primary underline">
+          Community feed
+        </Link>
         <Link href="/listings" className="text-brand-primary underline">
           Your listings
+        </Link>
+        <Link href="/listings/leads" className="text-brand-primary underline">
+          Your leads
         </Link>
         <Link href="/connections" className="text-brand-primary underline">
           Your connections

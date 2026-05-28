@@ -69,12 +69,20 @@ export default async function ListingsPage() {
             Create, publish, pause, and renew what you offer the community.
           </p>
         </div>
-        <Link
-          href="/listings/new"
-          className="shrink-0 rounded-lg bg-brand-primary px-4 py-2 text-sm font-medium text-white transition hover:bg-brand-primary-dark"
-        >
-          + New listing
-        </Link>
+        <div className="flex shrink-0 gap-2">
+          <Link
+            href="/listings/leads"
+            className="rounded-lg border border-brand-border px-3 py-2 text-sm text-brand-text transition hover:border-brand-primary hover:text-brand-primary"
+          >
+            Leads
+          </Link>
+          <Link
+            href="/listings/new"
+            className="rounded-lg bg-brand-primary px-4 py-2 text-sm font-medium text-white transition hover:bg-brand-primary-dark"
+          >
+            + New listing
+          </Link>
+        </div>
       </header>
 
       {listings.length === 0 ? (
