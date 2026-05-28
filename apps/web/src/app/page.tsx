@@ -15,13 +15,14 @@
 //      Gujarati motto ≥ English translation. SPEC §9 codifies the rule.
 //
 // CTA copy is "Join the community" (warmer than "Sign in") per the locked
-// mission framing. Signed-in members see a small banner + sign-out form
-// at the top and the same landing below.
+// mission framing. Signed-in members get the intent hub (SignedInHome —
+// Connect / Find / Offer, SPEC §7.05) instead of this marketing landing.
 
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { identity, motto, salutation } from "@nagarsetu/shared";
 import { createClient } from "@/lib/supabase/server";
+import { SignedInHome } from "./signed-in-home";
 
 const BELONGING_LINE = "The digital home of the Nagar samaj — worldwide.";
 
@@ -54,6 +55,51 @@ export default async function Home({
     data: { user },
   } = await supabase.auth.getUser();
 
+  // Signed-in members get the intent hub instead of the marketing landing.
+  let member: {
+    full_name: string | null;
+    surname: string | null;
+    city_id: string | null;
+    pincode: string | null;
+    gender: string | null;
+    date_of_birth: string | null;
+    role: string | null;
+  } | null = null;
+  let pulse: {
+    total_members: number;
+    total_cities_represented: number;
+    total_professionals: number;
+  } | null = null;
+
+  if (user) {
+    const [memberRes, pulseRes] = await Promise.all([
+      supabase
+        .from("members")
+        .select(
+          "full_name, surname, city_id, pincode, gender, date_of_birth, role",
+        )
+        .eq("id", user.id)
+        .maybeSingle(),
+      supabase
+        .from("community_pulse")
+        .select("total_members, total_cities_represented, total_professionals")
+        .maybeSingle(),
+    ]);
+    member = memberRes.data;
+    pulse = pulseRes.data;
+  }
+
+  const isAdmin = member?.role === "admin";
+  const profileComplete = !!(
+    member?.full_name &&
+    member?.surname &&
+    member?.city_id &&
+    member?.pincode &&
+    member?.gender &&
+    member?.date_of_birth
+  );
+  const displayName = member?.full_name ?? user?.email ?? user?.phone ?? null;
+
   return (
     <main className="flex flex-1 flex-col">
       {/* Signed-in banner — minimal, top-anchored. Members get the rest
@@ -63,7 +109,7 @@ export default async function Home({
         <div className="flex items-center justify-between border-b border-brand-border bg-brand-surface/40 px-6 py-3 text-sm">
           <span className="text-brand-text-muted">
             Signed in as{" "}
-            <span className="font-medium text-brand-text">{user.phone}</span>
+            <span className="font-medium text-brand-text">{displayName}</span>
           </span>
           <div className="flex items-center gap-2">
             <Link
@@ -78,6 +124,14 @@ export default async function Home({
             >
               Your profile
             </Link>
+            {isAdmin ? (
+              <Link
+                href="/admin/verifications"
+                className="rounded-md border border-brand-border bg-white px-3 py-1.5 text-xs text-brand-accent transition hover:border-brand-accent"
+              >
+                Admin
+              </Link>
+            ) : null}
             <form action="/auth/sign-out" method="post">
               <button
                 type="submit"
@@ -89,6 +143,16 @@ export default async function Home({
           </div>
         </div>
       ) : null}
+
+      {user ? (
+        <SignedInHome
+          name={member?.full_name ?? null}
+          pulse={pulse}
+          profileComplete={profileComplete}
+        />
+      ) : (
+        <>
+          {/* ── Guest marketing landing (the four locked jobs) ── */}
 
       {/* HERO — job #1: signal belonging. Gujarati title co-equal with
           English (same font-size class, slightly different weight for
@@ -137,22 +201,22 @@ export default async function Home({
         </ul>
       </section>
 
-      {/* CTA — "Join the community" (warmer than "Sign in") per the
-          locked landing framing. Hidden when already signed in. */}
-      {!user ? (
-        <section className="flex flex-col items-center px-6 py-12">
-          <Link
-            href="/sign-in"
-            className="inline-block rounded-lg bg-brand-primary px-8 py-3 text-base font-medium text-white shadow-sm transition hover:bg-brand-primary-dark sm:text-lg"
-          >
-            Join the community
-          </Link>
-          <p className="mt-4 text-xs text-brand-text-muted">
-            Free to belong · listing fee only when you post a commercial
-            offer
-          </p>
-        </section>
-      ) : null}
+          {/* CTA — "Join the community" (warmer than "Sign in") per the
+              locked landing framing. */}
+          <section className="flex flex-col items-center px-6 py-12">
+            <Link
+              href="/sign-in"
+              className="inline-block rounded-lg bg-brand-primary px-8 py-3 text-base font-medium text-white shadow-sm transition hover:bg-brand-primary-dark sm:text-lg"
+            >
+              Join the community
+            </Link>
+            <p className="mt-4 text-xs text-brand-text-muted">
+              Free to belong · listing fee only when you post a commercial
+              offer
+            </p>
+          </section>
+        </>
+      )}
 
       {/* MOTTO — Gujarati larger than English per the §9 typography rule.
           Salutation closes the page. */}
