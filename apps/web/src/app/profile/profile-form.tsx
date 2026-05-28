@@ -27,6 +27,7 @@ export type ProfileValues = {
   blood_group: string | null;
   willing_to_donate: boolean | null;
   recognised_surname?: boolean | null;
+  deletion_requested_at?: string | null;
 };
 
 const initialState: ProfileFormState = { ok: false };

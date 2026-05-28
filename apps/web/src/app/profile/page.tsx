@@ -28,6 +28,7 @@ import {
   CapabilitiesEditor,
   type CapabilityRowData,
 } from "./capabilities-editor";
+import { AccountDeletion } from "./account-deletion";
 
 export const metadata = {
   title: `Your profile — ${identity.name.en}`,
@@ -62,7 +63,7 @@ export default async function ProfilePage() {
     supabase
       .from("members")
       .select(
-        "full_name, surname, city_id, pincode, gender, date_of_birth, email, sub_community_id, bio, openly_contactable, recognised_surname, blood_group, willing_to_donate",
+        "full_name, surname, city_id, pincode, gender, date_of_birth, email, sub_community_id, bio, openly_contactable, recognised_surname, blood_group, willing_to_donate, deletion_requested_at",
       )
       .eq("id", user.id)
       .maybeSingle(),
@@ -153,6 +154,12 @@ export default async function ProfilePage() {
         <div className="mt-6 rounded-2xl border border-brand-border bg-white p-6 shadow-sm sm:p-8">
           <CapabilitiesEditor
             rows={(memberCapabilitiesRes.data ?? []) as CapabilityRowData[]}
+          />
+        </div>
+
+        <div className="mt-6 rounded-2xl border border-brand-border bg-white p-6 shadow-sm sm:p-8">
+          <AccountDeletion
+            deletionRequestedAt={member?.deletion_requested_at ?? null}
           />
         </div>
       </div>
