@@ -87,19 +87,22 @@ export function SignedInHome({
         <div className={cardClass}>
           <h2 className="text-lg font-medium text-brand-primary">Offer</h2>
           <p className="mt-1 flex-1 text-sm text-brand-text-muted">
-            Share what you can offer the circle — your expertise, your time,
-            your help.
+            List a room, ride, service or business — or share your expertise
+            and time from your profile.
           </p>
-          <Link href="/profile" className={liveLink}>
-            Your profile &amp; offerings
+          <Link href="/listings/new" className={liveLink}>
+            Create a listing
           </Link>
           <p className="mt-2 text-xs text-brand-text-muted">
-            List a room, service or business — coming soon.
+            Expertise &amp; સેવા offers live on your profile.
           </p>
         </div>
       </div>
 
       <div className="mt-6 flex flex-wrap gap-4 text-sm">
+        <Link href="/listings" className="text-brand-primary underline">
+          Your listings
+        </Link>
         <Link href="/connections" className="text-brand-primary underline">
           Your connections
         </Link>
