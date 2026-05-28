@@ -24,6 +24,7 @@ export type ProfileValues = {
   sub_community_id: string | null;
   bio: string | null;
   openly_contactable: boolean | null;
+  recognised_surname?: boolean | null;
 };
 
 const initialState: ProfileFormState = { ok: false };

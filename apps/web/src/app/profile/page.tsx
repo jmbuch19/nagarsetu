@@ -62,7 +62,7 @@ export default async function ProfilePage() {
     supabase
       .from("members")
       .select(
-        "full_name, surname, city_id, pincode, gender, date_of_birth, email, sub_community_id, bio, openly_contactable",
+        "full_name, surname, city_id, pincode, gender, date_of_birth, email, sub_community_id, bio, openly_contactable, recognised_surname",
       )
       .eq("id", user.id)
       .maybeSingle(),
@@ -108,6 +108,11 @@ export default async function ProfilePage() {
           <h1 className="mt-2 text-3xl font-light text-brand-primary">
             Your profile
           </h1>
+          {member?.recognised_surname ? (
+            <p className="mt-2 inline-block rounded-full bg-brand-gold/15 px-3 py-1 text-xs font-medium text-brand-gold">
+              ✓ Recognised Nagar surname
+            </p>
+          ) : null}
           <p className="mt-2 text-sm leading-relaxed text-brand-text-muted">
             A complete profile makes the directory richer for everyone — it&apos;s
             how fellow Nagars find you, and how you find them. Belonging is free;
