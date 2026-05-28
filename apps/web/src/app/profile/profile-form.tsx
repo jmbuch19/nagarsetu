@@ -29,6 +29,7 @@ export type ProfileValues = {
   recognised_surname?: boolean | null;
   deletion_requested_at?: string | null;
   id_verification?: string | null;
+  role?: string | null;
 };
 
 const initialState: ProfileFormState = { ok: false };

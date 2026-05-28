@@ -64,7 +64,7 @@ export default async function ProfilePage() {
     supabase
       .from("members")
       .select(
-        "full_name, surname, city_id, pincode, gender, date_of_birth, email, sub_community_id, bio, openly_contactable, recognised_surname, blood_group, willing_to_donate, deletion_requested_at, id_verification",
+        "full_name, surname, city_id, pincode, gender, date_of_birth, email, sub_community_id, bio, openly_contactable, recognised_surname, blood_group, willing_to_donate, deletion_requested_at, id_verification, role",
       )
       .eq("id", user.id)
       .maybeSingle(),
@@ -120,12 +120,22 @@ export default async function ProfilePage() {
             how fellow Nagars find you, and how you find them. Belonging is free;
             you only pay a fee when you publish a commercial listing.
           </p>
-          <Link
-            href="/directory"
-            className="mt-3 inline-block text-sm font-medium text-brand-primary underline"
-          >
-            Browse the directory →
-          </Link>
+          <div className="mt-3 flex gap-4">
+            <Link
+              href="/directory"
+              className="inline-block text-sm font-medium text-brand-primary underline"
+            >
+              Browse the directory →
+            </Link>
+            {member?.role === "admin" ? (
+              <Link
+                href="/admin/verifications"
+                className="inline-block text-sm font-medium text-brand-accent underline"
+              >
+                Admin →
+              </Link>
+            ) : null}
+          </div>
         </header>
 
         {!isComplete ? (
