@@ -19,6 +19,7 @@
 // at the top and the same landing below.
 
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { identity, motto, salutation } from "@nagarsetu/shared";
 import { createClient } from "@/lib/supabase/server";
 
@@ -35,7 +36,18 @@ const BENEFITS = [
   "Stand together in genuine need — verified help drives.",
 ] as const;
 
-export default async function Home() {
+export default async function Home({
+  searchParams,
+}: {
+  searchParams: Promise<{ code?: string }>;
+}) {
+  // Auth magic-links can land on "/" with ?code= when Supabase falls back to
+  // the Site URL (redirect URL not allowlisted). Forward the code to the
+  // callback route, which exchanges it for a session (cookies need a route
+  // handler — a Server Component can't persist them).
+  const { code } = await searchParams;
+  if (code) redirect(`/auth/callback?code=${encodeURIComponent(code)}`);
+
   const supabase = await createClient();
   const {
     data: { user },
