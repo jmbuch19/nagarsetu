@@ -52,3 +52,20 @@ export const EXPERTISE_MAX = 280;
 // years_experience CHECK is between 0 and 99 (migration 0004).
 export const YEARS_MIN = 0;
 export const YEARS_MAX = 99;
+
+// ── member_capabilities editor (the સેવા opt-ins, SPEC §7.04) ────────────────
+// kind mirrors the CHECK on member_capabilities.kind (migration 0004:
+// 'expert_guidance','mentor','other').
+export const CAPABILITY_KIND_OPTIONS = [
+  { value: "expert_guidance", label: "Expert guidance in my field" },
+  { value: "mentor", label: "Mentoring an aspiring Nagar" },
+  { value: "other", label: "Something else I can offer" },
+] as const;
+
+export const CAPABILITY_KIND_VALUES: readonly string[] =
+  CAPABILITY_KIND_OPTIONS.map((k) => k.value);
+
+// domain + description are free text on member_capabilities (no DB CHECK);
+// these caps are app-side guards.
+export const DOMAIN_MAX = 80;
+export const CAPABILITY_DESC_MAX = 280;

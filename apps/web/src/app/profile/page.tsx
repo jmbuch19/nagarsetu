@@ -13,6 +13,7 @@
 // authenticated user, so members RLS + the column grants are the enforcement
 // boundary. This page only reads the caller's own row + the public lookups.
 
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { identity } from "@nagarsetu/shared";
 import { createClient } from "@/lib/supabase/server";
@@ -23,6 +24,10 @@ import {
   type Specialty,
   type ProfessionRowData,
 } from "./professions-editor";
+import {
+  CapabilitiesEditor,
+  type CapabilityRowData,
+} from "./capabilities-editor";
 
 export const metadata = {
   title: `Your profile — ${identity.name.en}`,
@@ -52,11 +57,12 @@ export default async function ProfilePage() {
     professionsRes,
     specialtiesRes,
     memberProfessionsRes,
+    memberCapabilitiesRes,
   ] = await Promise.all([
     supabase
       .from("members")
       .select(
-        "full_name, surname, city_id, pincode, gender, date_of_birth, email, sub_community_id, bio",
+        "full_name, surname, city_id, pincode, gender, date_of_birth, email, sub_community_id, bio, openly_contactable",
       )
       .eq("id", user.id)
       .maybeSingle(),
@@ -78,6 +84,11 @@ export default async function ProfilePage() {
       .select(
         "id, profession_id, specialty_id, years_experience, expertise_text, status, is_verified",
       )
+      .eq("member_id", user.id)
+      .order("created_at"),
+    supabase
+      .from("member_capabilities")
+      .select("id, kind, domain, description, is_offered")
       .eq("member_id", user.id)
       .order("created_at"),
   ]);
@@ -102,6 +113,12 @@ export default async function ProfilePage() {
             how fellow Nagars find you, and how you find them. Belonging is free;
             you only pay a fee when you publish a commercial listing.
           </p>
+          <Link
+            href="/directory"
+            className="mt-3 inline-block text-sm font-medium text-brand-primary underline"
+          >
+            Browse the directory →
+          </Link>
         </header>
 
         {!isComplete ? (
@@ -125,6 +142,12 @@ export default async function ProfilePage() {
             professions={(professionsRes.data ?? []) as Profession[]}
             specialties={(specialtiesRes.data ?? []) as Specialty[]}
             rows={(memberProfessionsRes.data ?? []) as ProfessionRowData[]}
+          />
+        </div>
+
+        <div className="mt-6 rounded-2xl border border-brand-border bg-white p-6 shadow-sm sm:p-8">
+          <CapabilitiesEditor
+            rows={(memberCapabilitiesRes.data ?? []) as CapabilityRowData[]}
           />
         </div>
       </div>

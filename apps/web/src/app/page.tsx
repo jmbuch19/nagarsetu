@@ -54,6 +54,12 @@ export default async function Home() {
           </span>
           <div className="flex items-center gap-2">
             <Link
+              href="/directory"
+              className="rounded-md border border-brand-border bg-white px-3 py-1.5 text-xs text-brand-text transition hover:border-brand-primary hover:text-brand-primary"
+            >
+              Directory
+            </Link>
+            <Link
               href="/profile"
               className="rounded-md border border-brand-border bg-white px-3 py-1.5 text-xs text-brand-text transition hover:border-brand-primary hover:text-brand-primary"
             >

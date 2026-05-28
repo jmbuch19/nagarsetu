@@ -23,6 +23,7 @@ export type ProfileValues = {
   email: string | null;
   sub_community_id: string | null;
   bio: string | null;
+  openly_contactable: boolean | null;
 };
 
 const initialState: ProfileFormState = { ok: false };
@@ -294,6 +295,19 @@ export function ProfileForm({
           />
           <FieldError msg={err?.bio} />
         </div>
+
+        <label className="flex items-start gap-2 text-sm text-brand-text">
+          <input
+            type="checkbox"
+            name="openly_contactable"
+            defaultChecked={!!v?.openly_contactable}
+            className="mt-0.5 h-4 w-4 rounded border-brand-border text-brand-primary focus:ring-brand-primary"
+          />
+          <span>
+            Let fellow members reach me directly on WhatsApp from the directory.
+            (Off = members must send a connection request you approve first.)
+          </span>
+        </label>
       </fieldset>
 
       {/* Result banner ────────────────────────────────────────────────── */}

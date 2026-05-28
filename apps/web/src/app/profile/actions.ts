@@ -68,6 +68,8 @@ export async function updateProfile(
   const emailRaw = field(formData, "email");
   const subCommunityRaw = field(formData, "sub_community_id");
   const bioRaw = field(formData, "bio");
+  // Checkbox: present = opted in to direct contact, absent = request required.
+  const openly_contactable = formData.get("openly_contactable") != null;
 
   const errors: Partial<Record<ProfileField, string>> = {};
 
@@ -146,6 +148,7 @@ export async function updateProfile(
       email,
       sub_community_id,
       bio,
+      openly_contactable,
     })
     .eq("id", user.id);
 
