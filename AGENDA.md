@@ -26,8 +26,7 @@ and log each completed unit in `AUDIT.md`. Decisions needed → see `MEMORY.md`.
 ### 2. Auth & identity
 - [ ] Meta WhatsApp OTP via Supabase Auth Hook (approved authentication template); sessions in Supabase
 - [ ] Sign-up gate = mobile + OTP + consent only (Terms + WhatsApp opt-in); NO profile fields here
-- [x] Profile create/edit — required: name, surname, city, PIN, gender, DOB; optional: email, sub-community, bio (NO home address)
-- [ ] Profile photo upload — scoped Storage bucket + RLS + type/size checks + upload widget (deferred from profile create/edit; `photo_url` column + grant already exist)
+- [ ] Profile create/edit — required: name, surname, city, PIN, gender, DOB; optional: email, photo, sub-community, bio (NO home address)
 - [ ] Onboarding nudge: "What can you offer the circle?" — invite at least one offer from every member
 - [ ] Profile surfaces both sides: what the member offers + what they're seeking
 - [ ] member_professions UI (controlled lists only) — cascading profession → specialty (auto-appears), with status (current/retired/studying)
@@ -113,6 +112,13 @@ and log each completed unit in `AUDIT.md`. Decisions needed → see `MEMORY.md`.
 - [ ] Admin amplification (in-app + WhatsApp + rare email) citing verification
 - [ ] Report/flag + admin pull-anytime; connector disclaimer (no funds through app)
 - [ ] LEGAL.md page for drives + precise verification-claim disclaimer
+
+### 7e. Deceased members — memorialisation
+- [ ] `account_state` (active|suspended|memorialised|closed) + `nominee_member_id`
+- [ ] Report-passing → admin verify (reversible) → freeze (deactivate listings/offers/requests, disable login, hide contact, remove from matching + active counts + intelligence)
+- [ ] Optional "In loving memory" tribute (family consent) or quiet close
+- [ ] DPDP: nominee/next-of-kin controls — memorialise/export/delete; deletable on request
+- [ ] Preserve Setusarjan contributions (attributed, "in memory"); suppress all automated nudges to family; pause related help drive
 
 ### 8. Hardening (before any wider release)
 - [ ] **DPDP compliance per `DPDP.md`:** `consents` table + granular unbundled withdrawable consent UI; privacy notice in English + Gujarati (versioned); `is_minor` flag + no behavioural targeting of minors; guardian consent on child help-drives; `/data` rights centre (access/correct/erase/export/nominate/grievance); help-drive doc retention/auto-purge + access logging; processor data-terms + Supabase India region; breach runbook + grievance/DPO contact

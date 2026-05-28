@@ -28,7 +28,7 @@ Source of truth for *what* to build. Constraints live in `CLAUDE.md`. Roadmap in
 - **genres** — `name` (magazine: લેખ, ચિંતન, લઘુવાર્તા, કવિતા, ગઝલ, ગીત, અછાંદસ, ગરબો, બાળગીત, હાસ્ય)
 
 ### Core
-- **members** — `full_name, surname, phone (unique), email (optional), city_id, pincode, sub_community_id, gender, date_of_birth, photo_url, bio, role (member|editor|admin), trust_level (0–3), id_verification (none|pending|verified), recognised_surname bool, opt_in_email bool, opt_in_whatsapp bool`
+- **members** — `full_name, surname, phone (unique), email (optional), city_id, pincode, sub_community_id, gender, date_of_birth, photo_url, bio, role (member|editor|admin), trust_level (0–3), id_verification (none|pending|verified), recognised_surname bool, opt_in_email bool, opt_in_whatsapp bool, account_state (active|suspended|memorialised|closed), nominee_member_id (nullable)`
   - Membership is **open** (OTP only). `surname / city / pincode / gender / date_of_birth` are self-declared indicators + profile data (power directory, intelligence, matrimony, PIN-level nearby discovery).
   - **No full/home address on the personal profile** — city + PIN only (lower friction, better privacy). Exact address, if ever needed, lives on a *listing*, not the person.
   - **`email` is optional** — used for listing-fee **receipts and OTP fallback only** (NOT for digests; email is largely unread by this audience). Members without email ride on WhatsApp + in-app; never block on it.
@@ -399,6 +399,34 @@ need). Money flows **directly donor → family** — the app NEVER touches, pool
 - **Verification claim is precise:** admin verifies that **documents were submitted and appear legitimate** — NOT a guarantee of outcome, fund usage, or platform endorsement. (Mirror in LEGAL.md + a disclaimer on every drive.)
 - **Privacy/dignity:** medical docs behind "I want to help"; bank details admin-relayed only; a vulnerable family receives help **without surrendering privacy to the whole community.**
 - **Fraud guard:** mandatory admin gate + private payment relay + report/flag path; admin can pull a drive anytime.
+
+## 7.5 Deceased members — memorialisation (dignity + protection + DPDP)
+
+A community platform will face member deaths; handle with dignity, not silent deletion. A fourth
+`account_state = memorialised` sits alongside active/suspended/closed.
+
+**Flow:**
+1. **Report & verify (gently, before acting):** family or admin reports the passing; admin **verifies** (a false report is cruel/exploitable). Reversible if mistaken.
+2. **Freeze into a respectful state:**
+   - Listings / offers / requests → **auto-deactivated** (no inquiries, leads, or money toward a deceased person).
+   - Login disabled; contact details **hidden** (no reveal / WhatsApp deep-link).
+   - Removed from matrimony, mentorship matching, directory "active" counts, and Community Intelligence (keeps counts truthful).
+   - Any active paid listing → stop; consider crediting/refunding the unused term to the family (goodwill — founder's call).
+3. **Optional tribute (family chooses):** with family consent, a quiet "In loving memory" profile (name, photo, years, space for community condolences) — OR closed quietly if the family prefers.
+
+**DPDP & the family's rights:**
+- If the member set a **`nominee`**, the nominee decides: memorialise / export data / delete.
+- No nominee → **verified next of kin / guardian** may request closure or deletion.
+- Memorialised is the **default respectful state, but deletable on family request** — never trap a deceased person's data against the family's wishes.
+
+**Contributions to the commons endure:** published **Setusarjan** contributions (poems, stories) remain,
+attributed, as remembrance — the *account* freezes, but the member's *creative legacy* is preserved
+(with an "in memory" note). Distinguish account (frozen) from contributions (kept).
+
+**Sensitive cases:**
+- **Verify before memorialising** — confirm via record or close-family corroboration; reversible.
+- **Gentle tone** — suppress all automated nudges/expiry/renewal messages to the deceased's family.
+- **Help drive for the deceased's own treatment:** pause, inform donors honestly, let family decide on any remaining need.
 
 ## 8. Non-functional
 

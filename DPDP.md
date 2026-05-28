@@ -44,7 +44,7 @@ DPDP: **verifiable parental/guardian consent** required; **no targeted advertisi
 - **Erasure** — delete account + data (with lawful-retention carve-outs, e.g. payment records).
 - **Portability/export** — export own data.
 - **Grievance** — reach the Data Protection Officer / grievance contact.
-- **Nomination** — nominate someone to exercise rights (e.g. on death/incapacity).
+- **Nomination** — nominate someone to exercise rights (e.g. on death/incapacity). On death, the nominee controls memorialise/export/delete of the profile (see SPEC §7.5 Deceased members); no nominee → verified next of kin.
 - SLA: act on requests within the statutory window (confirm exact days with counsel).
 
 ## 6. Security safeguards (see AUDIT.md)
