@@ -79,7 +79,11 @@ export function SignedInHome({
             Browse the feed
           </Link>
           <p className="mt-2 text-xs text-brand-text-muted">
-            Looking for people? Try the{" "}
+            Can&apos;t find it?{" "}
+            <Link href="/requests/new" className="underline">
+              Post a request
+            </Link>{" "}
+            · people are in the{" "}
             <Link href="/directory" className="underline">
               directory
             </Link>
@@ -109,6 +113,9 @@ export function SignedInHome({
         </Link>
         <Link href="/listings" className="text-brand-primary underline">
           Your listings
+        </Link>
+        <Link href="/requests" className="text-brand-primary underline">
+          Your requests
         </Link>
         <Link href="/listings/leads" className="text-brand-primary underline">
           Your leads

@@ -34,11 +34,12 @@ export function FeedFilters({
 }: {
   categories: Lookup[];
   cities: City[];
-  current: { category: string; city: string };
+  current: { category: string; city: string; type: string };
 }) {
   const router = useRouter();
   const [category, setCategory] = useState(current.category);
   const [city, setCity] = useState(current.city);
+  const type = current.type;
 
   const citiesByCountry = useMemo(() => {
     const m = new Map<string, City[]>();
@@ -52,6 +53,7 @@ export function FeedFilters({
 
   function apply(nextCategory: string, nextCity: string) {
     const params = new URLSearchParams();
+    if (type && type !== "offers") params.set("type", type);
     if (nextCategory) params.set("category", nextCategory);
     if (nextCity) params.set("city", nextCity);
     const qs = params.toString();
