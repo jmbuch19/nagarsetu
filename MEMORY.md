@@ -28,6 +28,7 @@ Add new locked decisions here; move items out of "Open Decisions" once resolved.
 - **Availability = coordination aid, not a booking.** No hard locks, no adjudication.
 - **App is never a party to disputes** (see `DISPUTE.md`).
 - **Gujarati is first-class.** Magazine render must reproduce the Setusarjan look.
+- **DPDP compliance mandatory** (India DPDP Act 2023; see `DPDP.md`). Jay Hatkesh = Data Fiduciary. Granular unbundled withdrawable consent (`consents` table); data minimisation (already: city+PIN, optional email, phone login); notice in English + **Gujarati**; Data Principal rights centre at `/data` (access/correct/erase/export/nominate/grievance); **children strict** — `is_minor` from DOB, no behavioural targeting of minors, guardian consent for child help-drive beneficiaries; retention limits (help-drive medical docs purged on closure); processors (Supabase/Razorpay/Meta/Resend) under data terms, prefer Supabase India region; breach response + grievance/DPO contact. Lawyer review before launch (Rules still finalising early 2026).
 - **Stack:** Next.js (web, **hosted on Vercel**), Expo/RN (mobile via EAS, Android-first OK), Supabase, phone OTP, Claude API, Razorpay (listing fee only), WhatsApp/FB share. Scheduler via Vercel Cron (protected by `CRON_SECRET`) or Supabase pg_cron.
 - **Phasing:** Phase 1 = directory + intelligence + feed + listings/availability + magazine engine + listing-fee payment. Matrimony + audio editions + mentorship → Phase 2.
 

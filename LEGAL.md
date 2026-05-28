@@ -69,6 +69,7 @@ Razorpay account approval typically requires live, reachable links to:
 - Sharing: not sold; processors (Supabase, Razorpay, Meta, Resend) named.
 - **Data deletion / Manage My Data:** how to request deletion → `/data`.
 - Cookies/analytics; children (not directed at under-18 / per local law); contact for privacy.
+- **DPDP (India):** this privacy policy operationalises `DPDP.md` — granular consent, Data Principal rights at `/data`, children's-data protections, retention limits, processor list, grievance/DPO contact. Notice available in Gujarati.
 
 ### /refunds — Refund & Cancellation
 - Listing fee: recommended **non-refundable once the listing is live** (reach delivered immediately); state clearly.

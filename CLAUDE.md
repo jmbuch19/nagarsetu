@@ -29,6 +29,7 @@ Full functional detail is in `SPEC.md`. Background narrative is in `CONCEPT.md`.
 7. **The app is never a party to disputes.** See `DISPUTE.md`.
 8. **Gujarati is a first-class language.** Content, fonts, and the magazine render must handle Gujarati cleanly. Never ship a layout that breaks Gujarati glyphs.
 9. **Roles are fluid — every member is both provider and seeker.** Never lock a member into a provider-only or consumer-only role. The same member may hold any mix of offers, requests, and professions at once (a cardiologist who answers second-opinion requests *and* seeks a PG for his son). "Professional" is a *state* — having an active promoted listing — not a permanent class. UI is **intent-based** (Connect / Find / Offer shown to everyone, always), never role-based. The economy is circular: value flows through every member in all directions, not one-way.
+10. **DPDP compliance is mandatory** (India Digital Personal Data Protection Act, 2023). Follow `DPDP.md`: granular unbundled consent (withdrawable), data minimisation, multilingual notice (incl. Gujarati), Data Principal rights at `/data`, strict children's-data handling (no behavioural targeting of minors; guardian consent for child beneficiaries), retention limits (esp. help-drive medical docs), breach response. Build privacy-by-design — never collect or expose more than a purpose needs.
 
 ---
 
@@ -42,7 +43,7 @@ Full functional detail is in `SPEC.md`. Background narrative is in `CONCEPT.md`.
 - **Magazine render:** server-side PDF generation against a fixed template
 - **Distribution:** WhatsApp + Facebook share
 - **Payments (listing fee ONLY):** standard gateway (e.g. Razorpay)
-- **Scheduler:** Vercel Cron (protected API routes via `CRON_SECRET`) **or** Supabase pg_cron + Edge Functions — for expiry, reminders, and the weekly email/WhatsApp batches
+- **Scheduler:** Vercel Cron (protected API routes via `CRON_SECRET`) **or** Supabase pg_cron + Edge Functions — for expiry, reminders, and the fortnightly WhatsApp digest
 
 ---
 
@@ -77,6 +78,7 @@ Full functional detail is in `SPEC.md`. Background narrative is in `CONCEPT.md`.
 | `AUDIT.md` | Running build + security log. |
 | `DISPUTE.md` | Member-dispute handling (connector-safe). |
 | `LEGAL.md` | Required legal/policy pages, footer/consent CTAs, Meta + Razorpay link checklists. |
+| `DPDP.md` | India DPDP Act 2023 compliance framework (consent, children, rights, retention). |
 | `EMAILS.md` | Email templates (transactional + digest) + WhatsApp template parity. |
 | `WHATSAPP.md` | Meta WhatsApp Cloud API ops: WABA setup, Auth/Utility/Marketing templates, hook wiring. |
 | `IDEAS.md` | Parking lot for deferred ideas. |
