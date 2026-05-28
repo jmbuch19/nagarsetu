@@ -4,14 +4,12 @@
 // Instructions URL" during app setup, and it backs the DPDP erasure right.
 // Public (no auth) so Meta reviewers + members can read it.
 //
-// CONTACT_EMAIL is interim (founder's address) — swap for a dedicated
-// privacy/grievance address (e.g. privacy@jayhatkesh.in) before public launch.
+// Contact address is the shared `contact.email` (dedicated project inbox).
 
 import Link from "next/link";
-import { identity } from "@nagarsetu/shared";
+import { contact, identity } from "@nagarsetu/shared";
 
-// ⚠ Interim contact — confirm/replace before launch (DPDP grievance/DPO contact).
-const CONTACT_EMAIL = "jambuch@gmail.com";
+const CONTACT_EMAIL = contact.email;
 
 export const metadata = {
   title: "Data & Account Deletion — Jay Hatkesh",

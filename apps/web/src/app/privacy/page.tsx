@@ -7,7 +7,7 @@
 // keep that section accurate as the actual opt-in flow ships.
 
 import Link from "next/link";
-import { identity, TERMS_VERSION } from "@nagarsetu/shared";
+import { contact, identity, TERMS_VERSION } from "@nagarsetu/shared";
 
 export const metadata = {
   title: "Privacy Policy — Jay Hatkesh",
@@ -184,12 +184,18 @@ export default function PrivacyPage() {
           </h2>
           <p className="mt-2 text-sm leading-relaxed">
             You can request deletion of your account and personal data at
-            any time. A self-serve flow lives at <code>/data</code>{" "}
-            (forthcoming); until then, contact us. Deletion removes your
-            profile, listings, inquiries, and reviews you authored. Records
-            that are part of a community audit trail (e.g. reports about
-            other members you filed, or payments you made) are anonymised
-            rather than deleted, to keep the connector audit honest.
+            any time — see{" "}
+            <Link
+              href="/data-deletion"
+              className="text-brand-primary underline"
+            >
+              Data &amp; Account Deletion
+            </Link>{" "}
+            for how. Deletion removes your profile, listings, inquiries, and
+            reviews you authored. Records that are part of a community audit
+            trail (e.g. reports about other members you filed, or payments you
+            made) are anonymised rather than deleted, to keep the connector
+            audit honest.
           </p>
         </div>
 
@@ -234,10 +240,14 @@ export default function PrivacyPage() {
             11. Contact
           </h2>
           <p className="mt-2 text-sm leading-relaxed">
-            For privacy questions or data-deletion requests, contact us at
-            the address listed on the Contact page (forthcoming). Until the
-            contact page lands, reach out to the founder at the email
-            shown on the project&apos;s GitHub.
+            For privacy questions or data-deletion requests, contact us at{" "}
+            <a
+              href={`mailto:${contact.email}`}
+              className="text-brand-primary underline"
+            >
+              {contact.email}
+            </a>
+            .
           </p>
         </div>
       </section>
