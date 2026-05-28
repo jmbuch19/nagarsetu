@@ -59,6 +59,17 @@ export async function updateProfile(
     };
   }
 
+  // full_name + date_of_birth are immutable once set (founder rule). Read the
+  // current row so we can skip validating/writing them when already locked.
+  // The DB trigger (migration 0019) enforces this regardless.
+  const { data: existing } = await supabase
+    .from("members")
+    .select("full_name, date_of_birth")
+    .eq("id", user.id)
+    .maybeSingle();
+  const fullNameLocked = !!existing?.full_name;
+  const dobLocked = !!existing?.date_of_birth;
+
   const full_name = field(formData, "full_name");
   const surname = field(formData, "surname");
   const city_id = field(formData, "city_id");
@@ -74,9 +85,12 @@ export async function updateProfile(
   const errors: Partial<Record<ProfileField, string>> = {};
 
   // Required ────────────────────────────────────────────────────────────────
-  if (!full_name) errors.full_name = "Please enter your full name.";
-  else if (full_name.length > NAME_MAX)
-    errors.full_name = `Please keep this under ${NAME_MAX} characters.`;
+  // full_name only validated on first set (locked thereafter).
+  if (!fullNameLocked) {
+    if (!full_name) errors.full_name = "Please enter your full name.";
+    else if (full_name.length > NAME_MAX)
+      errors.full_name = `Please keep this under ${NAME_MAX} characters.`;
+  }
 
   if (!surname) errors.surname = "Please enter your surname.";
   else if (surname.length > NAME_MAX)
@@ -97,16 +111,19 @@ export async function updateProfile(
   else if (!GENDER_VALUES.includes(gender))
     errors.gender = "Please select a valid option.";
 
-  if (!date_of_birth) {
-    errors.date_of_birth = "Please enter your date of birth.";
-  } else {
-    const dob = new Date(date_of_birth);
-    if (Number.isNaN(dob.getTime())) {
-      errors.date_of_birth = "Please enter a valid date.";
-    } else if (dob > new Date()) {
-      errors.date_of_birth = "Date of birth cannot be in the future.";
-    } else if (dob.getUTCFullYear() < MIN_BIRTH_YEAR) {
-      errors.date_of_birth = "Please enter a valid date.";
+  // date_of_birth only validated on first set (locked thereafter).
+  if (!dobLocked) {
+    if (!date_of_birth) {
+      errors.date_of_birth = "Please enter your date of birth.";
+    } else {
+      const dob = new Date(date_of_birth);
+      if (Number.isNaN(dob.getTime())) {
+        errors.date_of_birth = "Please enter a valid date.";
+      } else if (dob > new Date()) {
+        errors.date_of_birth = "Date of birth cannot be in the future.";
+      } else if (dob.getUTCFullYear() < MIN_BIRTH_YEAR) {
+        errors.date_of_birth = "Please enter a valid date.";
+      }
     }
   }
 
@@ -136,20 +153,23 @@ export async function updateProfile(
     return { ok: false, errors, message: "Please fix the highlighted fields." };
   }
 
+  const updateData: Record<string, unknown> = {
+    surname,
+    city_id,
+    pincode,
+    gender,
+    email,
+    sub_community_id,
+    bio,
+    openly_contactable,
+  };
+  // Only write the locked fields on first set; never overwrite once present.
+  if (!fullNameLocked) updateData.full_name = full_name;
+  if (!dobLocked) updateData.date_of_birth = date_of_birth;
+
   const { error } = await supabase
     .from("members")
-    .update({
-      full_name,
-      surname,
-      city_id,
-      pincode,
-      gender,
-      date_of_birth,
-      email,
-      sub_community_id,
-      bio,
-      openly_contactable,
-    })
+    .update(updateData)
     .eq("id", user.id);
 
   if (error) {

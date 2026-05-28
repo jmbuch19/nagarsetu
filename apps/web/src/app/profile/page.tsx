@@ -109,7 +109,7 @@ export default async function ProfilePage() {
             Your profile
           </h1>
           {member?.recognised_surname ? (
-            <p className="mt-2 inline-block rounded-full bg-brand-gold/15 px-3 py-1 text-xs font-medium text-brand-gold">
+            <p className="mt-2 inline-block rounded-full bg-brand-success/10 px-3 py-1 text-xs font-medium text-brand-success">
               ✓ Recognised Nagar surname
             </p>
           ) : null}

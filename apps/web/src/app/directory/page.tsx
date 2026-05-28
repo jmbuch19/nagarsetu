@@ -30,6 +30,7 @@ type MemberRow = {
   id: string;
   full_name: string | null;
   surname: string | null;
+  bio: string | null;
   city_id: string | null;
   sub_community_id: string | null;
   trust_level: number;
@@ -37,6 +38,39 @@ type MemberRow = {
   recognised_surname: boolean;
   openly_contactable: boolean;
 };
+
+// Warm one-line intro composed from profile fields + the member's own bio.
+// Pronoun-free by design, so it reads correctly for any gender.
+function article(word: string): string {
+  return /^[aeiou]/i.test(word) ? "an" : "a";
+}
+
+function warmBlurb(
+  m: MemberRow,
+  prof: { profession_name: string; specialty_name: string | null } | undefined,
+  city: City | undefined,
+): string {
+  const name = [m.full_name, m.surname].filter(Boolean).join(" ") || "A fellow Nagar";
+  const role = prof
+    ? prof.specialty_name
+      ? `${prof.profession_name} (${prof.specialty_name})`
+      : prof.profession_name
+    : null;
+  const place = city
+    ? city.country && city.country !== "India"
+      ? `${city.name}, ${city.country}`
+      : city.name
+    : null;
+
+  let sentence = name;
+  if (role && place) sentence += ` is ${article(role)} ${role} from ${place}.`;
+  else if (role) sentence += ` is ${article(role)} ${role}.`;
+  else if (place) sentence += ` is from ${place}.`;
+  else sentence += ".";
+
+  if (m.bio) sentence += ` ${m.bio}`;
+  return sentence;
+}
 
 export default async function DirectoryPage({
   searchParams,
@@ -93,7 +127,7 @@ export default async function DirectoryPage({
   let mq = supabase
     .from("members_directory")
     .select(
-      "id, full_name, surname, city_id, sub_community_id, trust_level, id_verification, recognised_surname, openly_contactable",
+      "id, full_name, surname, bio, city_id, sub_community_id, trust_level, id_verification, recognised_surname, openly_contactable",
     )
     .not("full_name", "is", null)
     .neq("id", user.id)
@@ -233,36 +267,19 @@ export default async function DirectoryPage({
                     </span>
                   ) : null}
                   {m.recognised_surname ? (
-                    <span className="ml-2 rounded-full bg-brand-gold/15 px-2 py-0.5 text-xs font-medium text-brand-gold">
+                    <span className="ml-2 rounded-full bg-brand-success/10 px-2 py-0.5 text-xs font-medium text-brand-success">
                       Nagar surname
                     </span>
                   ) : null}
                 </p>
-                {city ? (
-                  <p className="mt-0.5 text-xs text-brand-text-muted">
-                    {city.name}
-                    {city.state ? `, ${city.state}` : ""} · {city.country}
-                    {m.sub_community_id && subById.get(m.sub_community_id) ? (
-                      <span lang="gu"> · {subById.get(m.sub_community_id)}</span>
-                    ) : null}
-                  </p>
-                ) : null}
+                <p className="mt-1 text-sm leading-relaxed text-brand-text">
+                  {warmBlurb(m, profs[0], city)}
+                </p>
 
-                {profs.length > 0 ? (
-                  <div className="mt-2 flex flex-wrap gap-1.5">
-                    {profs.map((p, i) => (
-                      <span
-                        key={i}
-                        className="rounded-full bg-brand-surface px-2 py-0.5 text-xs text-brand-text"
-                      >
-                        {p.profession_name}
-                        {p.specialty_name ? ` · ${p.specialty_name}` : ""}
-                        {p.profession_status !== "current"
-                          ? ` (${p.profession_status})`
-                          : ""}
-                      </span>
-                    ))}
-                  </div>
+                {m.sub_community_id && subById.get(m.sub_community_id) ? (
+                  <p className="mt-0.5 text-xs text-brand-text-muted" lang="gu">
+                    {subById.get(m.sub_community_id)}
+                  </p>
                 ) : null}
 
                 {caps.length > 0 ? (

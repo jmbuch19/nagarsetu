@@ -102,16 +102,29 @@ export function ProfileForm({
             <label className={labelClass} htmlFor="full_name">
               Full name <span className="text-brand-danger">*</span>
             </label>
-            <input
-              id="full_name"
-              name="full_name"
-              type="text"
-              maxLength={NAME_MAX}
-              autoComplete="given-name"
-              defaultValue={v?.full_name ?? ""}
-              className={inputClass}
-              required
-            />
+            {v?.full_name ? (
+              <>
+                <div
+                  className={`${inputClass} cursor-not-allowed bg-brand-surface/40 text-brand-text-muted`}
+                >
+                  {v.full_name}
+                </div>
+                <p className="mt-1 text-xs text-brand-text-muted">
+                  Your name can&apos;t be changed.
+                </p>
+              </>
+            ) : (
+              <input
+                id="full_name"
+                name="full_name"
+                type="text"
+                maxLength={NAME_MAX}
+                autoComplete="given-name"
+                defaultValue=""
+                className={inputClass}
+                required
+              />
+            )}
             <FieldError msg={err?.full_name} />
           </div>
 
@@ -161,16 +174,29 @@ export function ProfileForm({
             <label className={labelClass} htmlFor="date_of_birth">
               Date of birth <span className="text-brand-danger">*</span>
             </label>
-            <input
-              id="date_of_birth"
-              name="date_of_birth"
-              type="date"
-              max={todayStr}
-              min="1900-01-01"
-              defaultValue={v?.date_of_birth ?? ""}
-              className={inputClass}
-              required
-            />
+            {v?.date_of_birth ? (
+              <>
+                <div
+                  className={`${inputClass} cursor-not-allowed bg-brand-surface/40 text-brand-text-muted`}
+                >
+                  {v.date_of_birth}
+                </div>
+                <p className="mt-1 text-xs text-brand-text-muted">
+                  Your date of birth can&apos;t be changed.
+                </p>
+              </>
+            ) : (
+              <input
+                id="date_of_birth"
+                name="date_of_birth"
+                type="date"
+                max={todayStr}
+                min="1900-01-01"
+                defaultValue=""
+                className={inputClass}
+                required
+              />
+            )}
             <FieldError msg={err?.date_of_birth} />
           </div>
         </div>
