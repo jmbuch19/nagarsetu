@@ -24,6 +24,11 @@ Promote an item into `SPEC.md` + `AGENDA.md` only after the founder decides to d
 - Regional chapter pages (city-wise community hubs)
 - Annual G2G snehmilan event tooling (registration, photos, directory of attendees)
 
+## Creative-contribution platform (founder, 2026-05-28)
+- The new `creative` capability kind captures a member's creative leaning (poetry/art/music/writing) *now*, even before they contribute.
+- Later: give members an **in-app, community-specific platform** to share their creative work — **respecting copyright + verifying genuineness** of authorship. Pairs with the Setusarjan magazine engine (§6): surface members with `creative` capabilities and invite contributions; a curated creative gallery beyond the magazine.
+- Encourage-now, contribute-later: a nudge flow that periodically invites `creative` members to submit.
+
 ## Raw / unsorted
 *(drop quick thoughts here; tidy later)*
 -

@@ -114,7 +114,7 @@ function CapabilityFields({
             maxLength={DOMAIN_MAX}
             defaultValue={defaults?.domain ?? ""}
             className={inputClass}
-            placeholder="e.g. Cardiology, Career guidance, College admissions"
+            placeholder="e.g. Cardiology · Career guidance · Gujarati poetry · Elder care · Software roles"
             required
           />
           <FieldError msg={errors?.domain} />

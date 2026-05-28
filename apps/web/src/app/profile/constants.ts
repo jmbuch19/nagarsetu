@@ -54,11 +54,19 @@ export const YEARS_MIN = 0;
 export const YEARS_MAX = 99;
 
 // ── member_capabilities editor (the સેવા opt-ins, SPEC §7.04) ────────────────
-// kind mirrors the CHECK on member_capabilities.kind (migration 0004:
-// 'expert_guidance','mentor','other').
+// kind mirrors the CHECK on member_capabilities.kind (migrations 0004 + 0020).
 export const CAPABILITY_KIND_OPTIONS = [
   { value: "expert_guidance", label: "Expert guidance in my field" },
-  { value: "mentor", label: "Mentoring an aspiring Nagar" },
+  { value: "mentor", label: "Mentor an aspiring Nagar" },
+  {
+    value: "volunteer_time",
+    label: "Give my time (elder care, companionship, community help)",
+  },
+  {
+    value: "creative",
+    label: "Share my creative work (writing, poetry, art, music)",
+  },
+  { value: "open_to_work", label: "Open to work (part-time / full-time)" },
   { value: "other", label: "Something else I can offer" },
 ] as const;
 
