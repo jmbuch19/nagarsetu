@@ -26,7 +26,8 @@ and log each completed unit in `AUDIT.md`. Decisions needed → see `MEMORY.md`.
 ### 2. Auth & identity
 - [ ] Meta WhatsApp OTP via Supabase Auth Hook (approved authentication template); sessions in Supabase
 - [ ] Sign-up gate = mobile + OTP + consent only (Terms + WhatsApp opt-in); NO profile fields here
-- [ ] Profile create/edit — required: name, surname, city, PIN, gender, DOB; optional: email, photo, sub-community, bio (NO home address)
+- [x] Profile create/edit — required: name, surname, city, PIN, gender, DOB; optional: email, sub-community, bio (NO home address)
+- [ ] Profile photo upload — scoped Storage bucket + RLS + type/size checks + upload widget (deferred from profile create/edit; `photo_url` column + grant already exist)
 - [ ] Onboarding nudge: "What can you offer the circle?" — invite at least one offer from every member
 - [ ] Profile surfaces both sides: what the member offers + what they're seeking
 - [ ] member_professions UI (controlled lists only) — cascading profession → specialty (auto-appears), with status (current/retired/studying)
@@ -114,7 +115,8 @@ and log each completed unit in `AUDIT.md`. Decisions needed → see `MEMORY.md`.
 - [ ] LEGAL.md page for drives + precise verification-claim disclaimer
 
 ### 8. Hardening (before any wider release)
-- [ ] Legal/policy pages per `LEGAL.md` (/terms /privacy /refunds /shipping /contact /about /pricing /guidelines /disclaimer /data) + footer & consent CTAs
+- [ ] **DPDP compliance per `DPDP.md`:** `consents` table + granular unbundled withdrawable consent UI; privacy notice in English + Gujarati (versioned); `is_minor` flag + no behavioural targeting of minors; guardian consent on child help-drives; `/data` rights centre (access/correct/erase/export/nominate/grievance); help-drive doc retention/auto-purge + access logging; processor data-terms + Supabase India region; breach runbook + grievance/DPO contact
+- [ ] Legal/policy pages per `LEGAL.md` (/terms /privacy /refunds /shipping /contact /about /pricing /guidelines /disclaimer /data /help-drives) + footer & consent CTAs
 - [ ] Razorpay activation links verified; Meta privacy + data-deletion + opt-in links verified
 - [ ] Email templates per `EMAILS.md` (receipts + OTP fallback ONLY; not a discovery channel)
 - [ ] WhatsApp templates registered + approved (Utility: interest/renewal; Marketing: fortnightly digest; Auth: OTP)

@@ -52,14 +52,22 @@ export default async function Home() {
             Signed in as{" "}
             <span className="font-medium text-brand-text">{user.phone}</span>
           </span>
-          <form action="/auth/sign-out" method="post">
-            <button
-              type="submit"
+          <div className="flex items-center gap-2">
+            <Link
+              href="/profile"
               className="rounded-md border border-brand-border bg-white px-3 py-1.5 text-xs text-brand-text transition hover:border-brand-primary hover:text-brand-primary"
             >
-              Sign out
-            </button>
-          </form>
+              Your profile
+            </Link>
+            <form action="/auth/sign-out" method="post">
+              <button
+                type="submit"
+                className="rounded-md border border-brand-border bg-white px-3 py-1.5 text-xs text-brand-text transition hover:border-brand-primary hover:text-brand-primary"
+              >
+                Sign out
+              </button>
+            </form>
+          </div>
         </div>
       ) : null}
 

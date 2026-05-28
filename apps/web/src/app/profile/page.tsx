@@ -1,0 +1,100 @@
+// Profile create/edit — Phase 1 §2, AGENDA "Profile create/edit".
+//
+// Required: full name, surname, city, PIN, gender, DOB.
+// Optional: email, sub-community, bio. NO home address (city + PIN only,
+// per the "Minimal location" MEMORY decision).
+//
+// DEFERRED to a follow-up sub-slice: profile photo upload. It needs a scoped
+// Storage bucket + storage RLS + type/size validation + an upload widget —
+// its own security surface (see the AUDIT file-upload checklist item). The
+// photo_url column + its column grant already exist (migration 0004/0005).
+//
+// The write path is a server action (./actions.ts) running as the
+// authenticated user, so members RLS + the column grants are the enforcement
+// boundary. This page only reads the caller's own row + the public lookups.
+
+import { redirect } from "next/navigation";
+import { identity } from "@nagarsetu/shared";
+import { createClient } from "@/lib/supabase/server";
+import { ProfileForm, type ProfileValues } from "./profile-form";
+
+export const metadata = {
+  title: `Your profile — ${identity.name.en}`,
+};
+
+const REQUIRED_FIELDS: (keyof ProfileValues)[] = [
+  "full_name",
+  "surname",
+  "city_id",
+  "pincode",
+  "gender",
+  "date_of_birth",
+];
+
+export default async function ProfilePage() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) redirect("/sign-in");
+
+  const [memberRes, citiesRes, subCommunitiesRes] = await Promise.all([
+    supabase
+      .from("members")
+      .select(
+        "full_name, surname, city_id, pincode, gender, date_of_birth, email, sub_community_id, bio",
+      )
+      .eq("id", user.id)
+      .maybeSingle(),
+    supabase
+      .from("cities")
+      .select("id, name, state, country")
+      .eq("status", "approved")
+      .order("country")
+      .order("state")
+      .order("name"),
+    supabase.from("sub_communities").select("id, name").order("name"),
+  ]);
+
+  const member = (memberRes.data ?? null) as ProfileValues | null;
+  const isComplete =
+    member !== null &&
+    REQUIRED_FIELDS.every((f) => member[f] !== null && member[f] !== "");
+
+  return (
+    <main className="flex flex-1 justify-center px-6 py-12">
+      <div className="w-full max-w-2xl">
+        <header className="mb-6">
+          <p className="text-xs tracking-[0.3em] text-brand-text-muted uppercase">
+            {identity.tagline.en}
+          </p>
+          <h1 className="mt-2 text-3xl font-light text-brand-primary">
+            Your profile
+          </h1>
+          <p className="mt-2 text-sm leading-relaxed text-brand-text-muted">
+            A complete profile makes the directory richer for everyone — it&apos;s
+            how fellow Nagars find you, and how you find them. Belonging is free;
+            you only pay a fee when you publish a commercial listing.
+          </p>
+        </header>
+
+        {!isComplete ? (
+          <p className="mb-6 rounded-lg border border-brand-gold/40 bg-brand-gold/10 px-4 py-3 text-sm text-brand-text">
+            Finish the required fields below to complete your profile and unlock
+            the directory.
+          </p>
+        ) : null}
+
+        <div className="rounded-2xl border border-brand-border bg-white p-6 shadow-sm sm:p-8">
+          <ProfileForm
+            phone={user.phone ?? ""}
+            values={member}
+            cities={citiesRes.data ?? []}
+            subCommunities={subCommunitiesRes.data ?? []}
+          />
+        </div>
+      </div>
+    </main>
+  );
+}
