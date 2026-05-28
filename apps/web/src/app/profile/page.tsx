@@ -17,6 +17,12 @@ import { redirect } from "next/navigation";
 import { identity } from "@nagarsetu/shared";
 import { createClient } from "@/lib/supabase/server";
 import { ProfileForm, type ProfileValues } from "./profile-form";
+import {
+  ProfessionsEditor,
+  type Profession,
+  type Specialty,
+  type ProfessionRowData,
+} from "./professions-editor";
 
 export const metadata = {
   title: `Your profile — ${identity.name.en}`,
@@ -39,7 +45,14 @@ export default async function ProfilePage() {
 
   if (!user) redirect("/sign-in");
 
-  const [memberRes, citiesRes, subCommunitiesRes] = await Promise.all([
+  const [
+    memberRes,
+    citiesRes,
+    subCommunitiesRes,
+    professionsRes,
+    specialtiesRes,
+    memberProfessionsRes,
+  ] = await Promise.all([
     supabase
       .from("members")
       .select(
@@ -55,6 +68,18 @@ export default async function ProfilePage() {
       .order("state")
       .order("name"),
     supabase.from("sub_communities").select("id, name").order("name"),
+    supabase.from("professions").select("id, name").order("name"),
+    supabase
+      .from("specialties")
+      .select("id, profession_id, name")
+      .order("name"),
+    supabase
+      .from("member_professions")
+      .select(
+        "id, profession_id, specialty_id, years_experience, expertise_text, status, is_verified",
+      )
+      .eq("member_id", user.id)
+      .order("created_at"),
   ]);
 
   const member = (memberRes.data ?? null) as ProfileValues | null;
@@ -92,6 +117,14 @@ export default async function ProfilePage() {
             values={member}
             cities={citiesRes.data ?? []}
             subCommunities={subCommunitiesRes.data ?? []}
+          />
+        </div>
+
+        <div className="mt-6 rounded-2xl border border-brand-border bg-white p-6 shadow-sm sm:p-8">
+          <ProfessionsEditor
+            professions={(professionsRes.data ?? []) as Profession[]}
+            specialties={(specialtiesRes.data ?? []) as Specialty[]}
+            rows={(memberProfessionsRes.data ?? []) as ProfessionRowData[]}
           />
         </div>
       </div>

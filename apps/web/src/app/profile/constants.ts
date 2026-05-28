@@ -33,3 +33,22 @@ export const UUID_RE =
 // Oldest accepted year of birth — guards typos; not a minor/age gate
 // (DPDP minor handling is a Phase 1 §8 item).
 export const MIN_BIRTH_YEAR = 1900;
+
+// ── member_professions editor ───────────────────────────────────────────────
+// status mirrors the CHECK on member_professions.status (migration 0004:
+// 'current','retired','studying'). Retired expertise still counts; studying
+// marks a mentee candidate (SPEC §7.04).
+export const PROFESSION_STATUS_OPTIONS = [
+  { value: "current", label: "Current" },
+  { value: "retired", label: "Retired" },
+  { value: "studying", label: "Studying" },
+] as const;
+
+export const PROFESSION_STATUS_VALUES: readonly string[] =
+  PROFESSION_STATUS_OPTIONS.map((s) => s.value);
+
+// char_length cap mirrors the CHECK on member_professions.expertise_text.
+export const EXPERTISE_MAX = 280;
+// years_experience CHECK is between 0 and 99 (migration 0004).
+export const YEARS_MIN = 0;
+export const YEARS_MAX = 99;
