@@ -28,6 +28,7 @@ export type ProfileValues = {
   willing_to_donate: boolean | null;
   recognised_surname?: boolean | null;
   deletion_requested_at?: string | null;
+  id_verification?: string | null;
 };
 
 const initialState: ProfileFormState = { ok: false };

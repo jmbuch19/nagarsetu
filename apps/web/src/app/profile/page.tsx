@@ -29,6 +29,7 @@ import {
   type CapabilityRowData,
 } from "./capabilities-editor";
 import { AccountDeletion } from "./account-deletion";
+import { IdVerification } from "./id-verification";
 
 export const metadata = {
   title: `Your profile — ${identity.name.en}`,
@@ -63,7 +64,7 @@ export default async function ProfilePage() {
     supabase
       .from("members")
       .select(
-        "full_name, surname, city_id, pincode, gender, date_of_birth, email, sub_community_id, bio, openly_contactable, recognised_surname, blood_group, willing_to_donate, deletion_requested_at",
+        "full_name, surname, city_id, pincode, gender, date_of_birth, email, sub_community_id, bio, openly_contactable, recognised_surname, blood_group, willing_to_donate, deletion_requested_at, id_verification",
       )
       .eq("id", user.id)
       .maybeSingle(),
@@ -154,6 +155,13 @@ export default async function ProfilePage() {
         <div className="mt-6 rounded-2xl border border-brand-border bg-white p-6 shadow-sm sm:p-8">
           <CapabilitiesEditor
             rows={(memberCapabilitiesRes.data ?? []) as CapabilityRowData[]}
+          />
+        </div>
+
+        <div className="mt-6 rounded-2xl border border-brand-border bg-white p-6 shadow-sm sm:p-8">
+          <IdVerification
+            memberId={user.id}
+            status={member?.id_verification ?? "none"}
           />
         </div>
 
