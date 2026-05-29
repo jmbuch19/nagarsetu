@@ -108,6 +108,37 @@ export function connectionRequestEmail(note: string | null): {
   };
 }
 
+// Warm welcome — a personal note from the (anonymous) founder. જય હાટકેશ opens
+// and closes it; conveys why a self-funded, no-profit community portal matters
+// and why each member's joining strengthens the whole circle.
+export function welcomeEmail(name: string | null): {
+  subject: string;
+  html: string;
+} {
+  const greetName = name ? ` ${esc(name)}` : "";
+  return {
+    subject: "જય હાટકેશ — welcome to the family",
+    html: layout(
+      `<p style="margin:0 0 18px;font-size:20px;color:${TEAL};" lang="gu">જય હાટકેશ</p>` +
+        para(`Welcome${greetName} — and thank you for joining.`) +
+        para(
+          `Jay Hatkesh isn't a company, a startup, or anyone's business venture. It's a quiet, <strong>self-funded labour of love</strong> — built by one fellow Nagar in Ahmedabad, who would rather stay unnamed, for one simple reason: our samaj was once a phone call away, and today we're scattered across cities and continents — yet a fellow Nagar's help, trust, and warmth is still the most valuable thing we have.`,
+        ) +
+        para(
+          `There are <strong>no ads, no investors, no data ever sold, and no commission — ever</strong>. The only purpose is to bring us back within reach of one another: to find a doctor, a mentor, a room, a ride, a blood donor, a tutor — or simply a familiar, trusted hand — among our own people.`,
+        ) +
+        para(
+          `And here is why <strong>your</strong> joining matters. This bridge is only as strong as the Nagars standing on it. Every detail you add to your profile, every skill or moment of time you offer, makes you findable to a fellow Nagar in need — and makes the whole circle more useful for everyone. You're not just signing up; you're becoming part of the answer.`,
+        ) +
+        para(
+          `Please take two minutes to <a href="${APP_URL}/profile" style="color:${TEAL};">complete your profile</a> and tell the circle what you can offer — then explore: Connect, Find, Offer.`,
+        ) +
+        `<p style="margin:18px 0 4px;font-size:15px;line-height:1.6;">With warmth,</p>` +
+        `<p style="margin:0;font-size:15px;color:${MUTED};">— a fellow Nagar · Ahmedabad</p>`,
+    ),
+  };
+}
+
 export function listingPublishedEmail(
   name: string | null,
   title: string,
