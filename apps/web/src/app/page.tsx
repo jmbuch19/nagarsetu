@@ -35,6 +35,7 @@ const BENEFITS = [
   "Reach a willing blood donor in the community when it matters most.",
   "Discover homes, rooms & rides within the community.",
   "Buy from and sell to your own people.",
+  "Contribute your creativity — poems, stories, art & music for the community.",
   "Stand together in genuine need — verified help drives.",
 ] as const;
 
