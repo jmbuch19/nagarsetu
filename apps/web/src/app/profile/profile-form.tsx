@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { GENDER_OPTIONS, BIO_MAX, NAME_MAX, BLOOD_GROUPS } from "./constants";
 import { updateProfile, type ProfileFormState } from "./actions";
 
@@ -47,6 +47,79 @@ function FieldError({ msg }: { msg?: string }) {
   );
 }
 
+const MONTHS = [
+  "January", "February", "March", "April", "May", "June",
+  "July", "August", "September", "October", "November", "December",
+];
+
+// Birthdate as three dropdowns instead of a native <input type="date">.
+// Native date pickers are painful for birthdays on phones (you scroll back
+// through decades) and vary by locale; dropdowns jump straight to any year and
+// are unambiguous. The combined value is written into a hidden `date_of_birth`
+// field as YYYY-MM-DD, so the server action is unchanged. Day-in-month validity
+// (e.g. 31 Feb) is checked server-side.
+function BirthdatePicker() {
+  const [day, setDay] = useState("");
+  const [month, setMonth] = useState("");
+  const [year, setYear] = useState("");
+
+  const currentYear = new Date().getFullYear();
+  const years: number[] = [];
+  for (let y = currentYear; y >= 1900; y--) years.push(y);
+
+  const iso =
+    day && month && year
+      ? `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`
+      : "";
+
+  return (
+    <>
+      <div className="grid grid-cols-3 gap-2">
+        <select
+          aria-label="Day"
+          className={inputClass}
+          value={day}
+          onChange={(e) => setDay(e.target.value)}
+        >
+          <option value="">Day</option>
+          {Array.from({ length: 31 }, (_, i) => i + 1).map((d) => (
+            <option key={d} value={d}>
+              {d}
+            </option>
+          ))}
+        </select>
+        <select
+          aria-label="Month"
+          className={inputClass}
+          value={month}
+          onChange={(e) => setMonth(e.target.value)}
+        >
+          <option value="">Month</option>
+          {MONTHS.map((m, i) => (
+            <option key={m} value={i + 1}>
+              {m}
+            </option>
+          ))}
+        </select>
+        <select
+          aria-label="Year"
+          className={inputClass}
+          value={year}
+          onChange={(e) => setYear(e.target.value)}
+        >
+          <option value="">Year</option>
+          {years.map((y) => (
+            <option key={y} value={y}>
+              {y}
+            </option>
+          ))}
+        </select>
+      </div>
+      <input type="hidden" name="date_of_birth" value={iso} />
+    </>
+  );
+}
+
 export function ProfileForm({
   phone,
   values,
@@ -65,7 +138,6 @@ export function ProfileForm({
 
   const v = values;
   const err = state.errors;
-  const todayStr = new Date().toISOString().slice(0, 10);
 
   // Group cities by country for <optgroup>. The query already orders by
   // country → state → name, so insertion order is correct.
@@ -191,16 +263,7 @@ export function ProfileForm({
                 </p>
               </>
             ) : (
-              <input
-                id="date_of_birth"
-                name="date_of_birth"
-                type="date"
-                max={todayStr}
-                min="1900-01-01"
-                defaultValue=""
-                className={inputClass}
-                required
-              />
+              <BirthdatePicker />
             )}
             <FieldError msg={err?.date_of_birth} />
           </div>

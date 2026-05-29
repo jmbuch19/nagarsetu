@@ -36,7 +36,7 @@ export default async function ConnectionsPage() {
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) redirect("/sign-in");
+  if (!user) redirect("/join");
 
   const { data: reqsData } = await supabase
     .from("connection_requests")

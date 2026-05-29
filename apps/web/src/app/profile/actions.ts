@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import {
   BIO_MAX,
@@ -54,12 +55,11 @@ export async function updateProfile(
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (!user) {
-    return {
-      ok: false,
-      message: "Your session has expired. Please sign in again.",
-    };
-  }
+  // Session lapsed between page load and save — send them to the working
+  // re-login (the email path) rather than leaving the form stuck. During the
+  // WhatsApp-OTP test phase /sign-in can't deliver codes, so /join is the way
+  // back in. (Revert to /sign-in at WABA cutover.)
+  if (!user) redirect("/join");
 
   // full_name + date_of_birth are immutable once set (founder rule). Read the
   // current row so we can skip validating/writing them when already locked.
@@ -120,9 +120,12 @@ export async function updateProfile(
     if (!date_of_birth) {
       errors.date_of_birth = "Please enter your date of birth.";
     } else {
-      const dob = new Date(date_of_birth);
+      const dob = new Date(`${date_of_birth}T00:00:00Z`);
       if (Number.isNaN(dob.getTime())) {
         errors.date_of_birth = "Please enter a valid date.";
+      } else if (dob.toISOString().slice(0, 10) !== date_of_birth) {
+        // Rolled-over impossible date (e.g. 31 Feb from the dropdowns).
+        errors.date_of_birth = "Please choose a real calendar date.";
       } else if (dob > new Date()) {
         errors.date_of_birth = "Date of birth cannot be in the future.";
       } else if (dob.getUTCFullYear() < MIN_BIRTH_YEAR) {

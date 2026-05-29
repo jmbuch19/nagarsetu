@@ -80,7 +80,7 @@ export default async function FeedPage({
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) redirect("/sign-in");
+  if (!user) redirect("/join");
 
   // Lookups (shared).
   const [catsRes, citiesRes] = await Promise.all([

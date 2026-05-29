@@ -40,7 +40,7 @@ export default async function RequestsPage() {
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) redirect("/sign-in");
+  if (!user) redirect("/join");
 
   const [reqRes, catsRes] = await Promise.all([
     supabase

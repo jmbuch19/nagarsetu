@@ -24,7 +24,7 @@ export default async function IntelligencePage() {
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) redirect("/sign-in");
+  if (!user) redirect("/join");
 
   const [pulseRes, byProfRes, capsRes] = await Promise.all([
     supabase

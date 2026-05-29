@@ -42,7 +42,7 @@ export default async function ListingsPage() {
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) redirect("/sign-in");
+  if (!user) redirect("/join");
 
   const [listingsRes, catsRes] = await Promise.all([
     supabase

@@ -22,7 +22,7 @@ export default async function LeadsPage() {
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) redirect("/sign-in");
+  if (!user) redirect("/join");
 
   const { data: myListings } = await supabase
     .from("listings")

@@ -90,7 +90,7 @@ export default async function DirectoryPage({
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) redirect("/sign-in");
+  if (!user) redirect("/join");
 
   // Lookups (filter bar + name resolution).
   const [professionsRes, specialtiesRes, citiesRes, subCommunitiesRes] =

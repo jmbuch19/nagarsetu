@@ -15,7 +15,7 @@ export default async function NewListingPage() {
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) redirect("/sign-in");
+  if (!user) redirect("/join");
 
   const [catsRes, citiesRes] = await Promise.all([
     supabase
