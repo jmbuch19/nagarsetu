@@ -178,7 +178,7 @@ export default async function Home({
           className="mt-2 text-5xl font-normal leading-[1.15] text-[#FF5000] sm:text-6xl"
           lang="gu"
         >
-          {identity.name.gu}
+          {identity.name.gu}!
         </p>
         <p className="mt-10 max-w-xl text-lg leading-relaxed text-brand-text sm:text-xl">
           {BELONGING_LINE}
@@ -241,7 +241,7 @@ export default async function Home({
         </p>
         <p className="text-sm text-brand-text-muted">{motto.en}</p>
         <p className="mt-6 text-base text-[#FF5000] sm:text-lg" lang="gu">
-          {salutation.gu}
+          {salutation.gu}!
         </p>
         <nav className="mt-6 flex flex-wrap justify-center gap-x-4 gap-y-1 text-xs text-brand-text-muted">
           <Link href="/faq" className="hover:text-brand-primary">
