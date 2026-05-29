@@ -27,6 +27,8 @@ type DirRow = {
   full_name: string | null;
   surname: string | null;
   openly_contactable: boolean;
+  city_id: string | null;
+  id_verification: string;
 };
 
 export default async function ConnectionsPage() {
@@ -49,16 +51,42 @@ export default async function ConnectionsPage() {
   const dirRes = otherIds.length
     ? await supabase
         .from("members_directory")
-        .select("id, full_name, surname, openly_contactable")
+        .select("id, full_name, surname, openly_contactable, city_id, id_verification")
         .in("id", otherIds)
     : { data: [] as DirRow[] };
-  const memberById = new Map(
-    ((dirRes.data ?? []) as DirRow[]).map((d) => [d.id, d]),
-  );
-  const nameOf = (id: string) => {
+  const dir = (dirRes.data ?? []) as DirRow[];
+  const memberById = new Map(dir.map((d) => [d.id, d]));
+
+  const cityIds = [...new Set(dir.map((d) => d.city_id).filter(Boolean))] as string[];
+  const citiesRes = cityIds.length
+    ? await supabase.from("cities").select("id, name").in("id", cityIds)
+    : { data: [] as { id: string; name: string }[] };
+  const cityName = new Map((citiesRes.data ?? []).map((c) => [c.id, c.name as string]));
+
+  // Name + a disambiguator (city + verified ✓) so two same-name members are
+  // never shown by name alone.
+  const memberLabel = (id: string) => {
     const m = memberById.get(id);
-    const name = m ? [m.full_name, m.surname].filter(Boolean).join(" ") : "";
-    return name || "A member";
+    const name = m
+      ? [m.full_name, m.surname].filter(Boolean).join(" ") || "A member"
+      : "A member";
+    const city = m?.city_id ? cityName.get(m.city_id) : null;
+    return (
+      <>
+        {name}
+        {city ? (
+          <span className="font-normal text-brand-text-muted"> · {city}</span>
+        ) : null}
+        {m?.id_verification === "verified" ? (
+          <span
+            className="ml-1 text-xs text-brand-success"
+            title="ID-verified"
+          >
+            ✓
+          </span>
+        ) : null}
+      </>
+    );
   };
 
   const incomingPending = reqs.filter(
@@ -105,7 +133,7 @@ export default async function ConnectionsPage() {
               >
                 <div className="min-w-0">
                   <p className="font-medium text-brand-text">
-                    {nameOf(r.requester_id)}
+                    {memberLabel(r.requester_id)}
                   </p>
                   {r.note ? (
                     <p className="mt-1 text-sm text-brand-text">{r.note}</p>
@@ -143,7 +171,9 @@ export default async function ConnectionsPage() {
                   key={r.id}
                   className="flex items-center justify-between gap-3 rounded-2xl border border-brand-border bg-white p-4 shadow-sm"
                 >
-                  <p className="font-medium text-brand-text">{nameOf(other)}</p>
+                  <p className="font-medium text-brand-text">
+                    {memberLabel(other)}
+                  </p>
                   <ConnectButton
                     recipientId={other}
                     openlyContactable={
@@ -173,7 +203,7 @@ export default async function ConnectionsPage() {
                 className="flex items-center justify-between gap-3 rounded-2xl border border-brand-border bg-white p-4 shadow-sm"
               >
                 <p className="font-medium text-brand-text">
-                  {nameOf(r.recipient_id)}
+                  {memberLabel(r.recipient_id)}
                 </p>
                 <span className="text-sm text-brand-text-muted">
                   Awaiting response

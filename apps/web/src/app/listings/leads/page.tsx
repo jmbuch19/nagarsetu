@@ -43,18 +43,48 @@ export default async function LeadsPage() {
   const inquiries = (inqRes.data ?? []) as Inquiry[];
 
   const seekerIds = [...new Set(inquiries.map((i) => i.seeker_id))];
+  type SeekerRow = {
+    id: string;
+    full_name: string | null;
+    surname: string | null;
+    city_id: string | null;
+    id_verification: string;
+  };
   const seekersRes = seekerIds.length
     ? await supabase
         .from("members_directory")
-        .select("id, full_name, surname")
+        .select("id, full_name, surname, city_id, id_verification")
         .in("id", seekerIds)
-    : { data: [] as { id: string; full_name: string | null; surname: string | null }[] };
-  const seekerName = new Map(
-    (seekersRes.data ?? []).map((s) => [
-      s.id,
-      [s.full_name, s.surname].filter(Boolean).join(" ") || "A member",
-    ]),
-  );
+    : { data: [] as SeekerRow[] };
+  const seekers = (seekersRes.data ?? []) as SeekerRow[];
+  const seekerById = new Map(seekers.map((s) => [s.id, s]));
+
+  const cityIds = [...new Set(seekers.map((s) => s.city_id).filter(Boolean))] as string[];
+  const citiesRes = cityIds.length
+    ? await supabase.from("cities").select("id, name").in("id", cityIds)
+    : { data: [] as { id: string; name: string }[] };
+  const cityName = new Map((citiesRes.data ?? []).map((c) => [c.id, c.name as string]));
+
+  const seekerLabel = (id: string) => {
+    const s = seekerById.get(id);
+    const name = s
+      ? [s.full_name, s.surname].filter(Boolean).join(" ") || "A member"
+      : "A member";
+    const city = s?.city_id ? cityName.get(s.city_id) : null;
+    return (
+      <>
+        {name}
+        {city ? (
+          <span className="font-normal text-brand-text-muted"> · {city}</span>
+        ) : null}
+        {s?.id_verification === "verified" ? (
+          <span className="ml-1 text-xs text-brand-success" title="ID-verified">
+            ✓
+          </span>
+        ) : null}
+      </>
+    );
+  };
 
   return (
     <main className="mx-auto w-full max-w-3xl flex-1 px-6 py-10">
@@ -87,7 +117,7 @@ export default async function LeadsPage() {
             >
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <p className="font-medium text-brand-text">
-                  {seekerName.get(i.seeker_id)}
+                  {seekerLabel(i.seeker_id)}
                 </p>
                 <span className="text-xs text-brand-text-muted">
                   {listingTitle.get(i.listing_id) ?? "—"} ·{" "}
