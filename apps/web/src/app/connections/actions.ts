@@ -2,6 +2,8 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { sendEmail } from "@/lib/email/send";
+import { connectionRequestEmail } from "@/lib/email/templates";
 
 const UUID_RE =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -57,6 +59,16 @@ export async function requestConnection(
       ok: false,
       message: "Could not send your request. Please try again.",
     };
+  }
+
+  // Best-effort notification email (test phase). The request now links us, so
+  // get_member_email returns the recipient's email.
+  const { data: recipientEmail } = await supabase.rpc("get_member_email", {
+    p_member_id: recipient_id,
+  });
+  if (typeof recipientEmail === "string" && recipientEmail) {
+    const { subject, html } = connectionRequestEmail(note || null);
+    await sendEmail({ to: recipientEmail, subject, html });
   }
 
   revalidatePath("/directory");

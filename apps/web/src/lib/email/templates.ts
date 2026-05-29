@@ -76,6 +76,38 @@ export function deletionCancelledEmail(name: string | null): {
   };
 }
 
+// ── Cross-member notifications (TEMPORARY test-phase — move to WhatsApp at
+// WABA cutover). Recipient names are not included (privacy + the in-app
+// inbox shows who); the note, if any, is escaped. ──────────────────────────
+export function leadEmail(listingTitle: string): {
+  subject: string;
+  html: string;
+} {
+  return {
+    subject: "Someone's interested in your listing",
+    html: layout(
+      para("Hello,") +
+        para(`A fellow Nagar is interested in your listing <strong>“${esc(listingTitle)}”</strong>.`) +
+        para(`Open <a href="${APP_URL}/listings/leads" style="color:${TEAL};">Your leads</a> to see who and continue the conversation.`),
+    ),
+  };
+}
+
+export function connectionRequestEmail(note: string | null): {
+  subject: string;
+  html: string;
+} {
+  return {
+    subject: "New connection request on Jay Hatkesh",
+    html: layout(
+      para("Hello,") +
+        para(`A fellow Nagar would like to connect with you.`) +
+        (note ? para(`They wrote: <em>“${esc(note)}”</em>`) : "") +
+        para(`Open <a href="${APP_URL}/connections" style="color:${TEAL};">Your connections</a> to approve and share contact.`),
+    ),
+  };
+}
+
 export function listingPublishedEmail(
   name: string | null,
   title: string,

@@ -2,6 +2,8 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { sendEmail } from "@/lib/email/send";
+import { leadEmail } from "@/lib/email/templates";
 
 const UUID_RE =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -34,6 +36,23 @@ export async function expressInterest(
   });
   if (insErr)
     return { ok: false, message: "Could not record your interest. Please try again." };
+
+  // Best-effort lead email to the provider (test-phase notification). The
+  // inquiry now links us, so get_member_email returns the provider's email.
+  const { data: listing } = await supabase
+    .from("listings")
+    .select("member_id, title")
+    .eq("id", listingId)
+    .maybeSingle();
+  if (listing) {
+    const { data: providerEmail } = await supabase.rpc("get_member_email", {
+      p_member_id: listing.member_id,
+    });
+    if (typeof providerEmail === "string" && providerEmail) {
+      const { subject, html } = leadEmail(listing.title);
+      await sendEmail({ to: providerEmail, subject, html });
+    }
+  }
 
   // Reveal the provider's contact as a wa.me link (definer fn; active only).
   const { data: contact } = await supabase.rpc("get_listing_contact", {
