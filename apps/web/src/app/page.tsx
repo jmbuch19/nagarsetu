@@ -91,7 +91,6 @@ export default async function Home({
     pulse = pulseRes.data;
   }
 
-  const isAdmin = member?.role === "admin";
   const profileComplete = !!(
     member?.full_name &&
     member?.surname &&
@@ -100,52 +99,9 @@ export default async function Home({
     member?.gender &&
     member?.date_of_birth
   );
-  const displayName = member?.full_name ?? user?.email ?? user?.phone ?? null;
 
   return (
     <main className="flex flex-1 flex-col">
-      {/* Signed-in banner — minimal, top-anchored. Members get the rest
-          of the landing as informational context until the in-app home
-          screen ships. */}
-      {user ? (
-        <div className="flex items-center justify-between border-b border-brand-border bg-brand-surface/40 px-6 py-3 text-sm">
-          <span className="text-brand-text-muted">
-            Signed in as{" "}
-            <span className="font-medium text-brand-text">{displayName}</span>
-          </span>
-          <div className="flex items-center gap-2">
-            <Link
-              href="/directory"
-              className="rounded-md border border-brand-border bg-white px-3 py-1.5 text-xs text-brand-text transition hover:border-brand-primary hover:text-brand-primary"
-            >
-              Directory
-            </Link>
-            <Link
-              href="/profile"
-              className="rounded-md border border-brand-border bg-white px-3 py-1.5 text-xs text-brand-text transition hover:border-brand-primary hover:text-brand-primary"
-            >
-              Your profile
-            </Link>
-            {isAdmin ? (
-              <Link
-                href="/admin/verifications"
-                className="rounded-md border border-brand-border bg-white px-3 py-1.5 text-xs text-brand-accent transition hover:border-brand-accent"
-              >
-                Admin
-              </Link>
-            ) : null}
-            <form action="/auth/sign-out" method="post">
-              <button
-                type="submit"
-                className="rounded-md border border-brand-border bg-white px-3 py-1.5 text-xs text-brand-text transition hover:border-brand-primary hover:text-brand-primary"
-              >
-                Sign out
-              </button>
-            </form>
-          </div>
-        </div>
-      ) : null}
-
       {user ? (
         <SignedInHome
           name={member?.full_name ?? null}
@@ -222,6 +178,15 @@ export default async function Home({
             >
               Join the community
             </Link>
+            {/* Returning members land here logged-out; give them a way back in.
+                Test phase → /join (the working email login) since WhatsApp OTP
+                /sign-in can't deliver yet. Revert to /sign-in at WABA cutover. */}
+            <p className="mt-3 text-sm text-brand-text-muted">
+              Community member already?{" "}
+              <Link href="/join" className="font-medium text-brand-primary underline">
+                Log in here
+              </Link>
+            </p>
             <p className="mt-4 text-xs text-brand-text-muted">
               Free to belong · listing fee only when you post a commercial
               offer
