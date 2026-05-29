@@ -204,8 +204,10 @@ export default async function Home({
           {/* CTA — "Join the community" (warmer than "Sign in") per the
               locked landing framing. */}
           <section className="flex flex-col items-center px-6 py-12">
+            {/* Test phase: CTA → /join (email onboarding) while WhatsApp OTP
+                sign-in is being finalised. Revert to /sign-in at WABA cutover. */}
             <Link
-              href="/sign-in"
+              href="/join"
               className="inline-block rounded-lg bg-brand-primary px-8 py-3 text-base font-medium text-white shadow-sm transition hover:bg-brand-primary-dark sm:text-lg"
             >
               Join the community

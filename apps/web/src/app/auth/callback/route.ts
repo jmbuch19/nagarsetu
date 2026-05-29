@@ -18,5 +18,5 @@ export async function GET(request: Request) {
     }
   }
 
-  return NextResponse.redirect(new URL("/test-sign-in?error=auth", url.origin));
+  return NextResponse.redirect(new URL("/join?error=auth", url.origin));
 }
