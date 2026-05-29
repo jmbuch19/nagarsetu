@@ -115,19 +115,18 @@ export default async function DirectoryPage({
   // Step 1 — narrow to members matching a profession/specialty filter.
   let candidateIds: string[] | null = null;
   if (fProfession || fSpecialty) {
-    let q = supabase.from("member_profession_directory").select("member_id");
+    let q = supabase.rpc("member_profession_directory").select("member_id");
     if (fProfession) q = q.eq("profession_id", fProfession);
     if (fSpecialty) q = q.eq("specialty_id", fSpecialty);
     const { data } = await q;
-    candidateIds = [
-      ...new Set((data ?? []).map((r) => r.member_id as string)),
-    ];
+    const rows = (data ?? []) as { member_id: string }[];
+    candidateIds = [...new Set(rows.map((r) => r.member_id))];
     if (candidateIds.length === 0) candidateIds = [PLACEHOLDER_EMPTY];
   }
 
   // Step 2 — the member list (completed profiles, excluding self).
   let mq = supabase
-    .from("members_directory")
+    .rpc("members_directory")
     .select(
       "id, full_name, surname, bio, city_id, sub_community_id, trust_level, id_verification, recognised_surname, openly_contactable, donor_blood_group",
     )
@@ -148,13 +147,13 @@ export default async function DirectoryPage({
   const [profsRes, capsRes, reqsRes] = await Promise.all([
     ids.length
       ? supabase
-          .from("member_profession_directory")
+          .rpc("member_profession_directory")
           .select("member_id, profession_name, specialty_name, profession_status")
           .in("member_id", ids)
       : Promise.resolve({ data: [] as unknown[] }),
     ids.length
       ? supabase
-          .from("member_capability_directory")
+          .rpc("member_capability_directory")
           .select("member_id, capability_kind, capability_domain")
           .eq("is_offered", true)
           .in("member_id", ids)

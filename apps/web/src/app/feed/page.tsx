@@ -137,7 +137,7 @@ export default async function FeedPage({
   ];
   const ownersRes = ownerIds.length
     ? await supabase
-        .from("members_directory")
+        .rpc("members_directory")
         .select("id, full_name, surname, id_verification")
         .in("id", ownerIds)
     : { data: [] as Owner[] };

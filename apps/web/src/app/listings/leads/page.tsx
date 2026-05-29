@@ -52,7 +52,7 @@ export default async function LeadsPage() {
   };
   const seekersRes = seekerIds.length
     ? await supabase
-        .from("members_directory")
+        .rpc("members_directory")
         .select("id, full_name, surname, city_id, id_verification")
         .in("id", seekerIds)
     : { data: [] as SeekerRow[] };

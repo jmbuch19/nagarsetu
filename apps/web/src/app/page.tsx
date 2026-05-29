@@ -83,7 +83,7 @@ export default async function Home({
         .eq("id", user.id)
         .maybeSingle(),
       supabase
-        .from("community_pulse")
+        .rpc("community_pulse")
         .select("total_members, total_cities_represented, total_professionals")
         .maybeSingle(),
     ]);

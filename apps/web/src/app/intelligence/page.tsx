@@ -28,23 +28,27 @@ export default async function IntelligencePage() {
 
   const [pulseRes, byProfRes, capsRes] = await Promise.all([
     supabase
-      .from("community_pulse")
+      .rpc("community_pulse")
       .select(
         "total_members, total_professionals, total_doctors, total_cities_represented",
       )
       .maybeSingle(),
     supabase
-      .from("community_pulse_by_profession")
+      .rpc("community_pulse_by_profession")
       .select("profession_id, profession_name, member_count")
       .gt("member_count", 0),
     supabase
-      .from("member_capability_directory")
+      .rpc("member_capability_directory")
       .select("member_id, capability_kind")
       .eq("is_offered", true),
   ]);
 
   const pulse = pulseRes.data;
-  const byProfession = byProfRes.data ?? [];
+  const byProfession = (byProfRes.data ?? []) as {
+    profession_id: string;
+    profession_name: string;
+    member_count: number;
+  }[];
 
   // Capability layer: distinct members per kind (a member may offer several).
   const byKind = new Map<string, Set<string>>();
