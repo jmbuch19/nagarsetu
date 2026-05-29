@@ -7,10 +7,22 @@ import { createClient } from "@/lib/supabase/server";
 import { sendEmail } from "@/lib/email/send";
 import { welcomeEmail } from "@/lib/email/templates";
 
+// Only same-origin relative paths are allowed as a post-auth destination.
+// Anything absolute ("https://evil.com"), protocol-relative ("//evil.com"),
+// or backslash-tricked ("/\\evil.com") is rejected — otherwise the callback
+// becomes an open redirect that fires right after a successful session
+// exchange (a phishing vector).
+function safeNext(raw: string | null): string {
+  if (!raw || !raw.startsWith("/") || raw.startsWith("//") || raw.startsWith("/\\")) {
+    return "/profile";
+  }
+  return raw;
+}
+
 export async function GET(request: Request) {
   const url = new URL(request.url);
   const code = url.searchParams.get("code");
-  const next = url.searchParams.get("next") ?? "/profile";
+  const next = safeNext(url.searchParams.get("next"));
 
   if (code) {
     const supabase = await createClient();

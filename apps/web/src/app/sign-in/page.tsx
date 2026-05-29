@@ -107,6 +107,17 @@ export default function SignInPage() {
           </p>
         </header>
 
+        {/* Test-phase escape hatch: WhatsApp OTP isn't live yet, so anyone who
+            joined by email (or was redirected here after a session lapse) must
+            re-enter via the email path. Remove at WABA cutover. */}
+        <div className="mb-6 rounded-lg border border-brand-border bg-brand-surface/50 p-3 text-center text-sm text-brand-text">
+          Joined with your email during our early test phase?{" "}
+          <Link href="/join" className="font-medium text-brand-primary underline">
+            Continue with email
+          </Link>
+          .
+        </div>
+
         {step === "phone" ? (
           <form onSubmit={handleSendOtp} className="space-y-5">
             <div>
