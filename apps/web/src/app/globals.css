@@ -37,3 +37,20 @@ body {
   color: var(--foreground);
   font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans Gujarati", sans-serif;
 }
+
+/* Community rail — slow ambient auto-scroll. The track holds the items twice;
+   translating -50% loops seamlessly. Pauses on hover so members can read/act,
+   and stops entirely for anyone who prefers reduced motion. */
+@keyframes rail-scroll {
+  from { transform: translateY(0); }
+  to { transform: translateY(-50%); }
+}
+.rail-track {
+  animation: rail-scroll 60s linear infinite;
+}
+.rail-track:hover {
+  animation-play-state: paused;
+}
+@media (prefers-reduced-motion: reduce) {
+  .rail-track { animation: none; }
+}

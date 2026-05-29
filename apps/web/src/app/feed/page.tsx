@@ -11,6 +11,7 @@ import { createClient } from "@/lib/supabase/server";
 import { FeedFilters, type City, type Lookup } from "./feed-filters";
 import { ConnectListing } from "./connect-listing";
 import { ActiveDrivesBanner } from "../active-drives";
+import { CommunityRail } from "../community-rail";
 import { RespondRequest } from "../requests/respond-request";
 
 export const metadata = { title: `Feed — ${identity.name.en}` };
@@ -169,6 +170,7 @@ export default async function FeedPage({
   return (
     <>
       <ActiveDrivesBanner />
+      <CommunityRail />
       <main className="mx-auto w-full max-w-3xl flex-1 px-6 py-10">
       <header className="mb-4 flex items-end justify-between gap-4">
         <div>

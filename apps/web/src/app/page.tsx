@@ -25,6 +25,7 @@ import { identity, motto, salutation } from "@nagarsetu/shared";
 import { createClient } from "@/lib/supabase/server";
 import { SignedInHome } from "./signed-in-home";
 import { ActiveDrivesBanner } from "./active-drives";
+import { CommunityRail } from "./community-rail";
 
 const BELONGING_LINE = "The digital home of the Nagar samaj — worldwide.";
 
@@ -105,6 +106,8 @@ export default async function Home({
     <main className="flex flex-1 flex-col">
       {/* Active community drives — public, shown to members + guests alike. */}
       <ActiveDrivesBanner />
+      {/* Ambient "happening now" rail/section — members only (self-gates). */}
+      <CommunityRail />
 
       {user ? (
         <SignedInHome
