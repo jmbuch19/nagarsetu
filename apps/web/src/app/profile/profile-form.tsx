@@ -1,7 +1,15 @@
 "use client";
 
 import { useActionState, useState } from "react";
-import { GENDER_OPTIONS, BIO_MAX, NAME_MAX, BLOOD_GROUPS } from "./constants";
+import {
+  GENDER_OPTIONS,
+  BIO_MAX,
+  NAME_MAX,
+  BLOOD_GROUPS,
+  MARITAL_STATUS_OPTIONS,
+  MATRIMONY_ELIGIBLE,
+  MATRIMONY_SEEKING_OPTIONS,
+} from "./constants";
 import { updateProfile, type ProfileFormState } from "./actions";
 
 export type City = {
@@ -26,6 +34,9 @@ export type ProfileValues = {
   openly_contactable: boolean | null;
   blood_group: string | null;
   willing_to_donate: boolean | null;
+  marital_status: string | null;
+  open_to_matrimony: boolean | null;
+  matrimony_seeking: string | null;
   recognised_surname?: boolean | null;
   deletion_requested_at?: string | null;
   id_verification?: string | null;
@@ -138,6 +149,9 @@ export function ProfileForm({
 
   const v = values;
   const err = state.errors;
+  // Marital status drives the conditional matrimony opt-in (single/divorced/
+  // widowed only), so it's controlled.
+  const [maritalStatus, setMaritalStatus] = useState(v?.marital_status ?? "");
 
   // Group cities by country for <optgroup>. The query already orders by
   // country → state → name, so insertion order is correct.
@@ -440,6 +454,56 @@ export function ProfileForm({
               18–65 donation age range).
             </p>
           </div>
+        </div>
+
+        <div className="grid gap-5 sm:grid-cols-2">
+          <div>
+            <label className={labelClass} htmlFor="marital_status">
+              Marital status
+            </label>
+            <select
+              id="marital_status"
+              name="marital_status"
+              value={maritalStatus}
+              onChange={(e) => setMaritalStatus(e.target.value)}
+              className={inputClass}
+            >
+              <option value="">Prefer not to say</option>
+              {MARITAL_STATUS_OPTIONS.filter(
+                (m) => m.value !== "prefer_not_to_say",
+              ).map((m) => (
+                <option key={m.value} value={m.value}>
+                  {m.label}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {MATRIMONY_ELIGIBLE.includes(maritalStatus) ? (
+            <div>
+              <label className={labelClass} htmlFor="matrimony_seeking">
+                Open to matrimony?
+              </label>
+              <select
+                id="matrimony_seeking"
+                name="matrimony_seeking"
+                defaultValue={v?.matrimony_seeking ?? ""}
+                className={inputClass}
+              >
+                <option value="">Not looking right now</option>
+                {MATRIMONY_SEEKING_OPTIONS.map((s) => (
+                  <option key={s.value} value={s.value}>
+                    Looking — {s.label.toLowerCase()}
+                  </option>
+                ))}
+              </select>
+              <p className="mt-1 text-xs text-brand-text-muted">
+                Lists you in the community matrimony search — fellow Nagars (and
+                families seeking a match) can find you. Contact still needs your
+                approval. Shown only if you&apos;re 18+.
+              </p>
+            </div>
+          ) : null}
         </div>
 
         <label className="flex items-start gap-2 text-sm text-brand-text">

@@ -34,6 +34,7 @@ export function DirectoryFilters({
     city: string;
     sub_community: string;
     blood: string;
+    matrimony: string;
   };
 }) {
   const router = useRouter();
@@ -42,6 +43,7 @@ export function DirectoryFilters({
   const [city, setCity] = useState(current.city);
   const [subCommunity, setSubCommunity] = useState(current.sub_community);
   const [blood, setBlood] = useState(current.blood);
+  const [matrimony, setMatrimony] = useState(current.matrimony);
 
   const specialtiesForProfession = useMemo(
     () =>
@@ -68,6 +70,7 @@ export function DirectoryFilters({
     if (city) params.set("city", city);
     if (subCommunity) params.set("sub_community", subCommunity);
     if (blood) params.set("blood", blood);
+    if (matrimony) params.set("matrimony", matrimony);
     const qs = params.toString();
     router.push(qs ? `/directory?${qs}` : "/directory");
   }
@@ -78,10 +81,12 @@ export function DirectoryFilters({
     setCity("");
     setSubCommunity("");
     setBlood("");
+    setMatrimony("");
     router.push("/directory");
   }
 
-  const hasFilters = profession || specialty || city || subCommunity || blood;
+  const hasFilters =
+    profession || specialty || city || subCommunity || blood || matrimony;
 
   return (
     <div className="rounded-2xl border border-brand-border bg-white p-4 shadow-sm">
@@ -186,6 +191,21 @@ export function DirectoryFilters({
                 {g}
               </option>
             ))}
+          </select>
+        </div>
+
+        <div>
+          <label className={labelClass} htmlFor="f-matrimony">
+            Matrimony
+          </label>
+          <select
+            id="f-matrimony"
+            value={matrimony}
+            onChange={(e) => setMatrimony(e.target.value)}
+            className={selectClass}
+          >
+            <option value="">Any</option>
+            <option value="open">Open to matrimony</option>
           </select>
         </div>
       </div>

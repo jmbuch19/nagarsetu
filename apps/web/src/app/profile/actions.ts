@@ -9,6 +9,9 @@ import {
   EMAIL_MAX,
   EMAIL_RE,
   GENDER_VALUES,
+  MARITAL_STATUS_VALUES,
+  MATRIMONY_ELIGIBLE,
+  MATRIMONY_SEEKING_VALUES,
   MIN_BIRTH_YEAR,
   NAME_MAX,
   PINCODE_MAX,
@@ -83,6 +86,8 @@ export async function updateProfile(
   const bioRaw = field(formData, "bio");
   const bloodRaw = field(formData, "blood_group");
   const willingRaw = field(formData, "willing_to_donate");
+  const maritalRaw = field(formData, "marital_status");
+  const seekingRaw = field(formData, "matrimony_seeking");
   // Checkbox: present = opted in to direct contact, absent = request required.
   const openly_contactable = formData.get("openly_contactable") != null;
 
@@ -168,6 +173,18 @@ export async function updateProfile(
   const willing_to_donate: boolean | null =
     willingRaw === "yes" ? true : willingRaw === "no" ? false : null;
 
+  // Matrimony (optional). Only single/divorced/widowed can opt in, and the
+  // "seeking" choice IS the opt-in — anything else means not listed. Lenient:
+  // unrecognised values fall back to not-disclosed rather than erroring.
+  const marital_status: string | null = MARITAL_STATUS_VALUES.includes(maritalRaw)
+    ? maritalRaw
+    : null;
+  const open_to_matrimony =
+    marital_status != null &&
+    MATRIMONY_ELIGIBLE.includes(marital_status) &&
+    MATRIMONY_SEEKING_VALUES.includes(seekingRaw);
+  const matrimony_seeking = open_to_matrimony ? seekingRaw : null;
+
   if (Object.keys(errors).length > 0) {
     return { ok: false, errors, message: "Please fix the highlighted fields." };
   }
@@ -183,6 +200,9 @@ export async function updateProfile(
     openly_contactable,
     blood_group,
     willing_to_donate,
+    marital_status,
+    open_to_matrimony,
+    matrimony_seeking,
   };
   // Only write the locked fields on first set; never overwrite once present.
   if (!fullNameLocked) updateData.full_name = full_name;

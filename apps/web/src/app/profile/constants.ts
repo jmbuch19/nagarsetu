@@ -39,6 +39,30 @@ export const BLOOD_GROUPS = [
   "O-",
 ] as const;
 
+// Matrimony — mirrors the CHECKs on members (migration 0036). marital_status is
+// declared; the opt-in + "seeking" apply only when single/divorced/widowed.
+export const MARITAL_STATUS_OPTIONS = [
+  { value: "single", label: "Single" },
+  { value: "married", label: "Married" },
+  { value: "divorced", label: "Divorced" },
+  { value: "widowed", label: "Widowed" },
+  { value: "prefer_not_to_say", label: "Prefer not to say" },
+] as const;
+export const MARITAL_STATUS_VALUES: readonly string[] =
+  MARITAL_STATUS_OPTIONS.map((m) => m.value);
+export const MATRIMONY_ELIGIBLE: readonly string[] = [
+  "single",
+  "divorced",
+  "widowed",
+];
+export const MATRIMONY_SEEKING_OPTIONS = [
+  { value: "bride", label: "A bride" },
+  { value: "groom", label: "A groom" },
+  { value: "companion", label: "A life companion" },
+] as const;
+export const MATRIMONY_SEEKING_VALUES: readonly string[] =
+  MATRIMONY_SEEKING_OPTIONS.map((s) => s.value);
+
 export const UUID_RE =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
