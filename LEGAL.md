@@ -22,6 +22,7 @@ a lawyer before launch. They must stay consistent with the connector-only model 
 | Community Guidelines | `/guidelines` | app (broadcasts, listings, conduct) |
 | Connector Disclaimer | `/disclaimer` (or within Terms) | app (every transaction-implying surface) |
 | Help Drives Policy | `/help-drives` | app (donation drives — verification claim + connector) |
+| FAQ | `/faq` | app (community-voiced; warm, persuasive) |
 | Data Deletion / Manage My Data | `/data` | **Meta (mandatory for app review)** |
 | WhatsApp Opt-in & Messaging Policy | section in `/privacy` | **Meta (mandatory)** |
 

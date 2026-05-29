@@ -122,7 +122,8 @@ and log each completed unit in `AUDIT.md`. Decisions needed → see `MEMORY.md`.
 
 ### 8. Hardening (before any wider release)
 - [ ] **DPDP compliance per `DPDP.md`:** `consents` table + granular unbundled withdrawable consent UI; privacy notice in English + Gujarati (versioned); `is_minor` flag + no behavioural targeting of minors; guardian consent on child help-drives; `/data` rights centre (access/correct/erase/export/nominate/grievance); help-drive doc retention/auto-purge + access logging; processor data-terms + Supabase India region; breach runbook + grievance/DPO contact
-- [ ] Legal/policy pages per `LEGAL.md` (/terms /privacy /refunds /shipping /contact /about /pricing /guidelines /disclaimer /data /help-drives) + footer & consent CTAs
+- [ ] Legal/policy pages per `LEGAL.md` (/terms /privacy /refunds /shipping /contact /about /pricing /guidelines /disclaimer /data /help-drives /faq) + footer & consent CTAs
+- [ ] Publish `/faq` from FAQ.md — render in warm community voice with Gujarati-first typography; link in footer and on the landing page near "Sign in"
 - [ ] Razorpay activation links verified; Meta privacy + data-deletion + opt-in links verified
 - [ ] Email templates per `EMAILS.md` (receipts + OTP fallback ONLY; not a discovery channel)
 - [ ] WhatsApp templates registered + approved (Utility: interest/renewal; Marketing: fortnightly digest; Auth: OTP)

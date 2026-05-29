@@ -80,5 +80,5 @@ Full functional detail is in `SPEC.md`. Background narrative is in `CONCEPT.md`.
 | `LEGAL.md` | Required legal/policy pages, footer/consent CTAs, Meta + Razorpay link checklists. |
 | `DPDP.md` | India DPDP Act 2023 compliance framework (consent, children, rights, retention). |
 | `EMAILS.md` | Email templates (transactional + digest) + WhatsApp template parity. |
-| `WHATSAPP.md` | Meta WhatsApp Cloud API ops: WABA setup, Auth/Utility/Marketing templates, hook wiring. |
+| `FAQ.md` | Community-voiced FAQ for the /faq page (warm, fellow-Nagar voice). |
 | `IDEAS.md` | Parking lot for deferred ideas. |
