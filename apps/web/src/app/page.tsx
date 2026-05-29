@@ -165,7 +165,7 @@ export default async function Home({
           {identity.name.en}
         </h1>
         <p
-          className="mt-2 text-5xl font-normal leading-[1.15] text-brand-primary-dark sm:text-6xl"
+          className="mt-2 text-5xl font-normal leading-[1.15] text-[#FF5000] sm:text-6xl"
           lang="gu"
         >
           {identity.name.gu}
@@ -230,7 +230,7 @@ export default async function Home({
           {motto.gu}
         </p>
         <p className="text-sm text-brand-text-muted">{motto.en}</p>
-        <p className="mt-6 text-base text-brand-primary-dark sm:text-lg" lang="gu">
+        <p className="mt-6 text-base text-[#FF5000] sm:text-lg" lang="gu">
           {salutation.gu}
         </p>
       </footer>
