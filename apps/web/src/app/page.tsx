@@ -172,7 +172,7 @@ export default async function Home({
           {identity.tagline.en}
         </p>
         <h1 className="mt-6 text-5xl font-light tracking-tight text-brand-primary sm:text-6xl">
-          {identity.name.en}
+          {identity.name.en}!
         </h1>
         <p
           className="mt-2 text-5xl font-normal leading-[1.15] text-[#FF5000] sm:text-6xl"

@@ -24,7 +24,7 @@ function layout(bodyHtml: string): string {
   <div style="max-width:560px;margin:0 auto;padding:32px 24px;">
     <img src="${APP_URL}/brand/emblem.png" alt="Jay Hatkesh" width="56" height="48" style="display:block;border:0;outline:none;margin:0 0 12px;" />
     <p style="margin:0 0 4px;font-size:11px;letter-spacing:3px;text-transform:uppercase;color:${MUTED};">Nagarsetu — bridge of the community</p>
-    <h1 style="margin:0 0 24px;font-size:26px;font-weight:300;color:${TEAL};">Jay Hatkesh</h1>
+    <h1 style="margin:0 0 24px;font-size:26px;font-weight:300;color:${TEAL};">Jay Hatkesh!</h1>
     ${bodyHtml}
     <hr style="border:none;border-top:1px solid #DCE6DD;margin:28px 0 16px;" />
     <p style="margin:0;font-size:12px;color:${MUTED};">
