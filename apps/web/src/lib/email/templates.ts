@@ -156,3 +156,23 @@ export function listingPublishedEmail(
     ),
   };
 }
+
+// Contact / suggestion query → sent to the project inbox; reply-to is the
+// submitter (set in the action) so the founder can reply directly.
+export function contactQueryEmail(
+  name: string,
+  email: string,
+  phone: string,
+  message: string,
+): { subject: string; html: string } {
+  return {
+    subject: `New query from ${esc(name)}`,
+    html: layout(
+      para(`<strong>From:</strong> ${esc(name)}`) +
+        para(`<strong>Email:</strong> ${esc(email)}`) +
+        (phone ? para(`<strong>Phone:</strong> ${esc(phone)}`) : "") +
+        para(`<strong>Message:</strong>`) +
+        `<p style="margin:0 0 14px;font-size:15px;line-height:1.6;white-space:pre-wrap;">${esc(message)}</p>`,
+    ),
+  };
+}

@@ -234,6 +234,20 @@ export default async function Home({
         <p className="mt-6 text-base text-[#FF5000] sm:text-lg" lang="gu">
           {salutation.gu}
         </p>
+        <nav className="mt-6 flex flex-wrap justify-center gap-x-4 gap-y-1 text-xs text-brand-text-muted">
+          <Link href="/faq" className="hover:text-brand-primary">
+            FAQ
+          </Link>
+          <Link href="/contact" className="hover:text-brand-primary">
+            Contact
+          </Link>
+          <Link href="/terms" className="hover:text-brand-primary">
+            Terms
+          </Link>
+          <Link href="/privacy" className="hover:text-brand-primary">
+            Privacy
+          </Link>
+        </nav>
       </footer>
     </main>
   );
