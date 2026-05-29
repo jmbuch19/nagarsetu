@@ -18,6 +18,7 @@
 // mission framing. Signed-in members get the intent hub (SignedInHome —
 // Connect / Find / Offer, SPEC §7.05) instead of this marketing landing.
 
+import Image from "next/image";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { identity, motto, salutation } from "@nagarsetu/shared";
@@ -158,7 +159,15 @@ export default async function Home({
       {/* HERO — job #1: signal belonging. Gujarati title co-equal with
           English (same font-size class, slightly different weight for
           visual rhythm). */}
-      <section className="flex flex-col items-center px-6 pt-20 pb-12 text-center sm:pt-28">
+      <section className="flex flex-col items-center px-6 pt-16 pb-12 text-center sm:pt-20">
+        <Image
+          src="/brand/emblem.png"
+          alt={`${identity.name.en} emblem`}
+          width={280}
+          height={242}
+          priority
+          className="mb-8 h-24 w-auto sm:h-28"
+        />
         <p className="text-xs tracking-[0.4em] text-brand-text-muted uppercase">
           {identity.tagline.en}
         </p>
