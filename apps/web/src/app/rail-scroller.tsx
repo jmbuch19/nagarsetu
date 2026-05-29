@@ -2,13 +2,23 @@
 
 import { ConnectListing } from "./feed/connect-listing";
 import { RespondRequest } from "./requests/respond-request";
+import { ConnectButton, type Relationship } from "./directory/connect-button";
 
 export type RailItem = {
   key: string;
-  kind: "offer" | "ask";
+  kind: "offer" | "ask" | "matrimony";
   line: string;
   listingId?: string;
   requestId?: string;
+  recipientId?: string;
+  openlyContactable?: boolean;
+  relationship?: Relationship;
+};
+
+const KIND_LABEL: Record<RailItem["kind"], string> = {
+  offer: "Offering",
+  ask: "Looking for",
+  matrimony: "Matrimony",
 };
 
 export function RailCard({ item }: { item: RailItem }) {
@@ -19,12 +29,20 @@ export function RailCard({ item }: { item: RailItem }) {
           item.kind === "offer" ? "text-brand-primary" : "text-brand-accent"
         }`}
       >
-        {item.kind === "offer" ? "Offering" : "Looking for"}
+        {KIND_LABEL[item.kind]}
       </span>
       <p className="mt-1 text-sm leading-relaxed text-brand-text">{item.line}</p>
       <div className="mt-3">
         {item.listingId ? <ConnectListing listingId={item.listingId} /> : null}
         {item.requestId ? <RespondRequest requestId={item.requestId} /> : null}
+        {item.recipientId ? (
+          <ConnectButton
+            recipientId={item.recipientId}
+            openlyContactable={item.openlyContactable ?? false}
+            relationship={item.relationship ?? "none"}
+            context="Matrimony"
+          />
+        ) : null}
       </div>
     </div>
   );

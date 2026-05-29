@@ -53,7 +53,8 @@ returns table (
   openly_contactable boolean,
   donor_blood_group  text,
   open_to_matrimony  boolean,
-  matrimony_seeking  text
+  matrimony_seeking  text,
+  matrimony_age      int
 )
 language sql
 stable
@@ -107,7 +108,17 @@ as $$
        and age(m.date_of_birth) >= interval '18 years'
       then m.matrimony_seeking
       else null
-    end as matrimony_seeking
+    end as matrimony_seeking,
+    -- Exact age, exposed ONLY for matrimony opt-ins (age matters for a match,
+    -- and they consented by opting in). Everyone else keeps age_band only.
+    case
+      when m.open_to_matrimony is true
+       and m.marital_status in ('single', 'divorced', 'widowed')
+       and m.date_of_birth is not null
+       and age(m.date_of_birth) >= interval '18 years'
+      then extract(year from age(m.date_of_birth))::int
+      else null
+    end as matrimony_age
   from public.members m
   where m.deletion_requested_at is null;
 $$;
