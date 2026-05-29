@@ -136,6 +136,7 @@ def_exec as (
     and p.proname in ('get_revealed_contact','get_listing_contact',
                       'get_request_contact','get_member_email',
                       'set_listing_status','admin_review_verification',
+                      'admin_close_post',
                       'members_directory','member_profession_directory',
                       'member_capability_directory')
     and has_function_privilege('anon', p.oid, 'EXECUTE')

@@ -48,6 +48,12 @@ export default async function AdminLayout({
             >
               Drives
             </Link>
+            <Link
+              href="/admin/posts"
+              className="font-medium text-brand-primary hover:underline"
+            >
+              Member posts
+            </Link>
           </nav>
         </div>
         <Link
