@@ -24,7 +24,7 @@ with expected(tbl) as (
          ('member_professions'),('member_capabilities'),('verifications'),
          ('listings'),('availability'),('inquiries'),('saved_alerts'),
          ('reviews'),('reports'),('requests'),('magazine_issues'),
-         ('submissions'),('payments'),('connection_requests')
+         ('submissions'),('payments'),('connection_requests'),('drives')
 ),
 
 -- 1. every expected table exists, has RLS enabled, and has ≥1 policy

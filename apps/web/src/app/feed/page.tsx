@@ -10,6 +10,7 @@ import { identity } from "@nagarsetu/shared";
 import { createClient } from "@/lib/supabase/server";
 import { FeedFilters, type City, type Lookup } from "./feed-filters";
 import { ConnectListing } from "./connect-listing";
+import { ActiveDrivesBanner } from "../active-drives";
 import { RespondRequest } from "../requests/respond-request";
 
 export const metadata = { title: `Feed — ${identity.name.en}` };
@@ -166,7 +167,9 @@ export default async function FeedPage({
   const count = fType === "requests" ? requests.length : listings.length;
 
   return (
-    <main className="mx-auto w-full max-w-3xl flex-1 px-6 py-10">
+    <>
+      <ActiveDrivesBanner />
+      <main className="mx-auto w-full max-w-3xl flex-1 px-6 py-10">
       <header className="mb-4 flex items-end justify-between gap-4">
         <div>
           <h1 className="text-3xl font-light text-brand-primary">
@@ -295,6 +298,7 @@ export default async function FeedPage({
         Jay Hatkesh is a connector — the deal and payment happen directly
         between members, offline. We never take a commission.
       </p>
-    </main>
+      </main>
+    </>
   );
 }

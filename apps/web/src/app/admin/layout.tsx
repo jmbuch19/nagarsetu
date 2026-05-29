@@ -42,6 +42,12 @@ export default async function AdminLayout({
             >
               ID verifications
             </Link>
+            <Link
+              href="/admin/drives"
+              className="font-medium text-brand-primary hover:underline"
+            >
+              Drives
+            </Link>
           </nav>
         </div>
         <Link
