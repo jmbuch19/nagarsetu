@@ -3,6 +3,8 @@
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { sendEmail } from "@/lib/email/send";
+import { listingPublishedEmail } from "@/lib/email/templates";
 
 const UUID_RE =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -171,6 +173,28 @@ export async function setListingStatus(
       ok: false,
       message: key ? STATUS_MESSAGES[key] : "Could not update. Please try again.",
     };
+  }
+
+  // Best-effort "your listing is live" email on publish (own email).
+  if (action === "publish") {
+    const [{ data: me }, { data: listing }] = await Promise.all([
+      supabase.from("members").select("full_name, email").eq("id", user.id).maybeSingle(),
+      supabase.from("listings").select("title, expires_at").eq("id", id).maybeSingle(),
+    ]);
+    if (me?.email && listing) {
+      const { subject, html } = listingPublishedEmail(
+        me.full_name,
+        listing.title,
+        listing.expires_at
+          ? new Date(listing.expires_at).toLocaleDateString(undefined, {
+              year: "numeric",
+              month: "long",
+              day: "numeric",
+            })
+          : null,
+      );
+      await sendEmail({ to: me.email, subject, html });
+    }
   }
 
   revalidatePath("/listings");
