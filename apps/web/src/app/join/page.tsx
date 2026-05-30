@@ -249,7 +249,7 @@ export default function JoinPage() {
         ) : (
           <form onSubmit={handleVerify} className="space-y-5">
             <p className="text-sm text-brand-text-muted">
-              We sent a 6-digit sign-in code to{" "}
+              We sent a sign-in code to{" "}
               <span className="font-medium text-brand-text">{email}</span>. Open
               your email, copy the code, and type it here.
             </p>
@@ -263,9 +263,9 @@ export default function JoinPage() {
                 type="text"
                 inputMode="numeric"
                 autoComplete="one-time-code"
-                maxLength={6}
-                className="w-full rounded-lg border border-brand-border bg-white px-3 py-2 text-center text-2xl tracking-[0.5em] focus:border-brand-primary focus:outline-none focus:ring-1 focus:ring-brand-primary"
-                placeholder="••••••"
+                maxLength={10}
+                className="w-full rounded-lg border border-brand-border bg-white px-3 py-2 text-center text-2xl tracking-[0.4em] focus:border-brand-primary focus:outline-none focus:ring-1 focus:ring-brand-primary"
+                placeholder="Paste your code"
                 value={code}
                 onChange={(e) => setCode(e.target.value)}
                 required
