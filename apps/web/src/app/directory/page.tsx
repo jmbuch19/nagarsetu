@@ -19,6 +19,7 @@ import {
   type Specialty,
 } from "./directory-filters";
 import { ConnectButton, type Relationship } from "./connect-button";
+import { PraiseButton } from "./praise-button";
 
 export const metadata = { title: `Directory — ${identity.name.en}` };
 
@@ -157,8 +158,9 @@ export default async function DirectoryPage({
   const ids = members.map((m) => m.id);
 
   // Step 3 — professions + capabilities for the shown members, plus my
-  // existing connection relationships (RLS scopes these to me).
-  const [profsRes, capsRes, reqsRes] = await Promise.all([
+  // existing connection relationships (RLS scopes these to me) and the
+  // community endorsements ("praise") for the visible members.
+  const [profsRes, capsRes, reqsRes, endorseRes] = await Promise.all([
     ids.length
       ? supabase
           .rpc("member_profession_directory")
@@ -175,6 +177,12 @@ export default async function DirectoryPage({
     supabase
       .from("connection_requests")
       .select("requester_id, recipient_id, status"),
+    ids.length
+      ? supabase
+          .from("member_endorsements")
+          .select("recipient_id, endorser_id")
+          .in("recipient_id", ids)
+      : Promise.resolve({ data: [] as unknown[] }),
   ]);
 
   const profsByMember = new Map<
@@ -204,6 +212,20 @@ export default async function DirectoryPage({
     const list = capsByMember.get(r.member_id) ?? [];
     list.push(r);
     capsByMember.set(r.member_id, list);
+  }
+
+  // Endorsement counts + whether the current user has praised each member.
+  const praiseCount = new Map<string, number>();
+  const praisedByMe = new Map<string, boolean>();
+  for (const r of (endorseRes.data ?? []) as {
+    recipient_id: string;
+    endorser_id: string;
+  }[]) {
+    praiseCount.set(
+      r.recipient_id,
+      (praiseCount.get(r.recipient_id) ?? 0) + 1,
+    );
+    if (r.endorser_id === user.id) praisedByMe.set(r.recipient_id, true);
   }
 
   // Relationship of the current user to each member.
@@ -309,6 +331,11 @@ export default async function DirectoryPage({
                       {m.matrimony_seeking ? ` · seeking ${m.matrimony_seeking}` : ""}
                     </span>
                   ) : null}
+                  {(praiseCount.get(m.id) ?? 0) > 0 ? (
+                    <span className="ml-2 rounded-full bg-brand-gold/10 px-2 py-0.5 text-xs font-medium text-brand-gold">
+                      {praiseCount.get(m.id)} {praiseCount.get(m.id) === 1 ? "praise" : "praises"}
+                    </span>
+                  ) : null}
                 </p>
                 <p className="mt-1 text-sm leading-relaxed text-brand-text">
                   {warmBlurb(m, profs[0], city)}
@@ -340,11 +367,15 @@ export default async function DirectoryPage({
                 ) : null}
               </div>
 
-              <div className="shrink-0 sm:pt-1">
+              <div className="flex shrink-0 flex-col items-end gap-2 sm:pt-1">
                 <ConnectButton
                   recipientId={m.id}
                   openlyContactable={m.openly_contactable}
                   relationship={rel}
+                />
+                <PraiseButton
+                  recipientId={m.id}
+                  endorsedByMe={!!praisedByMe.get(m.id)}
                 />
               </div>
             </li>
