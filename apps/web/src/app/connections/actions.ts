@@ -118,6 +118,33 @@ export async function respondToRequest(
   };
 }
 
+// Withdraw a pending request the CURRENT user sent. RLS pins this to the
+// requester's own pending row (migration 0040). After withdrawal, the
+// requester can re-send a fresh request if they change their mind.
+export async function withdrawConnectionRequest(
+  recipientId: string,
+): Promise<{ ok: boolean; message?: string }> {
+  if (!UUID_RE.test(recipientId))
+    return { ok: false, message: "Invalid member." };
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { ok: false, message: "Your session has expired." };
+
+  const { error } = await supabase
+    .from("connection_requests")
+    .delete()
+    .eq("requester_id", user.id)
+    .eq("recipient_id", recipientId)
+    .eq("status", "pending");
+  if (error) return { ok: false, message: "Could not withdraw the request." };
+
+  revalidatePath("/directory");
+  revalidatePath("/connections");
+  return { ok: true };
+}
+
 export type RevealState = {
   ok: boolean;
   waLink?: string;

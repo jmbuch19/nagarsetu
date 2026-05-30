@@ -1,10 +1,12 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import {
   requestConnection,
   revealContact,
+  withdrawConnectionRequest,
   type ConnectionActionState,
 } from "../connections/actions";
 
@@ -33,6 +35,7 @@ export function ConnectButton({
   relationship: Relationship;
   context?: string;
 }) {
+  const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [showNote, setShowNote] = useState(false);
   const [note, setNote] = useState("");
@@ -138,7 +141,28 @@ export function ConnectButton({
   }
 
   if (relationship === "pending_out") {
-    return <span className="text-sm text-brand-text-muted">Request sent</span>;
+    function withdraw() {
+      startTransition(async () => {
+        const r = await withdrawConnectionRequest(recipientId);
+        if (r.ok) router.refresh();
+        else setMessage({ ok: false, text: r.message ?? "Could not withdraw." });
+      });
+    }
+    return (
+      <div className="flex flex-col items-end gap-1">
+        <span className="text-sm text-brand-text-muted">Request sent</span>
+        <button
+          onClick={withdraw}
+          disabled={pending}
+          className="text-xs text-brand-text-muted underline underline-offset-2 hover:text-brand-danger disabled:opacity-50"
+        >
+          {pending ? "Withdrawing…" : "Withdraw"}
+        </button>
+        {message && !message.ok ? (
+          <p className="text-xs text-brand-danger">{message.text}</p>
+        ) : null}
+      </div>
+    );
   }
 
   if (relationship === "pending_in") {
