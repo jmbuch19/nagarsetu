@@ -149,6 +149,7 @@ export type RevealState = {
   ok: boolean;
   waLink?: string;
   mailto?: string;
+  email?: string;
   message?: string;
 };
 
@@ -204,5 +205,5 @@ export async function revealContact(recipientId: string): Promise<RevealState> {
     mailto = `mailto:${email}?subject=${subject}`;
   }
 
-  return { ok: true, waLink, mailto };
+  return { ok: true, waLink, mailto, email };
 }
