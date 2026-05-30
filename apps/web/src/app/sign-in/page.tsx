@@ -55,7 +55,7 @@ export default function SignInPage() {
       options: {
         // Consent persists through to the auth trigger via raw_user_meta_data.
         // Migration 0014's handle_new_auth_user() whitelists these exact keys.
-        data: buildConsentPayload(optInWhatsapp),
+        data: buildConsentPayload(optInWhatsapp, false),
       },
     });
     setPending(false);

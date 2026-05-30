@@ -5,6 +5,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { DriveForm } from "./drive-form";
 import { closeDrive } from "./actions";
+import { EmailDriveButton } from "./email-button";
 
 export const metadata = { title: "Drives — Admin" };
 
@@ -14,6 +15,8 @@ type DriveRow = {
   title: string;
   status: string;
   created_at: string;
+  emailed_at: string | null;
+  emailed_count: number;
 };
 
 export default async function AdminDrivesPage() {
@@ -26,7 +29,7 @@ export default async function AdminDrivesPage() {
       .order("name"),
     supabase
       .from("drives")
-      .select("id, kind, title, status, created_at")
+      .select("id, kind, title, status, created_at, emailed_at, emailed_count")
       .order("created_at", { ascending: false })
       .limit(50),
   ]);
@@ -69,15 +72,22 @@ export default async function AdminDrivesPage() {
                   </span>
                 </div>
                 {d.status === "active" ? (
-                  <form action={closeDrive}>
-                    <input type="hidden" name="id" value={d.id} />
-                    <button
-                      type="submit"
-                      className="shrink-0 rounded-md border border-brand-border px-3 py-1 text-xs text-brand-text transition hover:border-brand-danger hover:text-brand-danger"
-                    >
-                      Close
-                    </button>
-                  </form>
+                  <div className="flex shrink-0 items-center gap-2">
+                    <EmailDriveButton
+                      driveId={d.id}
+                      alreadyEmailed={!!d.emailed_at}
+                      emailedCount={d.emailed_count}
+                    />
+                    <form action={closeDrive}>
+                      <input type="hidden" name="id" value={d.id} />
+                      <button
+                        type="submit"
+                        className="shrink-0 rounded-md border border-brand-border px-3 py-1 text-xs text-brand-text transition hover:border-brand-danger hover:text-brand-danger"
+                      >
+                        Close
+                      </button>
+                    </form>
+                  </div>
                 ) : (
                   <span className="shrink-0 text-xs text-brand-text-muted">
                     closed

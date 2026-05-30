@@ -18,7 +18,16 @@ function esc(s: string): string {
     .replace(/'/g, "&#39;");
 }
 
-function layout(bodyHtml: string): string {
+function layout(
+  bodyHtml: string,
+  opts?: { unsubscribeUrl?: string },
+): string {
+  const unsubLine = opts?.unsubscribeUrl
+    ? `<p style="margin:8px 0 0;font-size:11px;color:${MUTED};">
+        You're receiving this because you opted in to community updates.
+        <a href="${opts.unsubscribeUrl}" style="color:${MUTED};text-decoration:underline;">Unsubscribe</a>.
+      </p>`
+    : "";
   return `<!doctype html>
 <html><body style="margin:0;padding:0;background:${BG};font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;color:${INK};">
   <div style="max-width:560px;margin:0 auto;padding:32px 24px;">
@@ -32,6 +41,7 @@ function layout(bodyHtml: string): string {
       Jay Hatkesh is a connector, not a party to any deal.
     </p>
     <p style="margin:8px 0 0;font-size:13px;color:${TEAL};">જય હાટકેશ</p>
+    ${unsubLine}
   </div>
 </body></html>`;
 }
@@ -154,6 +164,61 @@ export function listingPublishedEmail(
           ? para(`It stays active until <strong>${esc(expiresDate)}</strong> — you can renew it from “Your listings” when it lapses.`)
           : "") +
         para(`When a member is interested, you'll see them in your leads.`),
+    ),
+  };
+}
+
+// Community drive blast — sent to opted-in members when an admin rallies
+// around a blood / emergency / help drive. Carries the connector disclaimer
+// and the one-tap unsubscribe link (DPDP).
+export type DriveEmailFields = {
+  kind: string;
+  title: string;
+  body: string;
+  bloodGroup: string | null;
+  cityName: string | null;
+  contactName: string | null;
+  contactInfo: string | null;
+};
+
+const DRIVE_KIND_LABEL: Record<string, string> = {
+  emergency: "Emergency",
+  blood: "Blood needed",
+  help: "Help drive",
+  announcement: "Community announcement",
+};
+
+export function driveBlastEmail(
+  drive: DriveEmailFields,
+  unsubscribeUrl: string,
+): { subject: string; html: string } {
+  const label = DRIVE_KIND_LABEL[drive.kind] ?? "Community drive";
+  const tag =
+    drive.kind === "blood" && drive.bloodGroup
+      ? `${label} · ${esc(drive.bloodGroup)}`
+      : label;
+  const cityLine = drive.cityName
+    ? `<p style="margin:0 0 14px;font-size:13px;color:${MUTED};">${esc(drive.cityName)}</p>`
+    : "";
+  const contactLine =
+    drive.contactName || drive.contactInfo
+      ? para(
+          `<strong>Reach:</strong> ${esc([drive.contactName, drive.contactInfo].filter(Boolean).join(" · "))}`,
+        )
+      : "";
+  return {
+    subject: `${label}: ${drive.title}`,
+    html: layout(
+      `<p style="display:inline-block;margin:0 0 8px;padding:3px 10px;border-radius:999px;background:#F5DDD4;color:#C2492E;font-size:12px;font-weight:600;">${tag}</p>
+       <h2 style="margin:8px 0 6px;font-size:20px;font-weight:500;color:${INK};">${esc(drive.title)}</h2>
+       ${cityLine}
+       <p style="margin:0 0 14px;font-size:15px;line-height:1.6;white-space:pre-wrap;">${esc(drive.body)}</p>
+       ${contactLine}
+       <p style="margin:8px 0 0;font-size:13px;color:${MUTED};">
+         Jay Hatkesh is a connector — please reach the contact directly.
+         We don't manage funds or medical care.
+       </p>`,
+      { unsubscribeUrl },
     ),
   };
 }

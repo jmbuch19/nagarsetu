@@ -60,7 +60,7 @@ export function SignInScreen() {
     setPending(true);
     const { error: otpError } = await supabase.auth.signInWithOtp({
       phone: fullPhone,
-      options: { data: buildConsentPayload(optInWhatsapp) },
+      options: { data: buildConsentPayload(optInWhatsapp, false) },
     });
     setPending(false);
     if (otpError) {

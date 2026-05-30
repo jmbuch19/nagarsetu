@@ -40,6 +40,7 @@ export default function JoinPage() {
   const [national, setNational] = useState("");
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [optInWhatsapp, setOptInWhatsapp] = useState(true);
+  const [optInEmail, setOptInEmail] = useState(true);
   const [code, setCode] = useState("");
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -66,7 +67,10 @@ export default function JoinPage() {
         emailRedirectTo: `${window.location.origin}/auth/callback`,
         shouldCreateUser: true,
         // phone + consent persist to the auth bootstrap trigger (0030).
-        data: { ...buildConsentPayload(optInWhatsapp), phone: fullPhone },
+        data: {
+          ...buildConsentPayload(optInWhatsapp, optInEmail),
+          phone: fullPhone,
+        },
       },
     });
     setPending(false);
@@ -211,6 +215,18 @@ export default function JoinPage() {
                   <span>
                     Send me lead alerts + the community digest on WhatsApp once
                     it&apos;s live. (Off = in-app + email only.)
+                  </span>
+                </label>
+                <label className="flex items-start gap-2 text-sm text-brand-text">
+                  <input
+                    type="checkbox"
+                    className="mt-0.5 h-4 w-4 rounded border-brand-border text-brand-primary focus:ring-brand-primary"
+                    checked={optInEmail}
+                    onChange={(e) => setOptInEmail(e.target.checked)}
+                  />
+                  <span>
+                    Email me important community updates — blood / emergency
+                    drives, announcements. (One-tap unsubscribe in every email.)
                   </span>
                 </label>
               </fieldset>

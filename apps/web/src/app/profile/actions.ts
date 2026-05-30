@@ -90,6 +90,8 @@ export async function updateProfile(
   const seekingRaw = field(formData, "matrimony_seeking");
   // Checkbox: present = opted in to direct contact, absent = request required.
   const openly_contactable = formData.get("openly_contactable") != null;
+  // Checkbox: present = opted in to community-updates email.
+  const opt_in_email = formData.get("opt_in_email") != null;
 
   const errors: Partial<Record<ProfileField, string>> = {};
 
@@ -198,6 +200,7 @@ export async function updateProfile(
     sub_community_id,
     bio,
     openly_contactable,
+    opt_in_email,
     blood_group,
     willing_to_donate,
     marital_status,

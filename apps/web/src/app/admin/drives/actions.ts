@@ -2,7 +2,12 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { sendEmail } from "@/lib/email/send";
+import { driveBlastEmail } from "@/lib/email/templates";
 import { UUID_RE } from "../../profile/constants";
+
+const APP_URL =
+  process.env.NEXT_PUBLIC_APP_URL ?? "https://www.jayhatkesh.in";
 
 const DRIVE_KINDS = ["blood", "emergency", "help", "announcement"] as const;
 const BLOOD = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"] as const;
@@ -101,6 +106,94 @@ export async function createDrive(
   revalidatePath("/");
   revalidatePath("/feed");
   return { ok: true, message: "Drive published — it's now live for the community." };
+}
+
+// Admin "also email this drive" — one-shot: refuses to re-send if emailed_at
+// is already set. Reaches only members with opt_in_email=true, includes a
+// per-member unsubscribe link in every email (DPDP). Best-effort per recipient;
+// the action counts successful sends and updates the drive's stats.
+export async function emailDriveToMembers(
+  formData: FormData,
+): Promise<{ ok: boolean; sent: number; message?: string }> {
+  const { supabase, user, isAdmin } = await assertAdmin();
+  if (!user || !isAdmin) return { ok: false, sent: 0, message: "Admins only." };
+
+  const driveId = f(formData, "id");
+  if (!UUID_RE.test(driveId))
+    return { ok: false, sent: 0, message: "Bad drive id." };
+
+  // Drive (with city name via PostgREST embed) + throttle check.
+  const { data: driveRow, error: driveErr } = await supabase
+    .from("drives")
+    .select(
+      "id, kind, title, body, blood_group, contact_name, contact_info, cities(name), emailed_at",
+    )
+    .eq("id", driveId)
+    .maybeSingle();
+  if (driveErr || !driveRow)
+    return { ok: false, sent: 0, message: "Drive not found." };
+  if (driveRow.emailed_at)
+    return {
+      ok: false,
+      sent: 0,
+      message: "This drive was already emailed (one-shot).",
+    };
+
+  const drive = driveRow as unknown as {
+    id: string;
+    kind: string;
+    title: string;
+    body: string;
+    blood_group: string | null;
+    contact_name: string | null;
+    contact_info: string | null;
+    cities: { name: string } | null;
+  };
+
+  // Opted-in members (admin RLS allows reading all rows; only the columns we
+  // need leave the DB).
+  const { data: targetsRaw } = await supabase
+    .from("members")
+    .select("email, unsubscribe_token, full_name")
+    .eq("opt_in_email", true)
+    .not("email", "is", null);
+  const targets = (targetsRaw ?? []) as {
+    email: string | null;
+    unsubscribe_token: string;
+    full_name: string | null;
+  }[];
+
+  let sent = 0;
+  for (const m of targets) {
+    if (!m.email) continue;
+    const unsubscribeUrl = `${APP_URL}/unsubscribe?token=${m.unsubscribe_token}`;
+    const { subject, html } = driveBlastEmail(
+      {
+        kind: drive.kind,
+        title: drive.title,
+        body: drive.body,
+        bloodGroup: drive.blood_group,
+        cityName: drive.cities?.name ?? null,
+        contactName: drive.contact_name,
+        contactInfo: drive.contact_info,
+      },
+      unsubscribeUrl,
+    );
+    const r = await sendEmail({ to: m.email, subject, html });
+    if (r.ok) sent++;
+  }
+
+  await supabase
+    .from("drives")
+    .update({ emailed_at: new Date().toISOString(), emailed_count: sent })
+    .eq("id", driveId);
+
+  revalidatePath("/admin/drives");
+  return {
+    ok: true,
+    sent,
+    message: `Sent to ${sent} member${sent === 1 ? "" : "s"}.`,
+  };
 }
 
 export async function closeDrive(formData: FormData): Promise<void> {

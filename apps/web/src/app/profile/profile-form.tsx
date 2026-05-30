@@ -33,6 +33,7 @@ export type ProfileValues = {
   sub_community_id: string | null;
   bio: string | null;
   openly_contactable: boolean | null;
+  opt_in_email: boolean | null;
   blood_group: string | null;
   willing_to_donate: boolean | null;
   marital_status: string | null;
@@ -579,6 +580,19 @@ export function ProfileForm({
           <span>
             Let fellow members reach me directly on WhatsApp from the directory.
             (Off = members must send a connection request you approve first.)
+          </span>
+        </label>
+
+        <label className="flex items-start gap-2 text-sm text-brand-text">
+          <input
+            type="checkbox"
+            name="opt_in_email"
+            defaultChecked={v?.opt_in_email ?? false}
+            className="mt-0.5 h-4 w-4 rounded border-brand-border text-brand-primary focus:ring-brand-primary"
+          />
+          <span>
+            Email me important community updates — blood / emergency drives,
+            announcements. (One-tap unsubscribe in every email.)
           </span>
         </label>
       </fieldset>
