@@ -112,6 +112,7 @@ function SurnameField({
         autoComplete="family-name"
         value={value}
         onChange={(e) => setValue(e.target.value)}
+        placeholder="e.g. Buch (બુચ)"
         className={inputClass}
         required
       />
@@ -261,6 +262,12 @@ export function ProfileForm({
         <legend className="text-sm font-semibold text-brand-text">
           About you <span className="font-normal text-brand-text-muted">(required)</span>
         </legend>
+        <p className="-mt-2 text-xs text-brand-text-muted">
+          Names accept any script — English, <span lang="gu">ગુજરાતી</span>,
+          हिन्दी. To stay findable in directory search whichever way a fellow
+          Nagar types, include both — e.g. Manjari (
+          <span lang="gu">મંજરી</span>).
+        </p>
 
         <div className="grid gap-5 sm:grid-cols-2">
           <div>
@@ -286,6 +293,7 @@ export function ProfileForm({
                 maxLength={NAME_MAX}
                 autoComplete="given-name"
                 defaultValue=""
+                placeholder="e.g. Manjari (મંજરી)"
                 className={inputClass}
                 required
               />
