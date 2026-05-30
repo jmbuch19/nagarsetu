@@ -3,7 +3,10 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { sendEmail } from "@/lib/email/send";
-import { connectionRequestEmail } from "@/lib/email/templates";
+import {
+  connectionApprovedEmail,
+  connectionRequestEmail,
+} from "@/lib/email/templates";
 
 const UUID_RE =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -97,7 +100,10 @@ export async function respondToRequest(
   if (!UUID_RE.test(id) || (decision !== "approve" && decision !== "decline"))
     return { ok: false, message: "Something went wrong. Please try again." };
 
-  const { error } = await supabase
+  // RETURNING the requester so we can email them if this is an approval —
+  // one round-trip instead of UPDATE then SELECT. RLS already pinned this
+  // row to the current user via recipient_id.
+  const { data: updated, error } = await supabase
     .from("connection_requests")
     .update({
       status: decision === "approve" ? "approved" : "declined",
@@ -105,10 +111,26 @@ export async function respondToRequest(
     })
     .eq("id", id)
     .eq("recipient_id", user.id)
-    .eq("status", "pending");
+    .eq("status", "pending")
+    .select("requester_id")
+    .maybeSingle();
 
   if (error)
     return { ok: false, message: "Could not update. Please try again." };
+
+  // Close the email loop on approval — the requester now knows the bridge
+  // is open. Decline is intentionally silent (skipping the chilly
+  // "you were rejected" inbox moment; the in-app /connections page reflects
+  // it). Best-effort send: a failed email must not roll back the approval.
+  if (decision === "approve" && updated?.requester_id) {
+    const { data: requesterEmail } = await supabase.rpc("get_member_email", {
+      p_member_id: updated.requester_id,
+    });
+    if (typeof requesterEmail === "string" && requesterEmail) {
+      const { subject, html } = connectionApprovedEmail();
+      await sendEmail({ to: requesterEmail, subject, html });
+    }
+  }
 
   revalidatePath("/connections");
   revalidatePath("/directory");

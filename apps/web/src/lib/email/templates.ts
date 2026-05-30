@@ -123,6 +123,23 @@ export function connectionRequestEmail(note: string | null): {
   };
 }
 
+// Closes the loop: when the recipient approves, the original requester gets
+// this so they know the bridge is open. Names omitted (privacy posture matches
+// the request email) — the in-app /connections page shows who.
+export function connectionApprovedEmail(): {
+  subject: string;
+  html: string;
+} {
+  return {
+    subject: "Your connection request was approved",
+    html: layout(
+      para("Hello,") +
+        para(`A fellow Nagar has approved your connection request on Jay Hatkesh.`) +
+        para(`Open <a href="${APP_URL}/connections" style="color:${TEAL};">Your connections</a> to see them, or head to the <a href="${APP_URL}/directory" style="color:${TEAL};">directory</a> to reach them on WhatsApp or email.`),
+    ),
+  };
+}
+
 // Warm welcome — a personal note from the (anonymous) founder. જય હાટકેશ opens
 // and closes it; conveys why a self-funded, no-profit community portal matters
 // and why each member's joining strengthens the whole circle.
