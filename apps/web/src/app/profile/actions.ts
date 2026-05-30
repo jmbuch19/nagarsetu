@@ -16,6 +16,7 @@ import {
   MIN_BIRTH_YEAR,
   NAME_MAX,
   NAME_RE,
+  NATIVE_MAX,
   PINCODE_MAX,
   PINCODE_MIN,
   PINCODE_RE,
@@ -27,6 +28,7 @@ export type ProfileField =
   | "surname"
   | "city_id"
   | "pincode"
+  | "native_place"
   | "gender"
   | "date_of_birth"
   | "email"
@@ -86,6 +88,7 @@ export async function updateProfile(
   const emailRaw = field(formData, "email");
   const subCommunityRaw = field(formData, "sub_community_id");
   const bioRaw = field(formData, "bio");
+  const nativeRaw = field(formData, "native_place");
   const bloodRaw = field(formData, "blood_group");
   const willingRaw = field(formData, "willing_to_donate");
   const maritalRaw = field(formData, "marital_status");
@@ -174,6 +177,15 @@ export async function updateProfile(
     else bio = bioRaw;
   }
 
+  // native_place — free text, any script, optional. Just a length check; the
+  // DB CHECK constraint in migration 0043 mirrors this.
+  let native_place: string | null = null;
+  if (nativeRaw) {
+    if (nativeRaw.length > NATIVE_MAX)
+      errors.native_place = `Please keep this under ${NATIVE_MAX} characters.`;
+    else native_place = nativeRaw;
+  }
+
   // Blood group (optional) — must be one of the controlled set if provided.
   let blood_group: string | null = null;
   if (bloodRaw) {
@@ -206,6 +218,7 @@ export async function updateProfile(
     surname,
     city_id,
     pincode,
+    native_place,
     gender,
     email,
     sub_community_id,

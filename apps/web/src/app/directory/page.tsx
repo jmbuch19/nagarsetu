@@ -32,6 +32,7 @@ type MemberRow = {
   surname: string | null;
   bio: string | null;
   city_id: string | null;
+  native_place: string | null;
   sub_community_id: string | null;
   trust_level: number;
   id_verification: string;
@@ -88,6 +89,7 @@ export default async function DirectoryPage({
   const fSub = pick("sub_community");
   const fBlood = pick("blood");
   const fMatrimony = pick("matrimony");
+  const fNative = pick("native").trim();
 
   const supabase = await createClient();
   const {
@@ -131,7 +133,7 @@ export default async function DirectoryPage({
   let mq = supabase
     .rpc("members_directory")
     .select(
-      "id, full_name, surname, bio, city_id, sub_community_id, trust_level, id_verification, recognised_surname, openly_contactable, donor_blood_group, open_to_matrimony, matrimony_seeking",
+      "id, full_name, surname, bio, city_id, native_place, sub_community_id, trust_level, id_verification, recognised_surname, openly_contactable, donor_blood_group, open_to_matrimony, matrimony_seeking",
     )
     .not("full_name", "is", null)
     .neq("id", user.id)
@@ -141,6 +143,14 @@ export default async function DirectoryPage({
   if (fSub) mq = mq.eq("sub_community_id", fSub);
   if (fBlood) mq = mq.eq("donor_blood_group", fBlood);
   if (fMatrimony === "open") mq = mq.eq("open_to_matrimony", true);
+  // Native place — case-insensitive substring match so "junagadh" / "Junagadh"
+  // / "JUNAGADH" all hit, and a member who wrote "Junagadh, Gujarat" is found
+  // by either token. Postgres ILIKE is Unicode-correct so Gujarati search
+  // text matches Gujarati native_place. Wildcards in user input are escaped.
+  if (fNative) {
+    const esc = fNative.replace(/[%_\\]/g, (c) => `\\${c}`);
+    mq = mq.ilike("native_place", `%${esc}%`);
+  }
   if (candidateIds) mq = mq.in("id", candidateIds);
   const { data: membersData } = await mq;
   const members = (membersData ?? []) as MemberRow[];
@@ -254,6 +264,7 @@ export default async function DirectoryPage({
           sub_community: fSub,
           blood: fBlood,
           matrimony: fMatrimony,
+          native: fNative,
         }}
       />
 
@@ -306,6 +317,12 @@ export default async function DirectoryPage({
                 {m.sub_community_id && subById.get(m.sub_community_id) ? (
                   <p className="mt-0.5 text-xs text-brand-text-muted" lang="gu">
                     {subById.get(m.sub_community_id)}
+                  </p>
+                ) : null}
+
+                {m.native_place ? (
+                  <p className="mt-0.5 text-xs text-brand-text-muted">
+                    <span className="font-medium">Native:</span> {m.native_place}
                   </p>
                 ) : null}
 

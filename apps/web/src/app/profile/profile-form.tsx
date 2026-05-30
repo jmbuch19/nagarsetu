@@ -6,6 +6,7 @@ import {
   GENDER_OPTIONS,
   BIO_MAX,
   NAME_MAX,
+  NATIVE_MAX,
   BLOOD_GROUPS,
   MARITAL_STATUS_OPTIONS,
   MATRIMONY_ELIGIBLE,
@@ -27,6 +28,7 @@ export type ProfileValues = {
   surname: string | null;
   city_id: string | null;
   pincode: string | null;
+  native_place: string | null;
   gender: string | null;
   date_of_birth: string | null;
   email: string | null;
@@ -413,6 +415,28 @@ export function ProfileForm({
             <FieldError msg={err?.pincode} />
           </div>
         </div>
+      </fieldset>
+
+      {/* Your roots — the first question in any Nagar conversation ────── */}
+      <fieldset className="space-y-3 border-t border-brand-border pt-5">
+        <legend className="text-sm font-semibold text-brand-text">
+          Your roots{" "}
+          <span className="font-normal text-brand-text-muted">(optional)</span>
+        </legend>
+        <p className="-mt-2 text-xs text-brand-text-muted">
+          Where your family is originally from — the first question two Nagars
+          ask each other. Free text, any script. Examples: Junagadh, Porbandar,{" "}
+          <span lang="gu">જૂનાગઢ</span>, Vadnagar (Mehsana).
+        </p>
+        <input
+          id="native_place"
+          name="native_place"
+          type="text"
+          maxLength={NATIVE_MAX}
+          defaultValue={v?.native_place ?? ""}
+          placeholder="e.g. Junagadh"
+          className={inputClass}
+        />
       </fieldset>
 
       {/* Optional ─────────────────────────────────────────────────────── */}

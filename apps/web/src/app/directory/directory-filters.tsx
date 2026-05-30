@@ -35,6 +35,7 @@ export function DirectoryFilters({
     sub_community: string;
     blood: string;
     matrimony: string;
+    native: string;
   };
 }) {
   const router = useRouter();
@@ -44,6 +45,7 @@ export function DirectoryFilters({
   const [subCommunity, setSubCommunity] = useState(current.sub_community);
   const [blood, setBlood] = useState(current.blood);
   const [matrimony, setMatrimony] = useState(current.matrimony);
+  const [native, setNative] = useState(current.native);
 
   const specialtiesForProfession = useMemo(
     () =>
@@ -71,6 +73,7 @@ export function DirectoryFilters({
     if (subCommunity) params.set("sub_community", subCommunity);
     if (blood) params.set("blood", blood);
     if (matrimony) params.set("matrimony", matrimony);
+    if (native.trim()) params.set("native", native.trim());
     const qs = params.toString();
     router.push(qs ? `/directory?${qs}` : "/directory");
   }
@@ -82,11 +85,18 @@ export function DirectoryFilters({
     setSubCommunity("");
     setBlood("");
     setMatrimony("");
+    setNative("");
     router.push("/directory");
   }
 
   const hasFilters =
-    profession || specialty || city || subCommunity || blood || matrimony;
+    profession ||
+    specialty ||
+    city ||
+    subCommunity ||
+    blood ||
+    matrimony ||
+    native;
 
   return (
     <div className="rounded-2xl border border-brand-border bg-white p-4 shadow-sm">
@@ -213,6 +223,26 @@ export function DirectoryFilters({
             <option value="">Any</option>
             <option value="open">Open to matrimony</option>
           </select>
+        </div>
+
+        <div className="sm:col-span-2">
+          <label className={labelClass} htmlFor="f-native">
+            Native place
+          </label>
+          <input
+            id="f-native"
+            type="text"
+            value={native}
+            onChange={(e) => setNative(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                apply();
+              }
+            }}
+            placeholder="e.g. Junagadh"
+            className={selectClass}
+          />
         </div>
       </div>
 

@@ -16,6 +16,10 @@ export const GENDER_VALUES: readonly string[] = GENDER_OPTIONS.map(
 );
 
 export const NAME_MAX = 80;
+// "Your roots" free-text cap — slightly longer than NAME_MAX so combined
+// entries like "Junagadh, Gujarat" or "જૂનાગઢ (Junagadh)" fit comfortably.
+// Mirrors the CHECK on members.native_place (migration 0043).
+export const NATIVE_MAX = 120;
 // Permissive name regex — Unicode letters (covers Gujarati, all scripts) +
 // whitespace, apostrophe, hyphen, period. Blocks digits, @, emoji, control
 // chars without rejecting real-world names like O'Brien, Smith-Jones, Sr./Jr.,
