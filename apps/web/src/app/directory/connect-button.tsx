@@ -46,14 +46,13 @@ export function ConnectButton({
 
   const canReveal = openlyContactable || relationship === "approved";
 
-  // Click handlers for the two channels: WhatsApp + Email. Each ensures the
-  // reveal happens (one-shot, server-side consent-gated) and then opens its
-  // own href. Once revealed, repeat clicks re-open without another rpc.
-  function clickWa() {
-    if (revealed?.waLink) {
-      window.open(revealed.waLink, "_blank", "noopener,noreferrer");
-      return;
-    }
+  // Two-click pattern (more reliable than auto-navigate after await — mailto:
+  // especially needs a direct user gesture on the anchor, otherwise some
+  // browsers/OS combos silently refuse to invoke the default mail handler).
+  // The rpc returns BOTH channels in one call, so a single reveal unlocks
+  // whichever buttons should appear as anchors.
+  function reveal() {
+    if (revealed) return;
     startTransition(async () => {
       const r = await revealContact(recipientId);
       if (!r.ok) {
@@ -61,33 +60,6 @@ export function ConnectButton({
         return;
       }
       setRevealed({ waLink: r.waLink, mailto: r.mailto });
-      if (r.waLink) window.open(r.waLink, "_blank", "noopener,noreferrer");
-      else
-        setMessage({
-          ok: false,
-          text: "WhatsApp isn't available for this member — try email.",
-        });
-    });
-  }
-
-  function clickEmail() {
-    if (revealed?.mailto) {
-      window.location.href = revealed.mailto;
-      return;
-    }
-    startTransition(async () => {
-      const r = await revealContact(recipientId);
-      if (!r.ok) {
-        setMessage({ ok: false, text: r.message ?? "Could not reveal." });
-        return;
-      }
-      setRevealed({ waLink: r.waLink, mailto: r.mailto });
-      if (r.mailto) window.location.href = r.mailto;
-      else
-        setMessage({
-          ok: false,
-          text: "Email isn't available for this member — try WhatsApp.",
-        });
     });
   }
 
@@ -108,50 +80,56 @@ export function ConnectButton({
 
   // Reachable now (openly contactable, or an approved connection). Sender
   // picks the channel: WhatsApp (fastest) or Email (always-on, more formal).
-  // Each channel hides itself if no link is available after reveal (e.g. a
-  // member with no real phone yet, or no email on file).
+  // Pre-reveal: both as buttons (click either → reveal). Post-reveal: the
+  // available channels become anchors with real hrefs that the user clicks
+  // a second time to open. Two clicks total, but reliable for mailto:.
   if (canReveal) {
-    const showWa = !revealed || !!revealed.waLink;
-    const showEmail = !revealed || !!revealed.mailto;
+    const noneAvailable =
+      revealed && !revealed.waLink && !revealed.mailto ? true : false;
     return (
       <div className="flex flex-col items-end gap-1">
         <div className="flex flex-wrap justify-end gap-2">
-          {showWa ? (
-            revealed?.waLink ? (
-              <a
-                href={revealed.waLink}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={btnPrimary}
-              >
-                WhatsApp ↗
-              </a>
-            ) : (
-              <button
-                onClick={clickWa}
-                disabled={pending}
-                className={btnPrimary}
-              >
-                {pending ? "…" : "WhatsApp"}
-              </button>
-            )
+          {/* WhatsApp side */}
+          {revealed?.waLink ? (
+            <a
+              href={revealed.waLink}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={btnPrimary}
+            >
+              Open WhatsApp ↗
+            </a>
+          ) : !revealed ? (
+            <button
+              onClick={reveal}
+              disabled={pending}
+              className={btnPrimary}
+            >
+              {pending ? "…" : "WhatsApp"}
+            </button>
           ) : null}
-          {showEmail ? (
-            revealed?.mailto ? (
-              <a href={revealed.mailto} className={btnGhost}>
-                Email ↗
-              </a>
-            ) : (
-              <button
-                onClick={clickEmail}
-                disabled={pending}
-                className={btnGhost}
-              >
-                {pending ? "…" : "Email"}
-              </button>
-            )
+          {/* Email side */}
+          {revealed?.mailto ? (
+            <a href={revealed.mailto} className={btnGhost}>
+              Open Email ↗
+            </a>
+          ) : !revealed ? (
+            <button onClick={reveal} disabled={pending} className={btnGhost}>
+              {pending ? "…" : "Email"}
+            </button>
           ) : null}
         </div>
+        {revealed && (revealed.waLink || revealed.mailto) ? (
+          <p className="text-xs text-brand-text-muted">
+            Tap to open.
+          </p>
+        ) : null}
+        {noneAvailable ? (
+          <p className="text-xs text-brand-danger">
+            No contact channels on file yet — send a connection request below
+            instead.
+          </p>
+        ) : null}
         {message && !message.ok ? (
           <p className="text-xs text-brand-danger">{message.text}</p>
         ) : null}
