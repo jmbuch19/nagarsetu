@@ -1,6 +1,7 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionState, useEffect, useMemo, useState } from "react";
+import { createClient } from "@/lib/supabase/client";
 import {
   GENDER_OPTIONS,
   BIO_MAX,
@@ -55,6 +56,78 @@ function FieldError({ msg }: { msg?: string }) {
     <p className="mt-1 text-xs text-brand-danger" role="alert">
       {msg}
     </p>
+  );
+}
+
+// Live "smart engine" surname check — debounced query against `nagar_surnames`.
+// MATCH → green "Recognised Nagar surname" hint. NO MATCH → soft warning (NOT
+// a rejection — open membership is a hard constraint; surname is an indicator,
+// not a gate). Admins later review non-recognised surnames in /admin/surnames
+// and add genuine-but-missing Nagar surnames to the list.
+function SurnameField({
+  initial,
+  error,
+}: {
+  initial: string;
+  error?: string;
+}) {
+  const [value, setValue] = useState(initial);
+  const [result, setResult] = useState<{
+    surname: string;
+    recognised: boolean;
+  } | null>(null);
+  const supabase = useMemo(() => createClient(), []);
+
+  useEffect(() => {
+    const norm = value.trim().toLowerCase();
+    if (!norm) return;
+    const t = setTimeout(async () => {
+      const { data } = await supabase
+        .from("nagar_surnames")
+        .select("surname")
+        .eq("surname", norm)
+        .maybeSingle();
+      setResult({ surname: norm, recognised: !!data });
+    }, 400);
+    return () => clearTimeout(t);
+  }, [value, supabase]);
+
+  const norm = value.trim().toLowerCase();
+  const display: "idle" | "recognised" | "not_recognised" | "checking" = !norm
+    ? "idle"
+    : result && result.surname === norm
+      ? result.recognised
+        ? "recognised"
+        : "not_recognised"
+      : "checking";
+
+  return (
+    <>
+      <input
+        id="surname"
+        name="surname"
+        type="text"
+        maxLength={NAME_MAX}
+        autoComplete="family-name"
+        value={value}
+        onChange={(e) => setValue(e.target.value)}
+        className={inputClass}
+        required
+      />
+      {display === "recognised" ? (
+        <p className="mt-1 text-xs text-brand-success">
+          ✓ Recognised Nagar surname
+        </p>
+      ) : display === "not_recognised" ? (
+        <p className="mt-1 text-xs text-brand-warning">
+          &lsquo;{value.trim()}&rsquo; isn&apos;t in our recognised Nagar
+          surname list yet — you can still continue; an admin will review.
+        </p>
+      ) : display === "checking" ? (
+        <p className="mt-1 text-xs text-brand-text-muted">Checking…</p>
+      ) : null}
+      <FieldError msg={error} />
+    </>
   );
 }
 
@@ -223,17 +296,7 @@ export function ProfileForm({
             <label className={labelClass} htmlFor="surname">
               Surname <span className="text-brand-danger">*</span>
             </label>
-            <input
-              id="surname"
-              name="surname"
-              type="text"
-              maxLength={NAME_MAX}
-              autoComplete="family-name"
-              defaultValue={v?.surname ?? ""}
-              className={inputClass}
-              required
-            />
-            <FieldError msg={err?.surname} />
+            <SurnameField initial={v?.surname ?? ""} error={err?.surname} />
           </div>
         </div>
 

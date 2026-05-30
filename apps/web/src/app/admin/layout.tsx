@@ -54,6 +54,12 @@ export default async function AdminLayout({
             >
               Member posts
             </Link>
+            <Link
+              href="/admin/surnames"
+              className="font-medium text-brand-primary hover:underline"
+            >
+              Surnames
+            </Link>
           </nav>
         </div>
         <Link
