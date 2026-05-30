@@ -19,13 +19,17 @@
 -- ─────────────────────────────────────────────────────────────────────────────
 
 -- 1. Per-member unsubscribe token ─────────────────────────────────────────────
+-- Idempotent so re-running this migration after a partial failure is safe.
 alter table public.members
-  add column unsubscribe_token uuid not null default gen_random_uuid();
+  add column if not exists unsubscribe_token uuid not null default gen_random_uuid();
 
 -- gen_random_uuid() ran per-row on add, so each existing member already has a
 -- unique token. UNIQUE constraint catches the (vanishingly improbable) collision.
-alter table public.members
-  add constraint members_unsubscribe_token_key unique (unsubscribe_token);
+do $$ begin
+  alter table public.members
+    add constraint members_unsubscribe_token_key unique (unsubscribe_token);
+exception when duplicate_object then null;
+end $$;
 
 -- Members must not be able to read or rotate their own token (it's only used in
 -- email footers; the app never displays it). Strictly: not in the UPDATE
@@ -37,8 +41,8 @@ alter table public.members
 
 -- 2. Drives email stats (one-shot throttle + audit) ──────────────────────────
 alter table public.drives
-  add column emailed_at    timestamptz,
-  add column emailed_count integer not null default 0;
+  add column if not exists emailed_at    timestamptz,
+  add column if not exists emailed_count integer not null default 0;
 
 
 -- 3. Bootstrap trigger: extend metadata whitelist with opt_in_email ──────────
@@ -122,15 +126,15 @@ language plpgsql
 security definer
 set search_path = public
 as $$
-declare
-  v_done boolean := false;
 begin
   update public.members
   set opt_in_email = false
   where unsubscribe_token = p_token
     and opt_in_email = true;
-  get diagnostics v_done = found;
-  return coalesce(v_done, false);
+  -- FOUND is a built-in PL/pgSQL boolean set by the UPDATE — true if any row
+  -- matched. (GET DIAGNOSTICS = found is a syntax error in Postgres; the
+  -- valid item there is ROW_COUNT.)
+  return FOUND;
 end;
 $$;
 
