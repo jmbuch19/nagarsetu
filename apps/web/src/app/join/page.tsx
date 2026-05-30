@@ -15,6 +15,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { buildConsentPayload, identity } from "@nagarsetu/shared";
 import { createClient } from "@/lib/supabase/client";
+import { isDisposableEmail } from "@/lib/email/disposable";
 import { welcomeAfterSignIn } from "./actions";
 
 // Diaspora-aware list — India first, then alphabetical by country name. The
@@ -85,6 +86,12 @@ export default function JoinPage() {
     }
     if (dialCode === OTHER_DIAL && !/^\+\d{1,4}$/.test(customDial.trim())) {
       setError("Please enter your country code starting with + (e.g. +65).");
+      return;
+    }
+    if (isDisposableEmail(email.trim())) {
+      setError(
+        "Please use a regular email address — temporary / disposable inboxes aren't accepted.",
+      );
       return;
     }
     if (national.replace(/\D/g, "").length < 6) {

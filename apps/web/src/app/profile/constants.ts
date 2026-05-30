@@ -16,6 +16,11 @@ export const GENDER_VALUES: readonly string[] = GENDER_OPTIONS.map(
 );
 
 export const NAME_MAX = 80;
+// Permissive name regex — Unicode letters (covers Gujarati, all scripts) +
+// whitespace, apostrophe, hyphen, period. Blocks digits, @, emoji, control
+// chars without rejecting real-world names like O'Brien, Smith-Jones, Sr./Jr.,
+// or names with spaces. The `u` flag is required for `\p{L}` to work.
+export const NAME_RE = /^[\p{L}\s'\-.]+$/u;
 export const BIO_MAX = 600;
 // Global from day one (MEMORY geography decision) — accept Indian PINs AND
 // diaspora postal codes (US ZIP, UK alphanumeric, etc.), so validate loosely

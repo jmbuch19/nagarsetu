@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { isDisposableEmail } from "@/lib/email/disposable";
 import {
   BIO_MAX,
   BLOOD_GROUPS,
@@ -14,6 +15,7 @@ import {
   MATRIMONY_SEEKING_VALUES,
   MIN_BIRTH_YEAR,
   NAME_MAX,
+  NAME_RE,
   PINCODE_MAX,
   PINCODE_MIN,
   PINCODE_RE,
@@ -101,11 +103,17 @@ export async function updateProfile(
     if (!full_name) errors.full_name = "Please enter your full name.";
     else if (full_name.length > NAME_MAX)
       errors.full_name = `Please keep this under ${NAME_MAX} characters.`;
+    else if (!NAME_RE.test(full_name))
+      errors.full_name =
+        "Please use letters only (spaces, apostrophes, hyphens, and periods are fine).";
   }
 
   if (!surname) errors.surname = "Please enter your surname.";
   else if (surname.length > NAME_MAX)
     errors.surname = `Please keep this under ${NAME_MAX} characters.`;
+  else if (!NAME_RE.test(surname))
+    errors.surname =
+      "Please use letters only (spaces, apostrophes, hyphens, and periods are fine).";
 
   if (!city_id) errors.city_id = "Please choose your city.";
   else if (!UUID_RE.test(city_id)) errors.city_id = "Please choose a valid city.";
@@ -146,6 +154,9 @@ export async function updateProfile(
   if (emailRaw) {
     if (emailRaw.length > EMAIL_MAX || !EMAIL_RE.test(emailRaw))
       errors.email = "Please enter a valid email address.";
+    else if (isDisposableEmail(emailRaw))
+      errors.email =
+        "Please use a regular email address — temporary / disposable inboxes aren't accepted.";
     else email = emailRaw.toLowerCase();
   }
 
