@@ -64,7 +64,13 @@ export function SignedInHome({
             Browse the directory
           </Link>
           <p className="mt-2 text-xs text-brand-text-muted">
-            Matrimony &amp; mentor matching — coming soon.
+            <Link
+              href="/directory?matrimony=open"
+              className="text-brand-primary underline"
+            >
+              Matrimony
+            </Link>{" "}
+            in the directory · Mentor matching — coming soon.
           </p>
         </div>
 
