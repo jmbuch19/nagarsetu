@@ -139,12 +139,11 @@ export default function JoinPage() {
       setError(vErr.message);
       return;
     }
-    // Best-effort welcome (idempotent), then in.
-    try {
-      await welcomeAfterSignIn();
-    } catch {
-      // ignore — welcome is best-effort
-    }
+    // Fire-and-forget welcome — don't make the user wait. Awaiting this added
+    // ~5s of "Verifying…" stall because welcomeIfNeeded does 2 DB roundtrips
+    // + a Resend send. The action runs in the background; Resend is typically
+    // sub-second so the email goes out before the navigation cancels it.
+    void welcomeAfterSignIn().catch(() => {});
     router.replace("/profile");
     router.refresh();
   }
