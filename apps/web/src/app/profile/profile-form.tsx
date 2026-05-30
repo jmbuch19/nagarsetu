@@ -586,8 +586,10 @@ export function ProfileForm({
             className="mt-0.5 h-4 w-4 rounded border-brand-border text-brand-primary focus:ring-brand-primary"
           />
           <span>
-            Let fellow members reach me directly on WhatsApp from the directory.
-            (Off = members must send a connection request you approve first.)
+            Show me as openly reachable in the directory — a soft preference
+            badge for fellow Nagars. Either way, your WhatsApp + email are
+            reachable from the directory; the bridge is the whole point. (For
+            fully private contact, leave both blank on your profile.)
           </span>
         </label>
 

@@ -48,19 +48,14 @@ export function ConnectButton({
   );
   const [emailCopied, setEmailCopied] = useState(false);
 
-  const canReveal = openlyContactable || relationship === "approved";
-
-  // Channel-aware "why is this locked" copy so a member never clicks into a
-  // dead end. Tells the sender what state they're in AND the next step.
-  function lockedReason(channel: "WhatsApp" | "Email"): string {
-    if (relationship === "pending_out")
-      return `Waiting for them to approve your connection request — ${channel} opens up the moment they accept.`;
-    if (relationship === "pending_in")
-      return `They've sent you a connection request first — respond from Connections, and ${channel} unlocks for both of you.`;
-    if (relationship === "declined_out")
-      return `They declined your connection request, so ${channel} stays private.`;
-    return `This member keeps ${channel} private. Use in-app Connect to send them a request — once they approve, ${channel} opens up.`;
-  }
+  // Migration 0042: reveal is no longer gated by openly_contactable / approved
+  // connection — the directory listing itself is the reach consent. Any click
+  // on WhatsApp or Email triggers the RPC, which returns whichever channels
+  // are on file. The lone "locked" case left is the recipient having neither
+  // a real phone nor an email yet (handled in the post-reveal branch). The
+  // `openlyContactable` prop is kept on the component signature for a future
+  // soft-preference badge ("prefers in-app request first") but no longer
+  // gates anything.
 
   // Single shared reveal call: the RPC returns whichever channels are on file
   // in one round-trip. Cached in state so a second click on either button is
@@ -86,10 +81,6 @@ export function ConnectButton({
 
   function handleWhatsAppClick() {
     setStatus(null);
-    if (!canReveal) {
-      setStatus({ ok: false, text: lockedReason("WhatsApp") });
-      return;
-    }
     ensureRevealed((r) => {
       if (!r.waLink) {
         setStatus({
@@ -104,10 +95,6 @@ export function ConnectButton({
 
   function handleEmailClick() {
     setStatus(null);
-    if (!canReveal) {
-      setStatus({ ok: false, text: lockedReason("Email") });
-      return;
-    }
     ensureRevealed((r) => {
       if (!r.email) {
         setStatus({
