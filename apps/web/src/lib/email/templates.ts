@@ -2,7 +2,11 @@
 // broad email-client support. User-provided values (name, title) are HTML-
 // escaped to avoid injection. Connector ethos + brand tone preserved.
 
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://www.jayhatkesh.in";
+// Emails are read in external mail clients (Gmail, Outlook, etc.) — the links
+// MUST point at the live site regardless of where the send action runs from.
+// Hardcoded (not via NEXT_PUBLIC_APP_URL) so a local dev send never embeds a
+// localhost URL recipients can't reach.
+const APP_URL = "https://www.jayhatkesh.in";
 
 const TEAL = "#0E6B6B";
 const INK = "#1E2A2A";

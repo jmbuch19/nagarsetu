@@ -17,14 +17,40 @@ import { buildConsentPayload, identity } from "@nagarsetu/shared";
 import { createClient } from "@/lib/supabase/client";
 import { welcomeAfterSignIn } from "./actions";
 
+// Diaspora-aware list — India first, then alphabetical by country name. The
+// "Other" sentinel lets a member type their own dial code so we never reject
+// a Nagar from an uncovered country. (Surname-style: be permissive, not
+// restrictive — Hard Constraint #5 ethos.)
 const COUNTRY_CODES = [
   { dial: "+91", label: "India (+91)" },
-  { dial: "+1", label: "USA / Canada (+1)" },
-  { dial: "+44", label: "UK (+44)" },
-  { dial: "+971", label: "UAE (+971)" },
-  { dial: "+254", label: "Kenya (+254)" },
+  { dial: "+61", label: "Australia (+61)" },
+  { dial: "+973", label: "Bahrain (+973)" },
+  { dial: "+880", label: "Bangladesh (+880)" },
+  { dial: "+33", label: "France (+33)" },
+  { dial: "+49", label: "Germany (+49)" },
+  { dial: "+852", label: "Hong Kong (+852)" },
   { dial: "+81", label: "Japan (+81)" },
+  { dial: "+254", label: "Kenya (+254)" },
+  { dial: "+965", label: "Kuwait (+965)" },
+  { dial: "+60", label: "Malaysia (+60)" },
+  { dial: "+977", label: "Nepal (+977)" },
+  { dial: "+31", label: "Netherlands (+31)" },
+  { dial: "+64", label: "New Zealand (+64)" },
+  { dial: "+968", label: "Oman (+968)" },
+  { dial: "+974", label: "Qatar (+974)" },
+  { dial: "+966", label: "Saudi Arabia (+966)" },
+  { dial: "+65", label: "Singapore (+65)" },
+  { dial: "+27", label: "South Africa (+27)" },
+  { dial: "+94", label: "Sri Lanka (+94)" },
+  { dial: "+41", label: "Switzerland (+41)" },
+  { dial: "+255", label: "Tanzania (+255)" },
+  { dial: "+66", label: "Thailand (+66)" },
+  { dial: "+971", label: "UAE (+971)" },
+  { dial: "+44", label: "UK (+44)" },
+  { dial: "+1", label: "USA / Canada (+1)" },
 ] as const;
+
+const OTHER_DIAL = "__other__";
 
 const inputClass =
   "w-full rounded-lg border border-brand-border bg-white px-3 py-2 text-base focus:border-brand-primary focus:outline-none focus:ring-1 focus:ring-brand-primary";
@@ -36,7 +62,8 @@ export default function JoinPage() {
   const supabase = createClient();
   const [step, setStep] = useState<Step>("email");
   const [email, setEmail] = useState("");
-  const [dialCode, setDialCode] = useState("+91");
+  const [dialCode, setDialCode] = useState<string>("+91");
+  const [customDial, setCustomDial] = useState("");
   const [national, setNational] = useState("");
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [optInWhatsapp, setOptInWhatsapp] = useState(true);
@@ -45,13 +72,19 @@ export default function JoinPage() {
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const fullPhone = `${dialCode}${national.replace(/\D/g, "")}`;
+  const effectiveDial =
+    dialCode === OTHER_DIAL ? customDial.trim() : dialCode;
+  const fullPhone = `${effectiveDial}${national.replace(/\D/g, "")}`;
 
   async function handleSend(e: FormEvent) {
     e.preventDefault();
     setError(null);
     if (!termsAccepted) {
       setError("Please accept the Terms to continue.");
+      return;
+    }
+    if (dialCode === OTHER_DIAL && !/^\+\d{1,4}$/.test(customDial.trim())) {
+      setError("Please enter your country code starting with + (e.g. +65).");
       return;
     }
     if (national.replace(/\D/g, "").length < 6) {
@@ -164,6 +197,7 @@ export default function JoinPage() {
                         {c.label}
                       </option>
                     ))}
+                    <option value={OTHER_DIAL}>Other — type below</option>
                   </select>
                   <input
                     id="phone"
@@ -177,6 +211,17 @@ export default function JoinPage() {
                     required
                   />
                 </div>
+                {dialCode === OTHER_DIAL ? (
+                  <input
+                    type="text"
+                    inputMode="tel"
+                    aria-label="Custom country code"
+                    placeholder="e.g. +65"
+                    value={customDial}
+                    onChange={(e) => setCustomDial(e.target.value)}
+                    className={`${inputClass} mt-2 max-w-[10rem]`}
+                  />
+                ) : null}
                 <p className="mt-1 text-xs text-brand-text-muted">
                   Used for connecting with fellow Nagars. Never shown publicly —
                   revealed only when you connect.

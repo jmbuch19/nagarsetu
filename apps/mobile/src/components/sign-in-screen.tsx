@@ -18,14 +18,37 @@ import { ThemedView } from '@/components/themed-view';
 import { Spacing } from '@/constants/theme';
 import { supabase } from '@/lib/supabase';
 
-// Diaspora-aware country codes — same set as web.
+// Diaspora-aware country codes — same set as web. India first, rest
+// alphabetical. Web also has an "Other — type below" escape hatch; on mobile
+// the tap-to-cycle pill stays for now (follow-up: convert to a proper picker
+// + custom-code input when mobile becomes the primary surface).
 const COUNTRY_CODES = [
   { dial: '+91',  label: 'India (+91)' },
-  { dial: '+1',   label: 'USA / Canada (+1)' },
-  { dial: '+44',  label: 'UK (+44)' },
-  { dial: '+971', label: 'UAE (+971)' },
-  { dial: '+254', label: 'Kenya (+254)' },
+  { dial: '+61',  label: 'Australia (+61)' },
+  { dial: '+973', label: 'Bahrain (+973)' },
+  { dial: '+880', label: 'Bangladesh (+880)' },
+  { dial: '+33',  label: 'France (+33)' },
+  { dial: '+49',  label: 'Germany (+49)' },
+  { dial: '+852', label: 'Hong Kong (+852)' },
   { dial: '+81',  label: 'Japan (+81)' },
+  { dial: '+254', label: 'Kenya (+254)' },
+  { dial: '+965', label: 'Kuwait (+965)' },
+  { dial: '+60',  label: 'Malaysia (+60)' },
+  { dial: '+977', label: 'Nepal (+977)' },
+  { dial: '+31',  label: 'Netherlands (+31)' },
+  { dial: '+64',  label: 'New Zealand (+64)' },
+  { dial: '+968', label: 'Oman (+968)' },
+  { dial: '+974', label: 'Qatar (+974)' },
+  { dial: '+966', label: 'Saudi Arabia (+966)' },
+  { dial: '+65',  label: 'Singapore (+65)' },
+  { dial: '+27',  label: 'South Africa (+27)' },
+  { dial: '+94',  label: 'Sri Lanka (+94)' },
+  { dial: '+41',  label: 'Switzerland (+41)' },
+  { dial: '+255', label: 'Tanzania (+255)' },
+  { dial: '+66',  label: 'Thailand (+66)' },
+  { dial: '+971', label: 'UAE (+971)' },
+  { dial: '+44',  label: 'UK (+44)' },
+  { dial: '+1',   label: 'USA / Canada (+1)' },
 ];
 
 type Step = 'phone' | 'otp';

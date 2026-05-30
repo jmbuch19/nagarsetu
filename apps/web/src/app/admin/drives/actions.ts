@@ -6,8 +6,10 @@ import { sendEmail } from "@/lib/email/send";
 import { driveBlastEmail } from "@/lib/email/templates";
 import { UUID_RE } from "../../profile/constants";
 
-const APP_URL =
-  process.env.NEXT_PUBLIC_APP_URL ?? "https://www.jayhatkesh.in";
+// Used for the unsubscribe link baked into every drive email — same hardcoded
+// production URL as templates.ts (recipients open the link from their inbox,
+// not the host that sent it).
+const APP_URL = "https://www.jayhatkesh.in";
 
 const DRIVE_KINDS = ["blood", "emergency", "help", "announcement"] as const;
 const BLOOD = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"] as const;
