@@ -176,7 +176,10 @@ export function DirectoryFilters({
         </div>
 
         <div>
-          <label className={labelClass} htmlFor="f-blood">
+          <label
+            className="mb-1 block text-xs font-semibold text-brand-danger uppercase"
+            htmlFor="f-blood"
+          >
             Blood donor
           </label>
           <select
@@ -195,7 +198,10 @@ export function DirectoryFilters({
         </div>
 
         <div>
-          <label className={labelClass} htmlFor="f-matrimony">
+          <label
+            className="mb-1 block text-xs font-semibold text-brand-gold uppercase"
+            htmlFor="f-matrimony"
+          >
             Matrimony
           </label>
           <select

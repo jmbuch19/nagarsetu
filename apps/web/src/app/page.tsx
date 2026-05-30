@@ -33,15 +33,34 @@ const BELONGING_LINE = "The digital home of the Nagar samaj — worldwide.";
 const MISSION_EN =
   "Once, our community was a phone call away. Today we're scattered across cities and continents — yet a fellow Nagar's help, trust, and warmth is still the most valuable thing we have. Jay Hatkesh brings the samaj back within reach: to find each other, help each other, and grow together — wherever in the world we are.";
 
-const BENEFITS = [
-  "Find a Nagar doctor, lawyer, or mentor — anywhere in the world.",
-  "Find a life partner within the samaj — or let a match find you.",
-  "Reach a willing blood donor in the community when it matters most.",
-  "Discover homes, rooms & rides within the community.",
-  "Buy from and sell to your own people.",
-  "Contribute your creativity — poems, stories, art & music for the community.",
-  "Stand together in genuine need — verified help drives.",
-] as const;
+type BenefitTone = "default" | "danger" | "gold";
+const BENEFITS: { text: string; tone: BenefitTone }[] = [
+  {
+    text: "Find a Nagar doctor, lawyer, or mentor — anywhere in the world.",
+    tone: "default",
+  },
+  {
+    text: "Find a life partner within the samaj — or let a match find you.",
+    tone: "gold",
+  },
+  {
+    text: "Reach a willing blood donor in the community when it matters most.",
+    tone: "danger",
+  },
+  {
+    text: "Discover homes, rooms & rides within the community.",
+    tone: "default",
+  },
+  { text: "Buy from and sell to your own people.", tone: "default" },
+  {
+    text: "Contribute your creativity — poems, stories, art & music for the community.",
+    tone: "default",
+  },
+  {
+    text: "Stand together in genuine need — verified help drives.",
+    tone: "default",
+  },
+];
 
 export default async function Home({
   searchParams,
@@ -163,15 +182,29 @@ export default async function Home({
           What Jay Hatkesh brings to your phone
         </h2>
         <ul className="mt-8 grid max-w-2xl gap-4 text-base text-brand-text sm:text-lg">
-          {BENEFITS.map((line) => (
-            <li key={line} className="flex gap-3">
-              <span
-                aria-hidden="true"
-                className="mt-2 inline-block h-1.5 w-1.5 flex-shrink-0 rounded-full bg-brand-primary"
-              />
-              <span className="leading-relaxed">{line}</span>
-            </li>
-          ))}
+          {BENEFITS.map((b) => {
+            const dotClass =
+              b.tone === "danger"
+                ? "bg-brand-danger"
+                : b.tone === "gold"
+                  ? "bg-brand-gold"
+                  : "bg-brand-primary";
+            const textClass =
+              b.tone === "danger"
+                ? "text-brand-danger font-medium"
+                : b.tone === "gold"
+                  ? "text-brand-gold font-medium"
+                  : "";
+            return (
+              <li key={b.text} className="flex gap-3">
+                <span
+                  aria-hidden="true"
+                  className={`mt-2 inline-block h-1.5 w-1.5 flex-shrink-0 rounded-full ${dotClass}`}
+                />
+                <span className={`leading-relaxed ${textClass}`}>{b.text}</span>
+              </li>
+            );
+          })}
         </ul>
       </section>
 
