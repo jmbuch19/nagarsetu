@@ -118,13 +118,18 @@ export async function respondToRequest(
   };
 }
 
-export type RevealState = { ok: boolean; waLink?: string; message?: string };
+export type RevealState = {
+  ok: boolean;
+  waLink?: string;
+  mailto?: string;
+  message?: string;
+};
 
-// Reveal a member's WhatsApp as a deep-link — but ONLY through the
-// SECURITY DEFINER get_revealed_contact() function, which returns a phone
-// only when consent holds (openly_contactable OR an approved request). The
-// raw number is never returned to the client; it's embedded in the wa.me
-// href and opened, never displayed as copyable text.
+// Reveal a member's contact channels — but ONLY through the SECURITY DEFINER
+// get_revealed_contact() function, which returns phone + email only when
+// consent holds (openly_contactable OR an approved connection). Raw phone is
+// never displayed; it's embedded in the wa.me href. Email is embedded in a
+// mailto: href.
 export async function revealContact(recipientId: string): Promise<RevealState> {
   const supabase = await createClient();
   const {
@@ -138,19 +143,39 @@ export async function revealContact(recipientId: string): Promise<RevealState> {
     target: recipientId,
   });
   if (error)
-    return { ok: false, message: "Could not open WhatsApp. Please try again." };
+    return { ok: false, message: "Could not reveal contact. Please try again." };
 
-  const row = Array.isArray(data) ? data[0] : data;
-  const phone: string | undefined = row?.phone;
-  if (!phone)
+  const row = (Array.isArray(data) ? data[0] : data) as
+    | { phone?: string | null; email?: string | null }
+    | undefined;
+  const phone = row?.phone || undefined;
+  const email = row?.email || undefined;
+
+  if (!phone && !email) {
     return {
       ok: false,
       message: "This member isn't reachable yet — send a connection request.",
     };
+  }
 
-  const digits = phone.replace(/\D/g, "");
-  const text = encodeURIComponent(
-    "Hi, I found you on Jay Hatkesh and would like to connect.",
-  );
-  return { ok: true, waLink: `https://wa.me/${digits}?text=${text}` };
+  let waLink: string | undefined;
+  if (phone) {
+    const digits = phone.replace(/\D/g, "");
+    if (digits.length >= 6) {
+      const text = encodeURIComponent(
+        "Hi, I found you on Jay Hatkesh and would like to connect.",
+      );
+      waLink = `https://wa.me/${digits}?text=${text}`;
+    }
+  }
+
+  let mailto: string | undefined;
+  if (email) {
+    const subject = encodeURIComponent(
+      "Hello from a fellow Nagar — Jay Hatkesh",
+    );
+    mailto = `mailto:${email}?subject=${subject}`;
+  }
+
+  return { ok: true, waLink, mailto };
 }

@@ -39,15 +39,55 @@ export function ConnectButton({
   const [message, setMessage] = useState<{ ok: boolean; text: string } | null>(
     null,
   );
-  const [waLink, setWaLink] = useState<string | null>(null);
+  const [revealed, setRevealed] = useState<{
+    waLink?: string;
+    mailto?: string;
+  } | null>(null);
 
   const canReveal = openlyContactable || relationship === "approved";
 
-  function doReveal() {
+  // Click handlers for the two channels: WhatsApp + Email. Each ensures the
+  // reveal happens (one-shot, server-side consent-gated) and then opens its
+  // own href. Once revealed, repeat clicks re-open without another rpc.
+  function clickWa() {
+    if (revealed?.waLink) {
+      window.open(revealed.waLink, "_blank", "noopener,noreferrer");
+      return;
+    }
     startTransition(async () => {
       const r = await revealContact(recipientId);
-      if (r.ok && r.waLink) setWaLink(r.waLink);
-      else setMessage({ ok: false, text: r.message ?? "Could not reveal." });
+      if (!r.ok) {
+        setMessage({ ok: false, text: r.message ?? "Could not reveal." });
+        return;
+      }
+      setRevealed({ waLink: r.waLink, mailto: r.mailto });
+      if (r.waLink) window.open(r.waLink, "_blank", "noopener,noreferrer");
+      else
+        setMessage({
+          ok: false,
+          text: "WhatsApp isn't available for this member — try email.",
+        });
+    });
+  }
+
+  function clickEmail() {
+    if (revealed?.mailto) {
+      window.location.href = revealed.mailto;
+      return;
+    }
+    startTransition(async () => {
+      const r = await revealContact(recipientId);
+      if (!r.ok) {
+        setMessage({ ok: false, text: r.message ?? "Could not reveal." });
+        return;
+      }
+      setRevealed({ waLink: r.waLink, mailto: r.mailto });
+      if (r.mailto) window.location.href = r.mailto;
+      else
+        setMessage({
+          ok: false,
+          text: "Email isn't available for this member — try WhatsApp.",
+        });
     });
   }
 
@@ -66,24 +106,52 @@ export function ConnectButton({
     });
   }
 
-  // Reachable now (openly contactable, or an approved connection).
+  // Reachable now (openly contactable, or an approved connection). Sender
+  // picks the channel: WhatsApp (fastest) or Email (always-on, more formal).
+  // Each channel hides itself if no link is available after reveal (e.g. a
+  // member with no real phone yet, or no email on file).
   if (canReveal) {
+    const showWa = !revealed || !!revealed.waLink;
+    const showEmail = !revealed || !!revealed.mailto;
     return (
       <div className="flex flex-col items-end gap-1">
-        {waLink ? (
-          <a
-            href={waLink}
-            target="_blank"
-            rel="noopener noreferrer"
-            className={btnPrimary}
-          >
-            Open WhatsApp chat ↗
-          </a>
-        ) : (
-          <button onClick={doReveal} disabled={pending} className={btnPrimary}>
-            {pending ? "…" : "Continue on WhatsApp"}
-          </button>
-        )}
+        <div className="flex flex-wrap justify-end gap-2">
+          {showWa ? (
+            revealed?.waLink ? (
+              <a
+                href={revealed.waLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={btnPrimary}
+              >
+                WhatsApp ↗
+              </a>
+            ) : (
+              <button
+                onClick={clickWa}
+                disabled={pending}
+                className={btnPrimary}
+              >
+                {pending ? "…" : "WhatsApp"}
+              </button>
+            )
+          ) : null}
+          {showEmail ? (
+            revealed?.mailto ? (
+              <a href={revealed.mailto} className={btnGhost}>
+                Email ↗
+              </a>
+            ) : (
+              <button
+                onClick={clickEmail}
+                disabled={pending}
+                className={btnGhost}
+              >
+                {pending ? "…" : "Email"}
+              </button>
+            )
+          ) : null}
+        </div>
         {message && !message.ok ? (
           <p className="text-xs text-brand-danger">{message.text}</p>
         ) : null}
