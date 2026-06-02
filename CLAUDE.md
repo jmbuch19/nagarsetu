@@ -81,4 +81,6 @@ Full functional detail is in `SPEC.md`. Background narrative is in `CONCEPT.md`.
 | `DPDP.md` | India DPDP Act 2023 compliance framework (consent, children, rights, retention). |
 | `EMAILS.md` | Email templates (transactional + digest) + WhatsApp template parity. |
 | `FAQ.md` | Community-voiced FAQ for the /faq page (warm, fellow-Nagar voice). |
+| `SECURITY_AUDIT_PROMPT.md` | Paste-ready prompt for Claude Code to produce an evidence-based security audit before launch. |
+| `TEST_SCRIPT.md` | End-to-end manual test script for the closed pilot. |
 | `IDEAS.md` | Parking lot for deferred ideas. |
