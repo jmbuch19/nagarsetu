@@ -17,6 +17,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { identity } from "@nagarsetu/shared";
 import { createClient } from "@/lib/supabase/server";
+import { sortCities } from "@/lib/cities";
 import { ProfileForm, type ProfileValues } from "./profile-form";
 import {
   ProfessionsEditor,
@@ -149,7 +150,14 @@ export default async function ProfilePage() {
           <ProfileForm
             phone={user.phone ?? ""}
             values={member}
-            cities={citiesRes.data ?? []}
+            cities={sortCities(
+              (citiesRes.data ?? []) as {
+                id: string;
+                name: string;
+                state: string | null;
+                country: string;
+              }[],
+            )}
             subCommunities={subCommunitiesRes.data ?? []}
           />
         </div>

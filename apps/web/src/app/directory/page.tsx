@@ -12,6 +12,7 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { identity } from "@nagarsetu/shared";
 import { createClient } from "@/lib/supabase/server";
+import { sortCities } from "@/lib/cities";
 import {
   DirectoryFilters,
   type City,
@@ -91,6 +92,7 @@ export default async function DirectoryPage({
   const fBlood = pick("blood");
   const fMatrimony = pick("matrimony");
   const fNative = pick("native").trim();
+  const fName = pick("name").trim();
 
   const supabase = await createClient();
   const {
@@ -113,7 +115,7 @@ export default async function DirectoryPage({
       supabase.from("sub_communities").select("id, name").order("name"),
     ]);
 
-  const cities = (citiesRes.data ?? []) as City[];
+  const cities = sortCities((citiesRes.data ?? []) as City[]);
   const subCommunities = (subCommunitiesRes.data ?? []) as Lookup[];
   const cityById = new Map(cities.map((c) => [c.id, c]));
   const subById = new Map(subCommunities.map((s) => [s.id, s.name]));
@@ -151,6 +153,20 @@ export default async function DirectoryPage({
   if (fNative) {
     const esc = fNative.replace(/[%_\\]/g, (c) => `\\${c}`);
     mq = mq.ilike("native_place", `%${esc}%`);
+  }
+  // Name — token-by-token so "Jay Chhaya" matches a member whose first name is
+  // "Jay" and surname is "Chhaya": each whitespace token must hit full_name OR
+  // surname (chained .or() calls AND together). A single token (just a first
+  // name, or just a surname) works too. Wildcards escaped; PostgREST or()
+  // syntax chars (, ( )) stripped from each token. ILIKE is Unicode-correct so
+  // Gujarati names match Gujarati search text.
+  if (fName) {
+    for (const tok of fName.split(/\s+/).filter(Boolean)) {
+      const esc = tok
+        .replace(/[,()]/g, "")
+        .replace(/[%_\\]/g, (c) => `\\${c}`);
+      if (esc) mq = mq.or(`full_name.ilike.%${esc}%,surname.ilike.%${esc}%`);
+    }
   }
   if (candidateIds) mq = mq.in("id", candidateIds);
   const { data: membersData } = await mq;
@@ -254,8 +270,8 @@ export default async function DirectoryPage({
             Community Directory
           </h1>
           <p className="mt-1 text-sm text-brand-text-muted">
-            Find a fellow Nagar by profession, specialty, city or sub-community
-            — and reach them with their consent.
+            Find a fellow Nagar by name, profession, specialty, city, native
+            place or sub-community — and reach them with their consent.
           </p>
         </div>
         <div className="flex shrink-0 gap-2">
@@ -280,6 +296,7 @@ export default async function DirectoryPage({
         cities={cities}
         subCommunities={subCommunities}
         current={{
+          name: fName,
           profession: fProfession,
           specialty: fSpecialty,
           city: fCity,

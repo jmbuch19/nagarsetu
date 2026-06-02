@@ -29,6 +29,7 @@ export function DirectoryFilters({
   cities: City[];
   subCommunities: Lookup[];
   current: {
+    name: string;
     profession: string;
     specialty: string;
     city: string;
@@ -39,6 +40,7 @@ export function DirectoryFilters({
   };
 }) {
   const router = useRouter();
+  const [name, setName] = useState(current.name);
   const [profession, setProfession] = useState(current.profession);
   const [specialty, setSpecialty] = useState(current.specialty);
   const [city, setCity] = useState(current.city);
@@ -67,6 +69,7 @@ export function DirectoryFilters({
 
   function apply() {
     const params = new URLSearchParams();
+    if (name.trim()) params.set("name", name.trim());
     if (profession) params.set("profession", profession);
     if (specialty) params.set("specialty", specialty);
     if (city) params.set("city", city);
@@ -79,6 +82,7 @@ export function DirectoryFilters({
   }
 
   function clear() {
+    setName("");
     setProfession("");
     setSpecialty("");
     setCity("");
@@ -90,6 +94,7 @@ export function DirectoryFilters({
   }
 
   const hasFilters =
+    name ||
     profession ||
     specialty ||
     city ||
@@ -101,6 +106,26 @@ export function DirectoryFilters({
   return (
     <div className="rounded-2xl border border-brand-border bg-white p-4 shadow-sm">
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="sm:col-span-2 lg:col-span-4">
+          <label className={labelClass} htmlFor="f-name">
+            Name
+          </label>
+          <input
+            id="f-name"
+            type="text"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                apply();
+              }
+            }}
+            placeholder="Search by name or surname — e.g. Jay, Chhaya, or Jay Chhaya"
+            className={selectClass}
+          />
+        </div>
+
         <div>
           <label className={labelClass} htmlFor="f-profession">
             Profession
