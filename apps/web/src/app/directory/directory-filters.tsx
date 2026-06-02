@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { BLOOD_GROUPS } from "../profile/constants";
 
 export type Lookup = { id: string; name: string };
@@ -57,6 +57,47 @@ export function DirectoryFilters({
     [profession, specialties],
   );
 
+  // The currently *applied* (in-URL) dropdown filters, as a query string. The
+  // live name search composes its query on top of these so typing a name keeps
+  // any profession/city/etc. already applied. Memoised on the primitive values
+  // so it's a stable dependency for the debounce effect below.
+  const appliedParams = useMemo(() => {
+    const p = new URLSearchParams();
+    if (current.profession) p.set("profession", current.profession);
+    if (current.specialty) p.set("specialty", current.specialty);
+    if (current.city) p.set("city", current.city);
+    if (current.sub_community) p.set("sub_community", current.sub_community);
+    if (current.blood) p.set("blood", current.blood);
+    if (current.matrimony) p.set("matrimony", current.matrimony);
+    if (current.native) p.set("native", current.native);
+    return p.toString();
+  }, [
+    current.profession,
+    current.specialty,
+    current.city,
+    current.sub_community,
+    current.blood,
+    current.matrimony,
+    current.native,
+  ]);
+
+  // Live name search: debounce the URL update so results stream in as the user
+  // types (J → Ja → Jay …) and snap back to the default order when the field is
+  // cleared. `scroll: false` keeps the page from jumping on every keystroke.
+  // Guards on `name === current.name` so it only fires when the typed value
+  // actually differs from what's already in the URL (incl. after each push).
+  useEffect(() => {
+    const trimmed = name.trim();
+    if (trimmed === current.name) return;
+    const t = setTimeout(() => {
+      const p = new URLSearchParams(appliedParams);
+      if (trimmed) p.set("name", trimmed);
+      const qs = p.toString();
+      router.replace(qs ? `/directory?${qs}` : "/directory", { scroll: false });
+    }, 300);
+    return () => clearTimeout(t);
+  }, [name, current.name, appliedParams, router]);
+
   const citiesByCountry = useMemo(() => {
     const m = new Map<string, City[]>();
     for (const c of cities) {
@@ -108,21 +149,16 @@ export function DirectoryFilters({
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <div className="sm:col-span-2 lg:col-span-4">
           <label className={labelClass} htmlFor="f-name">
-            Name
+            Name <span className="font-normal normal-case">· updates as you type</span>
           </label>
           <input
             id="f-name"
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                e.preventDefault();
-                apply();
-              }
-            }}
             placeholder="Search by name or surname — e.g. Jay, Chhaya, or Jay Chhaya"
             className={selectClass}
+            autoComplete="off"
           />
         </div>
 
