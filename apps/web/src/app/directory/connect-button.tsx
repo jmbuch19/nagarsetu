@@ -6,6 +6,7 @@ import { useState, useTransition, type ReactNode } from "react";
 import {
   requestConnection,
   revealContact,
+  sendIntroEmail,
   withdrawConnectionRequest,
   type ConnectionActionState,
   type RevealState,
@@ -46,7 +47,8 @@ export function ConnectButton({
   const [status, setStatus] = useState<{ ok: boolean; text: string } | null>(
     null,
   );
-  const [emailCopied, setEmailCopied] = useState(false);
+  const [showEmail, setShowEmail] = useState(false);
+  const [emailMsg, setEmailMsg] = useState("");
 
   // Migration 0042: reveal is no longer gated by openly_contactable / approved
   // connection — the directory listing itself is the reach consent. Any click
@@ -93,37 +95,20 @@ export function ConnectButton({
     });
   }
 
-  function handleEmailClick() {
+  // Email is now a server-side relay (see sendIntroEmail): we send the message
+  // to the recipient via Resend with reply-to = the sender, instead of a
+  // mailto: link that silently fails in in-app browsers / when no mail app is
+  // set. Clicking "Email" opens a short compose box; "Send email" relays it.
+  function sendIntro() {
     setStatus(null);
-    ensureRevealed((r) => {
-      if (!r.email) {
-        setStatus({
-          ok: false,
-          text: "This member hasn't added an email yet. Try WhatsApp or in-app Connect.",
-        });
-      } else {
-        setStatus({
-          ok: true,
-          text: "Tap Open Email ↗ to launch your mail app — or copy the address below if it doesn't open.",
-        });
+    startTransition(async () => {
+      const r = await sendIntroEmail(recipientId, emailMsg);
+      setStatus(r.message ? { ok: r.ok, text: r.message } : null);
+      if (r.ok) {
+        setShowEmail(false);
+        setEmailMsg("");
       }
     });
-  }
-
-  function copyEmail() {
-    if (!revealed?.email) return;
-    void navigator.clipboard.writeText(revealed.email).then(
-      () => {
-        setEmailCopied(true);
-        setTimeout(() => setEmailCopied(false), 2000);
-      },
-      () => {
-        setStatus({
-          ok: false,
-          text: "Couldn't copy automatically — long-press the address to copy it manually.",
-        });
-      },
-    );
   }
 
   function sendRequest() {
@@ -183,19 +168,17 @@ export function ConnectButton({
     </button>
   );
 
-  // ── Slot 2: Email ──────────────────────────────────────────────────────
-  const emailSlot = revealed?.mailto ? (
-    <a href={revealed.mailto} className={btnGhost}>
-      Open Email ↗
-    </a>
-  ) : (
+  // ── Slot 2: Email (opens the compose box; the relay sends server-side) ───
+  const emailSlot = (
     <button
       type="button"
-      onClick={handleEmailClick}
-      disabled={pending}
+      onClick={() => {
+        setStatus(null);
+        setShowEmail((s) => !s);
+      }}
       className={btnGhost}
     >
-      {pending && !revealed ? "…" : "Email"}
+      {showEmail ? "Cancel" : "Email"}
     </button>
   );
 
@@ -248,18 +231,36 @@ export function ConnectButton({
         {connectSlot}
       </div>
 
-      {/* Email address fallback — always shown after reveal so the OS-default
-          mailto: failure case still lets the sender copy the address. */}
-      {revealed?.email ? (
-        <div className="flex flex-wrap items-center justify-end gap-2 text-xs text-brand-text-muted">
-          <span className="break-all">{revealed.email}</span>
-          <button
-            type="button"
-            onClick={copyEmail}
-            className="rounded border border-brand-border px-1.5 py-0.5 hover:border-brand-primary hover:text-brand-primary"
-          >
-            {emailCopied ? "Copied ✓" : "Copy"}
-          </button>
+      {/* Email compose — the message is relayed server-side to the recipient
+          (reply-to = you), so it arrives even when the device has no mail app
+          or is inside an in-app browser. */}
+      {showEmail ? (
+        <div className="w-full space-y-2">
+          <textarea
+            value={emailMsg}
+            onChange={(e) => setEmailMsg(e.target.value)}
+            maxLength={1000}
+            rows={3}
+            placeholder="Write your message — they'll get it by email and can reply straight to you."
+            className={`${inputClass} resize-y`}
+          />
+          <div className="flex justify-end gap-2">
+            <button
+              type="button"
+              onClick={sendIntro}
+              disabled={pending}
+              className={btnPrimary}
+            >
+              {pending ? "Sending…" : "Send email"}
+            </button>
+            <button
+              type="button"
+              onClick={() => setShowEmail(false)}
+              className={btnGhost}
+            >
+              Cancel
+            </button>
+          </div>
         </div>
       ) : null}
 

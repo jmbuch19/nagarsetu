@@ -144,8 +144,10 @@ export default function JoinPage() {
     // + a Resend send. The action runs in the background; Resend is typically
     // sub-second so the email goes out before the navigation cancels it.
     void welcomeAfterSignIn().catch(() => {});
+    // replace() to a different route already triggers a fresh server render
+    // with the new session cookie — an extra refresh() here just adds a second
+    // round-trip and a flash. The /profile loading.tsx covers perceived latency.
     router.replace("/profile");
-    router.refresh();
   }
 
   return (

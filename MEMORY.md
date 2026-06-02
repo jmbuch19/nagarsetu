@@ -79,4 +79,5 @@ Add new locked decisions here; move items out of "Open Decisions" once resolved.
 ## Decision log
 *(append dated entries as decisions get made)*
 
+- 2026-06-02 — Member-to-member **Email CTA is a server-side relay** (Resend, reply-to = sender), not a `mailto:` link — rationale: `mailto:` silently no-ops in in-app browsers / when no default mail app, so cross-member emails never arrived; admin **`/admin/members` "Onboarding"** page nudges half-started profiles (incomplete required fields) with a one-click sign-in-link re-send (migration 0045, `is_admin()`-gated). See AUDIT 2026-06-02.
 - _YYYY-MM-DD_ — _decision_ — _rationale_

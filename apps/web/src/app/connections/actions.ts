@@ -6,6 +6,7 @@ import { sendEmail } from "@/lib/email/send";
 import {
   connectionApprovedEmail,
   connectionRequestEmail,
+  memberIntroEmail,
 } from "@/lib/email/templates";
 
 const UUID_RE =
@@ -165,6 +166,95 @@ export async function withdrawConnectionRequest(
   revalidatePath("/directory");
   revalidatePath("/connections");
   return { ok: true };
+}
+
+const INTRO_MAX = 1000;
+
+// Member-to-member intro relay — the directory "Email" CTA. The previous CTA
+// was a client-side mailto: link that silently no-ops in in-app browsers
+// (WhatsApp/Gmail webviews) and when no default mail app is set, so messages
+// never arrived. This sends the intro server-side via Resend instead:
+//   • recipient address fetched via get_revealed_contact (the directory listing
+//     is the reach consent — migration 0042; same gate the WhatsApp reveal uses)
+//   • reply_to set to the SENDER's own email so the recipient can reply directly
+//   • never returns either address to the client
+// Best-effort like the other notification sends; the recipient also has the
+// in-app channels as a fallback.
+export async function sendIntroEmail(
+  recipientId: string,
+  message: string,
+): Promise<{ ok: boolean; message?: string }> {
+  if (!UUID_RE.test(recipientId))
+    return { ok: false, message: "Invalid member." };
+  const trimmed = message.trim();
+  if (trimmed.length > INTRO_MAX)
+    return {
+      ok: false,
+      message: `Please keep your message under ${INTRO_MAX} characters.`,
+    };
+
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user)
+    return {
+      ok: false,
+      message: "Your session has expired. Please sign in again.",
+    };
+  if (recipientId === user.id)
+    return { ok: false, message: "Something went wrong. Please try again." };
+
+  // Recipient address — via the reveal RPC so the consent model is identical to
+  // the WhatsApp CTA. The address is consumed here, never sent to the client.
+  const { data, error } = await supabase.rpc("get_revealed_contact", {
+    target: recipientId,
+  });
+  if (error)
+    return { ok: false, message: "Could not send your email. Please try again." };
+  const row = (Array.isArray(data) ? data[0] : data) as
+    | { email?: string | null }
+    | undefined;
+  const recipientEmail = row?.email || null;
+  if (!recipientEmail)
+    return {
+      ok: false,
+      message:
+        "This member hasn't added an email yet. Try WhatsApp or in-app Connect.",
+    };
+
+  // Sender identity for the "from a fellow Nagar" line + reply-to. Own row, so
+  // RLS SELECT-own covers it.
+  const { data: me } = await supabase
+    .from("members")
+    .select("full_name, email")
+    .eq("id", user.id)
+    .maybeSingle();
+  const senderEmail = (me?.email as string | null) || null;
+
+  const { subject, html } = memberIntroEmail(
+    (me?.full_name as string | null) ?? null,
+    trimmed || null,
+    Boolean(senderEmail),
+  );
+  const sent = await sendEmail({
+    to: recipientEmail,
+    subject,
+    html,
+    ...(senderEmail ? { replyTo: senderEmail } : {}),
+  });
+  if (!sent.ok)
+    return {
+      ok: false,
+      message: "Couldn't send your email just now. Please try again shortly.",
+    };
+
+  return {
+    ok: true,
+    message: senderEmail
+      ? "Email sent — they can reply to you directly."
+      : "Email sent.",
+  };
 }
 
 export type RevealState = {

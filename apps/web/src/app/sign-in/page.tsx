@@ -88,8 +88,9 @@ export default function SignInPage() {
       setError(verifyError.message);
       return;
     }
+    // replace() to a new route already does a fresh server render with the new
+    // session cookie; a second refresh() just adds a round-trip and a flash.
     router.replace("/");
-    router.refresh();
   }
 
   return (

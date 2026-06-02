@@ -37,6 +37,12 @@ export default async function AdminLayout({
           </p>
           <nav className="mt-2 flex gap-4 text-sm">
             <Link
+              href="/admin/members"
+              className="font-medium text-brand-primary hover:underline"
+            >
+              Onboarding
+            </Link>
+            <Link
               href="/admin/verifications"
               className="font-medium text-brand-primary hover:underline"
             >

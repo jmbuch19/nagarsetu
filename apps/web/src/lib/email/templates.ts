@@ -140,6 +140,39 @@ export function connectionApprovedEmail(): {
   };
 }
 
+// Member-to-member intro — sent when a member uses the directory "Email" CTA
+// to reach another member. Unlike the connection-request email (names omitted,
+// pure in-app pointer), this one DOES name the sender and carries their message,
+// because the sender is initiating direct contact and wants a reply. The send
+// action sets reply_to to the sender's own email so the recipient can reply
+// straight back, outside the app. Sender name + message are escaped.
+export function memberIntroEmail(
+  senderName: string | null,
+  message: string | null,
+  canReplyByEmail: boolean,
+): { subject: string; html: string } {
+  const who = senderName ? esc(senderName) : "A fellow Nagar";
+  return {
+    subject: senderName
+      ? `${who} reached out to you on Jay Hatkesh`
+      : "A fellow Nagar reached out on Jay Hatkesh",
+    html: layout(
+      para("Hello,") +
+        para(
+          `<strong>${who}</strong> found you in the Jay Hatkesh directory and would like to connect.`,
+        ) +
+        (message
+          ? `<p style="margin:0 0 14px;font-size:15px;line-height:1.6;white-space:pre-wrap;border-left:3px solid #DCE6DD;padding-left:12px;color:${INK};">${esc(message)}</p>`
+          : "") +
+        para(
+          canReplyByEmail
+            ? `Just <strong>reply to this email</strong> to reach them directly.`
+            : `Open <a href="${APP_URL}/connections" style="color:${TEAL};">Your connections</a> or the <a href="${APP_URL}/directory" style="color:${TEAL};">directory</a> to reach them back.`,
+        ),
+    ),
+  };
+}
+
 // Warm welcome — a personal note from the (anonymous) founder. જય હાટકેશ opens
 // and closes it; conveys why a self-funded, no-profit community portal matters
 // and why each member's joining strengthens the whole circle.
