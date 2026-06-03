@@ -5,6 +5,13 @@
 // Best-effort by design: a failed/again-unconfigured send NEVER breaks the
 // calling action — email is a notification, not the critical path. If
 // RESEND_API_KEY isn't set yet, this no-ops with a server log.
+//
+// Reply-to: defaults to the public contact inbox (info@) so a member who hits
+// "reply" on a transactional email (welcome, receipt) reaches a real person
+// instead of the unmonitored no-reply@ sender. Callers can override — e.g. the
+// contact form sets reply-to to the submitter.
+
+import { contact } from "@nagarsetu/shared";
 
 const RESEND_ENDPOINT = "https://api.resend.com/emails";
 
@@ -21,6 +28,7 @@ export async function sendEmail({
 }): Promise<{ ok: boolean }> {
   const apiKey = process.env.RESEND_API_KEY;
   const from = process.env.EMAIL_FROM ?? "Jay Hatkesh <no-reply@jayhatkesh.in>";
+  const replyToAddress = replyTo ?? contact.email;
 
   if (!apiKey) {
     console.warn("[email] RESEND_API_KEY not set — skipping send to", to);
@@ -40,7 +48,7 @@ export async function sendEmail({
         to,
         subject,
         html,
-        ...(replyTo ? { reply_to: replyTo } : {}),
+        reply_to: replyToAddress,
       }),
     });
     if (!res.ok) {
