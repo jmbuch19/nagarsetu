@@ -4,12 +4,12 @@
 // Instructions URL" during app setup, and it backs the DPDP erasure right.
 // Public (no auth) so Meta reviewers + members can read it.
 //
-// Contact address is the shared `contact.email` (dedicated project inbox).
+// Contact address is the shared `contact.legal` inbox (DPDP / data-deletion).
 
 import Link from "next/link";
 import { contact, identity } from "@nagarsetu/shared";
 
-const CONTACT_EMAIL = contact.email;
+const CONTACT_EMAIL = contact.legal;
 
 export const metadata = {
   title: "Data & Account Deletion — Jay Hatkesh",

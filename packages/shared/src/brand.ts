@@ -35,9 +35,13 @@ export const salutation = {
   gu: "જય હાટકેશ",
 } as const;
 
-// Project contact / grievance address. Dedicated project inbox (not a personal
-// address). Resend sends from the verified jayhatkesh.in domain; this Gmail is
-// the receiving + reply-to + public contact address.
+// Project contact addresses — Google Workspace inboxes on the verified
+// jayhatkesh.in domain (not personal addresses). Resend sends from the same
+// domain (no-reply@); these are the receiving + public contact addresses.
+//   • email → general public contact + contact-form recipient
+//   • legal → privacy questions, DPDP grievance, data-deletion requests
+// (admin@jayhatkesh.in exists for internal ops; not surfaced publicly.)
 export const contact = {
-  email: "jayhatkesh.in@gmail.com",
+  email: "info@jayhatkesh.in",
+  legal: "legal@jayhatkesh.in",
 } as const;

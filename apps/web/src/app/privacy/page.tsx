@@ -242,10 +242,10 @@ export default function PrivacyPage() {
           <p className="mt-2 text-sm leading-relaxed">
             For privacy questions or data-deletion requests, contact us at{" "}
             <a
-              href={`mailto:${contact.email}`}
+              href={`mailto:${contact.legal}`}
               className="text-brand-primary underline"
             >
-              {contact.email}
+              {contact.legal}
             </a>
             .
           </p>
