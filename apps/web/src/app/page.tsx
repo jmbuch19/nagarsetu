@@ -26,6 +26,7 @@ import { createClient } from "@/lib/supabase/server";
 import { SignedInHome } from "./signed-in-home";
 import { ActiveDrivesBanner } from "./active-drives";
 import { CommunityRail } from "./community-rail";
+import { LandingHeader } from "./landing-header";
 
 const BELONGING_LINE = "The digital home of the Nagar samaj — worldwide.";
 
@@ -137,6 +138,7 @@ export default async function Home({
         />
       ) : (
         <>
+          <LandingHeader />
           {/* ── Guest marketing landing (the four locked jobs) ── */}
 
       {/* HERO — job #1: signal belonging. Gujarati title co-equal with
