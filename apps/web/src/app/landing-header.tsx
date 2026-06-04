@@ -1,7 +1,10 @@
 // Slim top header for the guest marketing landing. Brand left; About Us +
-// Donate CTAs right. Guests have no MemberNav (that renders only for signed-in
+// Support CTAs right. Guests have no MemberNav (that renders only for signed-in
 // members), so this gives the landing a real header carrying the two public
 // CTAs. Static — no client JS needed.
+//
+// "Support" (not "Donate"): until the portal has formal 80G registration,
+// contributions are income, not tax-deductible donations. See /support.
 
 import Link from "next/link";
 import { identity } from "@nagarsetu/shared";
@@ -24,10 +27,10 @@ export function LandingHeader() {
             About Us
           </Link>
           <Link
-            href="/donate"
+            href="/support"
             className="rounded-lg bg-brand-accent px-4 py-1.5 text-sm font-medium text-white shadow-sm transition hover:opacity-90"
           >
-            Donate
+            Support
           </Link>
         </nav>
       </div>
