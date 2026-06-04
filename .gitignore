@@ -12,6 +12,11 @@
 *.mobileprovision
 google-services.json
 GoogleService-Info.plist
+# Downloaded credential/key exports (e.g. Razorpay key CSV) — store these in a
+# password manager + Vercel env, never in the repo folder.
+rzp-key*.csv
+*-keys.csv
+*secret*.csv
 
 # ── Dependencies ──────────────────────────────────────────────
 node_modules/
