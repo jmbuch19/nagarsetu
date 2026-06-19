@@ -130,13 +130,12 @@ export function WelcomeForm({ firstName }: { firstName: string | null }) {
             <p className="rounded-lg border border-brand-gold/40 bg-brand-surface/40 px-3 py-3 text-sm text-brand-text">
               {notice}
             </p>
-            <button
-              type="button"
-              onClick={() => router.replace("/profile")}
-              className="w-full rounded-lg bg-brand-primary px-4 py-2.5 text-base font-medium text-white transition hover:bg-brand-primary-dark"
+            <Link
+              href="/profile"
+              className="block w-full rounded-lg bg-brand-primary px-4 py-2.5 text-center text-base font-medium text-white transition hover:bg-brand-primary-dark"
             >
               Continue to your profile
-            </button>
+            </Link>
           </div>
         ) : (
           <>
