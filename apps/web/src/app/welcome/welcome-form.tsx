@@ -1,28 +1,17 @@
 "use client";
 
-// ⚠ TEMPORARY (test-phase) email onboarding — bridge until WhatsApp OTP is live.
-// 2-step flow: enter email + phone + consent → Supabase emails a 6-digit code →
-// type the code in the SAME tab → signed in. The code path deliberately
-// sidesteps the in-app-browser problem (Gmail/WhatsApp webviews drop cookies
-// when the user later opens their real browser). The magic-link in the email
-// still works for users who tap it — /auth/callback handles that path.
-//
-// Welcome email + the auth bootstrap (phone + consent) work identically on
-// both paths. Remove at WABA cutover (switch back to /sign-in phone OTP).
+// Completion form for Google sign-ups. Terms acceptance is REQUIRED; the
+// WhatsApp number is requested but skippable (leave blank → added later in
+// /profile). Mirrors the consent UI on /join so the two paths feel identical.
 
 import { useState, type FormEvent } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { buildConsentPayload, identity } from "@nagarsetu/shared";
-import { createClient } from "@/lib/supabase/client";
-import { isDisposableEmail } from "@/lib/email/disposable";
-import { GoogleSignInButton } from "@/components/google-sign-in-button";
-import { welcomeAfterSignIn } from "./actions";
+import { identity, salutation } from "@nagarsetu/shared";
+import { completeOnboarding } from "./actions";
 
-// Diaspora-aware list — India first, then alphabetical by country name. The
-// "Other" sentinel lets a member type their own dial code so we never reject
-// a Nagar from an uncovered country. (Surname-style: be permissive, not
-// restrictive — Hard Constraint #5 ethos.)
+// Same diaspora-aware list as /join. India first, then alphabetical; "Other"
+// lets a member from an uncovered country type their own dial code.
 const COUNTRY_CODES = [
   { dial: "+91", label: "India (+91)" },
   { dial: "+61", label: "Australia (+61)" },
@@ -57,97 +46,67 @@ const OTHER_DIAL = "__other__";
 const inputClass =
   "w-full rounded-lg border border-brand-border bg-white px-3 py-2 text-base focus:border-brand-primary focus:outline-none focus:ring-1 focus:ring-brand-primary";
 
-type Step = "email" | "code";
-
-export default function JoinPage() {
+export function WelcomeForm({ firstName }: { firstName: string | null }) {
   const router = useRouter();
-  const supabase = createClient();
-  const [step, setStep] = useState<Step>("email");
-  const [email, setEmail] = useState("");
   const [dialCode, setDialCode] = useState<string>("+91");
   const [customDial, setCustomDial] = useState("");
   const [national, setNational] = useState("");
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [optInWhatsapp, setOptInWhatsapp] = useState(true);
   const [optInEmail, setOptInEmail] = useState(true);
-  const [code, setCode] = useState("");
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
 
-  const effectiveDial =
-    dialCode === OTHER_DIAL ? customDial.trim() : dialCode;
-  const fullPhone = `${effectiveDial}${national.replace(/\D/g, "")}`;
+  const effectiveDial = dialCode === OTHER_DIAL ? customDial.trim() : dialCode;
+  const digits = national.replace(/\D/g, "");
 
-  async function handleSend(e: FormEvent) {
+  async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     setError(null);
+
     if (!termsAccepted) {
       setError("Please accept the Terms to continue.");
       return;
     }
-    if (dialCode === OTHER_DIAL && !/^\+\d{1,4}$/.test(customDial.trim())) {
-      setError("Please enter your country code starting with + (e.g. +65).");
+
+    // Phone is optional. Only validate when the member started entering one.
+    let phone: string | null = null;
+    if (digits.length > 0) {
+      if (dialCode === OTHER_DIAL && !/^\+\d{1,4}$/.test(customDial.trim())) {
+        setError("Please enter your country code starting with + (e.g. +65).");
+        return;
+      }
+      if (digits.length < 6) {
+        setError("Please enter a valid WhatsApp number, or leave it blank to add later.");
+        return;
+      }
+      phone = `${effectiveDial}${digits}`;
+    }
+
+    setPending(true);
+    const result = await completeOnboarding({
+      phone,
+      optInWhatsapp,
+      optInEmail,
+      termsAccepted,
+    });
+    setPending(false);
+
+    if (!result.ok) {
+      setError(result.message ?? "Something went wrong — please try again.");
       return;
     }
-    if (isDisposableEmail(email.trim())) {
-      setError(
-        "Please use a regular email address — temporary / disposable inboxes aren't accepted.",
+
+    if (result.phoneTaken) {
+      // Accept-don't-reject: account is saved; the number just couldn't be
+      // attached. Let them continue and add a different one later.
+      setNotice(
+        "That WhatsApp number is already registered to another member. We've saved your account — you can add a different number anytime from Your profile.",
       );
       return;
     }
-    if (national.replace(/\D/g, "").length < 6) {
-      setError("Please enter a valid WhatsApp number.");
-      return;
-    }
-    setPending(true);
-    const { error: otpError } = await supabase.auth.signInWithOtp({
-      email: email.trim(),
-      options: {
-        // emailRedirectTo kept so the magic link (in the same email) still
-        // works for users who tap it. The code path is the recommended one.
-        emailRedirectTo: `${window.location.origin}/auth/callback`,
-        shouldCreateUser: true,
-        // phone + consent persist to the auth bootstrap trigger (0030).
-        data: {
-          ...buildConsentPayload(optInWhatsapp, optInEmail),
-          phone: fullPhone,
-        },
-      },
-    });
-    setPending(false);
-    if (otpError) {
-      setError(otpError.message);
-      return;
-    }
-    setStep("code");
-  }
 
-  async function handleVerify(e: FormEvent) {
-    e.preventDefault();
-    setError(null);
-    if (code.replace(/\D/g, "").length < 4) {
-      setError("Please enter the code from your email.");
-      return;
-    }
-    setPending(true);
-    const { error: vErr } = await supabase.auth.verifyOtp({
-      email: email.trim(),
-      token: code.trim(),
-      type: "email",
-    });
-    if (vErr) {
-      setPending(false);
-      setError(vErr.message);
-      return;
-    }
-    // Fire-and-forget welcome — don't make the user wait. Awaiting this added
-    // ~5s of "Verifying…" stall because welcomeIfNeeded does 2 DB roundtrips
-    // + a Resend send. The action runs in the background; Resend is typically
-    // sub-second so the email goes out before the navigation cancels it.
-    void welcomeAfterSignIn().catch(() => {});
-    // replace() to a different route already triggers a fresh server render
-    // with the new session cookie — an extra refresh() here just adds a second
-    // round-trip and a flash. The /profile loading.tsx covers perceived latency.
     router.replace("/profile");
   }
 
@@ -159,48 +118,38 @@ export default function JoinPage() {
             {identity.tagline.en}
           </p>
           <h1 className="mt-1 text-3xl font-light text-brand-primary">
-            Join the community
+            {firstName ? `Welcome, ${firstName}` : "One last step"}
           </h1>
           <p className="mt-1 text-lg font-light text-brand-primary-dark" lang="gu">
             {identity.name.gu}
           </p>
         </header>
 
-        {step === "email" ? (
+        {notice ? (
+          <div className="space-y-4">
+            <p className="rounded-lg border border-brand-gold/40 bg-brand-surface/40 px-3 py-3 text-sm text-brand-text">
+              {notice}
+            </p>
+            <button
+              type="button"
+              onClick={() => router.replace("/profile")}
+              className="w-full rounded-lg bg-brand-primary px-4 py-2.5 text-base font-medium text-white transition hover:bg-brand-primary-dark"
+            >
+              Continue to your profile
+            </button>
+          </div>
+        ) : (
           <>
-            <GoogleSignInButton />
-
-            <div className="my-5 flex items-center gap-3 text-xs text-brand-text-muted">
-              <span className="h-px flex-1 bg-brand-border" />
-              or join with email
-              <span className="h-px flex-1 bg-brand-border" />
-            </div>
-
             <p className="mb-5 rounded-lg border border-brand-gold/40 bg-brand-surface/40 px-3 py-2 text-xs text-brand-text-muted">
-              We&apos;re finalising WhatsApp sign-in — for now, join with your
-              email. We use your WhatsApp number so fellow Nagars can reach you.
+              Just one quick step. Add your WhatsApp number so fellow Nagars can
+              reach you — or skip it and add it later.
             </p>
 
-            <form onSubmit={handleSend} className="space-y-5">
-              <div>
-                <label htmlFor="email" className="mb-1 block text-sm font-medium text-brand-text">
-                  Email
-                </label>
-                <input
-                  id="email"
-                  type="email"
-                  autoComplete="email"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className={inputClass}
-                  placeholder="you@example.com"
-                />
-              </div>
-
+            <form onSubmit={handleSubmit} className="space-y-5">
               <div>
                 <label htmlFor="phone" className="mb-1 block text-sm font-medium text-brand-text">
-                  WhatsApp number
+                  WhatsApp number{" "}
+                  <span className="font-normal text-brand-text-muted">(optional)</span>
                 </label>
                 <div className="flex gap-2">
                   <select
@@ -225,7 +174,6 @@ export default function JoinPage() {
                     placeholder="9876543210"
                     value={national}
                     onChange={(e) => setNational(e.target.value)}
-                    required
                   />
                 </div>
                 {dialCode === OTHER_DIAL ? (
@@ -240,8 +188,8 @@ export default function JoinPage() {
                   />
                 ) : null}
                 <p className="mt-1 text-xs text-brand-text-muted">
-                  Used for connecting with fellow Nagars. Never shown publicly —
-                  revealed only when you connect.
+                  Never shown publicly — revealed only when you connect with a
+                  fellow Nagar.
                 </p>
               </div>
 
@@ -304,68 +252,14 @@ export default function JoinPage() {
                 disabled={pending || !termsAccepted}
                 className="w-full rounded-lg bg-brand-primary px-4 py-2.5 text-base font-medium text-white transition hover:bg-brand-primary-dark disabled:cursor-not-allowed disabled:opacity-50"
               >
-                {pending ? "Sending…" : "Send sign-in code"}
+                {pending ? "Saving…" : "Enter the community"}
               </button>
+
+              <p className="text-center text-xs text-brand-text-muted" lang="gu">
+                {salutation.gu}
+              </p>
             </form>
           </>
-        ) : (
-          <form onSubmit={handleVerify} className="space-y-5">
-            <p className="text-sm text-brand-text-muted">
-              We sent a sign-in code to{" "}
-              <span className="font-medium text-brand-text">{email}</span>. Open
-              your email, copy the code, and type it here.
-            </p>
-
-            <div>
-              <label htmlFor="code" className="mb-1 block text-sm font-medium text-brand-text">
-                Sign-in code
-              </label>
-              <input
-                id="code"
-                type="text"
-                inputMode="numeric"
-                autoComplete="one-time-code"
-                maxLength={10}
-                className="w-full rounded-lg border border-brand-border bg-white px-3 py-2 text-center text-2xl tracking-[0.4em] focus:border-brand-primary focus:outline-none focus:ring-1 focus:ring-brand-primary"
-                placeholder="Paste your code"
-                value={code}
-                onChange={(e) => setCode(e.target.value)}
-                required
-                autoFocus
-              />
-            </div>
-
-            {error ? (
-              <p className="text-sm text-brand-danger" role="alert">
-                {error}
-              </p>
-            ) : null}
-
-            <button
-              type="submit"
-              disabled={pending}
-              className="w-full rounded-lg bg-brand-primary px-4 py-2.5 text-base font-medium text-white transition hover:bg-brand-primary-dark disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              {pending ? "Verifying…" : "Verify & sign in"}
-            </button>
-
-            <div className="flex items-center justify-between text-xs text-brand-text-muted">
-              <button
-                type="button"
-                onClick={() => {
-                  setStep("email");
-                  setCode("");
-                  setError(null);
-                }}
-                className="text-brand-primary underline"
-              >
-                Change email
-              </button>
-              <span>
-                The same email also has a sign-in link — either works.
-              </span>
-            </div>
-          </form>
         )}
       </div>
     </main>

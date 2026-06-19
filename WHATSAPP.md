@@ -101,6 +101,30 @@ This is the one Meta rule the OTP flow can't ship without.
    sometimes 1–3 days.
 7. Once status = Approved, the sign-in flow works end-to-end.
 
+> **⚠️ Reality check (discovered 2026-06-18) — the Authentication category is gated, and we don't qualify yet.**
+> Creating an Authentication template currently fails with error code 10 /
+> subcode **2388185** ("does not have permission to create message template")
+> in **both** the WhatsApp Manager UI and the Graph API. This is **not** an
+> account bug, propagation lag, or something Meta support will switch on —
+> and it is **not** fixable by "warming up" with a Marketing template (no
+> such category-unlock exists). It is an **Authentication-category-specific
+> gate**. Proven by: a Utility template (`welcome_jayhatkesh`) was created
+> successfully on this same WABA while the auth template stayed blocked.
+> Meta requires **two** things to create Auth templates: (1) business
+> verification — ✅ done; AND (2) **demonstrated messaging activity (~1000
+> business-initiated dialogs/day per number)** — ❌ we've sent 0. The exact
+> threshold is a third-party (BSP) figure and may vary, but the shape —
+> verification + sustained real volume — matches the symptom exactly.
+>
+> **Consequence:** WhatsApp native OTP is effectively **unreachable at pilot
+> scale**. **Google Auth is the primary sign-in path** until one of these
+> lands: (a) route OTP through a Meta-partner BSP (Gupshup/Twilio/MSG91) —
+> partner status + aggregated volume can bypass the self-serve gate; (b) use
+> a plain SMS-OTP provider for phone verification (no WhatsApp volume gate);
+> or (c) grow Utility-message volume until the Authentication category
+> unlocks. The Utility templates below are the vehicle for (c) — every
+> approved one and every real send is a brick toward that activity history.
+
 After Phase C, populate:
 
 | Env var                          | Value                          |
@@ -155,20 +179,96 @@ same numbers until the Meta hook is live.
 
 ---
 
-## Future templates (placeholders — code lands with the relevant slice)
+## Ready-to-submit Utility & Marketing templates
 
-These will be added to this doc as utility/marketing templates get
-submitted to Meta. Template names are pinned here so the env-var naming
-stays consistent.
+Drafted 2026-06-18, grounded in real product events (see code paths in the
+mapping table). Submit via **WhatsApp Manager → Create template** (the route
+that works for us today). Names use the `nagarsetu_` prefix to match
+`nagarsetu_otp`. Language = **English** (`en`); the Gujarati salutation
+`જય હાટકેશ` in an English-language body is allowed — content can be any
+script. If a template bounces, the salutation is the first thing to drop.
 
-| Slot                              | Template name (planned)        | Category   |
-|-----------------------------------|--------------------------------|------------|
-| Lead "I'm interested" — to seller | `nagarsetu_lead_seller`        | Utility    |
-| Lead "I'm interested" — to buyer  | `nagarsetu_lead_buyer`         | Utility    |
-| Listing pre-expiry reminder       | `nagarsetu_listing_expiring`   | Utility    |
-| Fortnightly community digest      | `nagarsetu_digest_fortnightly` | Marketing  |
+**Category rule that drives all of this:** *Utility* = a notification tied to
+the **recipient's own** action/account (their listing got a lead, their
+payment cleared, their listing is expiring). A **broadcast the recipient
+didn't trigger** (e.g. "blast all members about new listings") is
+**Marketing** — submitting it as Utility gets it rejected, and Marketing
+needs explicit opt-in + an opt-out line. India Marketing templates are **not**
+paused (only +1/US numbers are). **Both** categories count as business-initiated
+dialogs toward the Auth-category activity gate (see Phase C callout).
 
-Each ships with its own slice + this table gets updated.
+### Code-event mapping
+
+| Template name             | Category  | Fires when…                                        | Code path                                                |
+|---------------------------|-----------|----------------------------------------------------|----------------------------------------------------------|
+| `nagarsetu_lead_seller`   | Utility   | a member taps **"I'm interested"** on your listing | `apps/web/src/app/feed/actions.ts` (interest) → leads    |
+| `nagarsetu_fee_receipt`   | Utility   | listing fee (Razorpay) is captured                 | listing-fee verify (AGENDA §4) + `listings/listing-form` |
+| `nagarsetu_listing_live`  | Utility   | a listing transitions to `active`                  | `apps/web/src/app/listings/*`                            |
+| `nagarsetu_listing_expiring` | Utility | a listing nears `expired` (cron pre-expiry)        | Vercel Cron / pg_cron pre-expiry job                     |
+| `nagarsetu_connect_request`  | Utility | someone requests to connect with you               | connections flow → `/connections`                        |
+| `nagarsetu_connect_approved` | Utility | your connection request is approved                | connections flow → `/connections`                        |
+| `nagarsetu_digest_fortnightly` | Marketing | fortnightly community digest (opt-in only)    | scheduler (AGENDA §4a)                                   |
+
+Each template: Body + Footer + optional URL Button. `{{n}}` are variables;
+Meta requires a **sample value** per variable at submit time (given below).
+No empty/optional variables — Meta rejects blanks.
+
+### 1. `nagarsetu_lead_seller` — Utility
+- **Body:** `જય હાટકેશ {{1}}! A fellow Nagar is interested in your listing "{{2}}". Open Your leads to see who, and continue the conversation.`
+- **Footer:** `Jay Hatkesh · a connector for the Nagar samaj`
+- **Button:** Visit website → `View leads` → `https://www.jayhatkesh.in/listings/leads`
+- **Samples:** `{{1}}=Jaydeep` · `{{2}}=Room in Maninagar`
+
+### 2. `nagarsetu_fee_receipt` — Utility (strongest approval odds: a receipt)
+- **Body:** `જય હાટકેશ {{1}}! We've received your listing fee of ₹{{2}}. Your offer "{{3}}" is now active until {{4}}. Payment reference: {{5}}.`
+- **Footer:** `Jay Hatkesh · jayhatkesh.in`
+- **Samples:** `{{1}}=Jaydeep` · `{{2}}=199` · `{{3}}=Tally consulting` · `{{4}}=18 Jul 2026` · `{{5}}=pay_Qk29fA1bC`
+
+### 3. `nagarsetu_listing_live` — Utility
+- **Body:** `જય હાટકેશ {{1}}! Your listing "{{2}}" is now live in the community feed. When a fellow Nagar is interested, you'll see them in Your leads.`
+- **Footer:** `Jay Hatkesh · jayhatkesh.in`
+- **Button:** Visit website → `My listings` → `https://www.jayhatkesh.in/listings`
+- **Samples:** `{{1}}=Jaydeep` · `{{2}}=Maruti Ertiga for hire`
+
+### 4. `nagarsetu_listing_expiring` — Utility
+- **Body:** `જય હાટકેશ {{1}}! Your listing "{{2}}" lapses on {{3}}. Renew it from Your listings to stay visible to the community.`
+- **Footer:** `Jay Hatkesh · jayhatkesh.in`
+- **Button:** Visit website → `Renew listing` → `https://www.jayhatkesh.in/listings`
+- **Samples:** `{{1}}=Jaydeep` · `{{2}}=PG near GLS` · `{{3}}=25 Jun 2026`
+
+### 5. `nagarsetu_connect_request` — Utility
+- **Body:** `જય હાટકેશ {{1}}! A fellow Nagar would like to connect with you on Jay Hatkesh. Open Your connections to approve and share contact.`
+- **Footer:** `Jay Hatkesh · jayhatkesh.in`
+- **Button:** Visit website → `View connections` → `https://www.jayhatkesh.in/connections`
+- **Samples:** `{{1}}=Jaydeep`
+
+### 6. `nagarsetu_connect_approved` — Utility
+- **Body:** `જય હાટકેશ {{1}}! Your connection request was approved. Open Your connections to reach them on WhatsApp or email.`
+- **Footer:** `Jay Hatkesh · jayhatkesh.in`
+- **Button:** Visit website → `View connections` → `https://www.jayhatkesh.in/connections`
+- **Samples:** `{{1}}=Jaydeep`
+
+### 7. `nagarsetu_digest_fortnightly` — **Marketing** (opt-in only)
+*This is the right home for the "promote new listings to members" blast — it is Marketing, not Utility.*
+- **Body:** `જય હાટકેશ {{1}}! New this fortnight on Jay Hatkesh — {{2}} new offers, {{3}} fellow Nagars asking for help, and {{4}} new matrimony profiles. Open the feed to find, offer, and connect.`
+- **Footer:** `Jay Hatkesh · reply STOP to opt out`
+- **Button:** Visit website → `Open the feed` → `https://www.jayhatkesh.in/feed`
+- **Samples:** `{{1}}=Jaydeep` · `{{2}}=7` · `{{3}}=2` · `{{4}}=3`
+- **Guardrails:** only to members who opted into WhatsApp updates; honour STOP.
+
+### Held back (do NOT file as Utility)
+- **Blood/emergency/help-drive blasts** — broadcasting to all members is
+  Marketing/Announcement (not recipient-triggered) and our own plan gates
+  drive notifications behind opt-in. Draft as a Marketing template
+  (`nagarsetu_drive_alert`) only when the opt-in exists.
+- **Welcome message** — Meta often bumps a warm welcome to Marketing; the
+  Resend welcome email already covers this. Skip on WhatsApp until the
+  account is healthier. (`welcome_jayhatkesh` exists as the Utility
+  diagnostic that proved the 2388185 block is auth-only — not for sending.)
+
+**Submit order:** start with **#1, #2, #3** — cleanest Utility approvals and
+the most useful once interest/payment flows wire to WhatsApp. Keep
+`EMAILS.md` (WhatsApp parity) in sync as these get approved.
 
 ---
 

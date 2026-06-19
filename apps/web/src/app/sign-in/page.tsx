@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { buildConsentPayload, identity, salutation } from "@nagarsetu/shared";
 import { createClient } from "@/lib/supabase/client";
+import { GoogleSignInButton } from "@/components/google-sign-in-button";
 
 // Country codes the community spans most. India default; UK / US / UAE / Kenya
 // / Japan cover the diaspora hubs called out in MEMORY (Tokyo welcome, Utah
@@ -107,6 +108,14 @@ export default function SignInPage() {
             {identity.name.gu}
           </p>
         </header>
+
+        <GoogleSignInButton />
+
+        <div className="my-5 flex items-center gap-3 text-xs text-brand-text-muted">
+          <span className="h-px flex-1 bg-brand-border" />
+          or
+          <span className="h-px flex-1 bg-brand-border" />
+        </div>
 
         {/* Test-phase escape hatch: WhatsApp OTP isn't live yet, so anyone who
             joined by email (or was redirected here after a session lapse) must
